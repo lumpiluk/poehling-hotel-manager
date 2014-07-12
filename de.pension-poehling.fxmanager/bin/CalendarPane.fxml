@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+
+<BorderPane prefHeight="373.0" prefWidth="492.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <center>
+      <Pane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER" />
+   </center>
+   <top>
+      <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <items>
+            <Button mnemonicParsing="false" scaleX="0.7" scaleY="0.7" text="&lt;" />
+            <Label alignment="CENTER" prefWidth="80.0" text="January" />
+            <Button mnemonicParsing="false" scaleX="0.7" scaleY="0.7" text="&gt;" />
+            <Separator orientation="VERTICAL">
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <padding>
+                  <Insets left="20.0" right="20.0" />
+               </padding>
+            </Separator>
+            <Button mnemonicParsing="false" scaleX="0.7" scaleY="0.7" text="&lt;" />
+            <Label alignment="CENTER" prefWidth="50.0" text="2014" />
+            <Button mnemonicParsing="false" scaleX="0.7" scaleY="0.7" text="&gt;" />
+         </items>
+      </ToolBar>
+   </top>
+   <bottom>
+      <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <items>
+          <Button mnemonicParsing="false" text="Neuer Auftrag" />
+        </items>
+      </ToolBar>
+   </bottom>
+</BorderPane>

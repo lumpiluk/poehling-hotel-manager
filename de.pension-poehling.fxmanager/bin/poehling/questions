@@ -1,0 +1,163 @@
+-- Describe RECHNUNG
+CREATE TABLE 'Rechnung' (
+	'Rechung' INTEGER, -- mehrere Einträge mit gleicher Nummer
+	'Auftrag' INTEGER, -- ...gleiche Nummer
+	'Adress_Nr' INTEGER, -- ...gleiche Nummer, Unterschied nur bei Zimmer etc. => warum doppelt wenn schon in Auftragspositionen?
+	'RGDatum' DATETIME, -- was heißt das? Unterschied zu Datum?
+	'Datum' DATETIME, 
+	'Unsere_Zeichen' TEXT, -- überflüssig? In DB immer konstant MST oder MSt
+	'Intern' TEXT, -- ( interner Kommentartext?)
+	'ABversendetam' DATETIME, 
+	'Auftragswert_Netto' TEXT, -- (ignoriere das "TEXT". Wird später "REAL"-Wert. In SQLite sowieso nicht so wichtig.)
+	'Auftragswert_Brutto' TEXT, 
+	'Auftragswert_MWSt' TEXT, -- überflüssig? (siehe unten)
+	'Auftragstext_Kopf' TEXT, 
+	'Auftragstext_Fuß' TEXT, 
+	'ZANr' INTEGER, -- was ist das? ZahlungsArt-Nummer?
+	'Zahlung am' DATETIME, 
+	'Position' INTEGER, 
+	'Zimmer' INTEGER, 
+	'Zimmerzusage' INTEGER, -- (BOOLEAN (wahr/falsch-Werte) wird in SQLite als INTEGER gespeichert)
+	'Personenzahl' INTEGER, -- in Tabelle Adressen gibt es Spalten Personen und Kinder. Wert soll nicht übernommen werden, oder?
+	'Anreise' DATETIME, 
+	'Abreise' DATETIME, 
+	'Tage_gebucht' INTEGER, -- hier speichern oder besser dynamisch aus An-/Abreise berechnen?
+	'Beschreibung' TEXT, 
+	'Einzelpreis_Netto' TEXT, 
+	'Einzelpreis_Brutto' TEXT, 
+	'Einzelpreis_MWst' TEXT, -- überflüssig? MWSt und MWSt_Satz z.B. lassen sich aus Brutto- und Netto-Wert berechnen...
+	'Summe_Pos_Brutto' TEXT, 
+	'Summe_Auftrag_Brutto' TEXT, 
+	'Einzelpreis_MWSt_Satz' INTEGER, -- überflüssig? Siehe oben
+	'Summe_Pos_Netto' TEXT, 
+	'Summe_Pos_MWSt' TEXT)
+
+-- Describe STATISTIK
+CREATE TABLE 'Statistik' ( 	-- ist in Datenbank nur für kurzen Zeitraum gespeichert. Warum?
+							-- Zusammenhang zu Rechnung, Auftrag?
+	'Auftrag' INTEGER, 
+	'Position' INTEGER, 
+	'Zimmer' INTEGER, 
+	'Zimmerzusage' INTEGER, 
+	'Personenzahl' INTEGER, 
+	'Anreise' DATETIME, 
+	'Abreise' DATETIME, 
+	'Tage_gebucht' INTEGER, 
+	'Übernachtung' INTEGER, 
+	'Beschreibung' TEXT, 
+	'Einzelpreis_Netto' TEXT, 
+	'Einzelpreis_Brutto' TEXT, 
+	'Einzelpreis_MWSt' TEXT, 
+	'Summe_Pos_Brutto' TEXT, 
+	'Summe_Auftrag_brutto' TEXT, 
+	'berechnet' INTEGER, -- (BOOLEAN)
+	'Kurtaxe' INTEGER, -- (BOOLEAN)
+	'Abreise statis' DATETIME, 
+	'Anreise statis' DATETIME)
+	
+-- Describe KURTAXE
+CREATE TABLE 'Kurtaxe' (
+	'Rechung' INTEGER, 
+	'Auftrag' INTEGER, -- Wenn ein Auftrag eine Sammlung von Rechnungen verwaltet, warum dann auch ein Verweis auf eine Rechnung? Oder andersherum: Wenn jede Rechnung ihren Auftrag kennt, warum ein Verweis auf Auftrag?
+	'Adress_Nr' INTEGER, 
+	'RGDatum' DATETIME, -- Warum wieder ähnliche Spalten wie in Rechnung, wenn oben Verweise auf Rechnung oder Auftrag existieren?
+	'Datum' DATETIME, -- ~
+	'Unsere_Zeichen' TEXT, -- ~
+	'Intern' TEXT, -- ~
+	'ABversendetam' DATETIME, -- ~
+	'Auftragswert_Netto' TEXT, -- ~
+	'Auftragswert_Brutto' TEXT, -- ~
+	'Auftragswert_MWSt' TEXT, -- ~
+	'Auftragstext_Kopf' TEXT, -- ~
+	'Auftragstext_Fuß' TEXT, -- ~
+	'ZANr' INTEGER, -- ~
+	'bezahlt am' DATETIME, -- ~
+	'Position' INTEGER, -- ~
+	'Zimmer' INTEGER, -- ~
+	'Zimmerzusage' INTEGER, -- ~
+	'Personenzahl' INTEGER, -- ~
+	'Anreise' DATETIME, -- ~
+	'Abreise' DATETIME, -- ~
+	'Tage_gebucht' INTEGER, -- ~
+	'Beschreibung' TEXT, -- ~
+	'Einzelpreis_Netto' TEXT, -- ~
+	'Einzelpreis_Brutto' TEXT, -- ~
+	'Einzelpreis_MWst' TEXT, -- ~
+	'Summe_Pos_Brutto' TEXT, -- ~
+	'Summe_Auftrag_Brutto' TEXT, -- ~
+	'Kostenart' INTEGER, -- ~
+	'Mehrwertsteuersatz' INTEGER, -- in DB immer entweder 0 oder null
+	'Kurbeitrag' TEXT, 
+	'Haus-Nr' INTEGER, -- was/wofür ist das? In DB konstant 140000 oder null
+	'Angebot' TEXT, 
+	'Karten Nr' TEXT, 
+	'Anrede' TEXT, -- warum, wenn schon ein Verweis auf Adresse existiert?
+	'Name' TEXT, -- ~
+	'Titel' TEXT, -- ~
+	'Vorname' TEXT, -- ~
+	'Straße' TEXT, -- ~
+	'PLZ' TEXT, -- ~
+	'Ort' TEXT, -- ~
+	'Land' TEXT, -- ~
+	'Geb-Dat' DATETIME, -- ~
+	'ÜB' TEXT, -- 21) in DB sind die letzten 3 Spalten komplett leer => Überflüssig?
+	'Ermäßigung' TEXT, 
+	'Kommentare' TEXT)
+
+-- Describe KASSENANFANGSBESTAND -- noch benötigt?
+CREATE TABLE 'Kassenanfangsbestand' ('Nummer' INTEGER, 'Anfangsbestand' TEXT, 'Datum' DATETIME)
+
+-- Describe ANSPRECHPARTNER -- noch benötigt? Integration in Adressen?
+CREATE TABLE 'Ansprechpartner' ('Partner_Nr' INTEGER, 'Adress_Nr' INTEGER, 'Anrede' TEXT, 'Name' TEXT, 'Vorname' TEXT, 'Telefondurchwahl' TEXT, 'Faxdurchwahl' TEXT, 'Funktion' TEXT, 'Bemerkung' TEXT, 'GebDat1' DATETIME)
+
+-- Describe ANSPRECHPARTNER FUNKTION -- wozu?? Tabelle hat 929 Zeilen, aber nur 3 valide Einträge (Stand Juli 2012)
+CREATE TABLE 'Ansprechpartner Funktion' ('Funktion_Nr' INTEGER, 'Funktion' TEXT)
+
+-- Describe ARTIKEL_KATEGORIE -- noch benötigt?
+CREATE TABLE 'Artikel_Kategorie' ('Artikel_Kategorie_Nr' INTEGER, 'Artikel_Kategorie' TEXT)
+
+-- Describe AUFTRAG -- noch benötigt? geht nur bis 2002
+CREATE TABLE 'AUFTRAG' ( ... 42 Spalten ... )
+
+-- Describe AUFTRAGSKOPF
+CREATE TABLE 'Auftragskopf' (
+	'Auftrag' INTEGER, 
+	'Adress_Nr' INTEGER, 
+	'Datum' DATETIME, -- Erstelldatum oder kann Datum vom Benutzer frei gewählt werden?
+	'Unsere_Zeichen' TEXT, -- siehe oben
+	'Intern' TEXT, 
+	'ABversendetam' DATETIME, -- was ist das?
+	'Auftragswert_Netto' TEXT, 
+	'Auftragswert_Brutto' TEXT, 
+	'Auftragswert_MWSt' TEXT, -- überflüssig? (siehe oben, Rechnung)
+	'Auftragstext_Kopf' TEXT, 
+	'Auftragstext_Fuß' TEXT, 
+	'Gutschein' INTEGER) -- (BOOLEAN)
+	
+-- Describe AUFTRAGSPOSITIONEN
+CREATE TABLE 'Auftragspositionen' (
+	'Auftrag' INTEGER,
+	'Position' INTEGER, 
+	'Zimmer' INTEGER, 
+	'Zimmerzusage' INTEGER, 
+	'Personenzahl' INTEGER, 
+	'Anreise' DATETIME, 
+	'Abreise' DATETIME, 
+	'Tage_gebucht' INTEGER, 
+	'Übernachtung' INTEGER, 
+	'Beschreibung' TEXT, 
+	'Einzelpreis_Netto' TEXT, 
+	'Einzelpreis_Brutto' TEXT, 
+	'Einzelpreis_MWSt' TEXT, 
+	'Summe_Pos_Brutto' TEXT, 
+	'Summe_Auftrag_brutto' TEXT, 
+	'berechnet' INTEGER,
+	'Kurtaxe' INTEGER, 
+	'Kurbeitrag' TEXT, 
+	'Haus-Nr' INTEGER, 
+	'Angebot' TEXT, 
+	'Kommentare' TEXT, 
+	'MWSt_Satz' INTEGER, 
+	'Summe_Pos_Netto' TEXT, 
+	'Summe_Pos_MWSt' TEXT)
+
