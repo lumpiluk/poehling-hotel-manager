@@ -25,6 +25,8 @@ release.properties
 */.classpath
 */.project
 */.settings
+*/.metadata
 */bin
 .project
 .settings
+.metadata
