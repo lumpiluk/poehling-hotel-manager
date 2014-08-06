@@ -17,6 +17,28 @@ import java.util.NoSuchElementException;
  */
 public class Room extends HotelData {
 
+	private final String SQL_TABLE_NAME = "addresses";
+
+	private final String SQL_CREATE = "CREATE TABLE IF NOT EXISTS "
+			+ SQL_TABLE_NAME + " (index INTEGER PRIMARY KEY AUTOINCREMENT, "
+			+ "name TEXT NOT NULL, "
+			+ "type TEXT NOT NULL, "
+			+ "floor INTEGER NOT NULL, "
+			+ "lift INTEGER NOT NULL, " // boolean
+			+ "balcony INTEGER NOT NULL, " // boolean
+			+ "area REAL, "
+			+ "phone TEXT, "
+			+ "view TEXT)";
+	
+	private final String SQL_INSERT = "INSERT INTO " + SQL_TABLE_NAME
+			+ " (name, type, floor, lift, balcony, area, phone, view) "
+			+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+	
+	private final String SQL_UPDATE = "UPDATE " + SQL_TABLE_NAME + " SET "
+			+ "name = ?, type = ?, floor = ?, lift = ?, balcony = ?, area = ?, "
+			+ "phone = ?, view = ?"
+			+ "WHERE index = ?";
+	
 	/**
 	 * Columns in this object's table.
 	 * Use getCol(Cols col) to get the respective column name.
@@ -157,10 +179,6 @@ public class Room extends HotelData {
 		else { throw new NoSuchElementException(); }
 	}
 	
-	protected String getTableName() {
-		return "rooms";
-	}
-	
 	/**
 	 * @return the room's ID in the DB
 	 */
@@ -292,25 +310,22 @@ public class Room extends HotelData {
 	public boolean fromDbAtIndex(long id)
 			throws NoSuchElementException, SQLException {
 		boolean success = false;
-		String query = "SELECT * FROM " + getTableName() + " WHERE "
-				+ getCol(Cols.INDEX) + " = ?";
+		String query = "SELECT * FROM " + SQL_TABLE_NAME + " WHERE index = ?";
 		try (PreparedStatement stmt = con.prepareStatement(query)){
 			stmt.setLong(1, id);
 			try (ResultSet rs = stmt.executeQuery()) {
 				if (!rs.first()) {
 					throw new NoSuchElementException();
 				}
-				this.id = rs.getInt(getCol(Cols.INDEX));
-				this.setName(rs.getString(getCol(Cols.NAME)));
-				this.setAccessibleByLift(rs.getBoolean(
-						getCol(Cols.LIFT)));
-				this.setArea(rs.getDouble(getCol(Cols.AREA)));
-				this.setBalcony(rs.getBoolean(getCol(Cols.BALCONY)));
-				this.setFloor(rs.getInt(getCol(Cols.FLOOR)));
-				this.setPhone(rs.getString(getCol(Cols.PHONE)));
-				this.setType(Type.byLetter(rs.getString(
-						getCol(Cols.TYPE))));
-				this.setView(rs.getString(getCol(Cols.VIEW)));
+				this.id = rs.getInt("index");
+				this.setName(rs.getString("name"));
+				this.setAccessibleByLift(rs.getBoolean("lift"));
+				this.setArea(rs.getDouble("area"));
+				this.setBalcony(rs.getBoolean("balcony"));
+				this.setFloor(rs.getInt("floor"));
+				this.setPhone(rs.getString("phone"));
+				this.setType(Type.byLetter(rs.getString("type")));
+				this.setView(rs.getString("view"));
 				success = true;
 			}
 		}
@@ -321,20 +336,8 @@ public class Room extends HotelData {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void updateDb() throws SQLException {
-		StringBuilder sb = new StringBuilder();
-		sb.append("UPDATE " + getTableName() + " SET ");
-		sb.append(getCol(Cols.NAME) + " = ?,");
-		sb.append(getCol(Cols.TYPE) + " = ?,");
-		sb.append(getCol(Cols.FLOOR) + " = ?,");
-		sb.append(getCol(Cols.LIFT) + " = ?,");
-		sb.append(getCol(Cols.BALCONY) + " = ?,");
-		sb.append(getCol(Cols.AREA) + " = ?,");
-		sb.append(getCol(Cols.PHONE) + " = ?,");
-		sb.append(getCol(Cols.VIEW) + " = ?");	
-		sb.append(" WHERE " + getCol(Cols.INDEX) + "= ?");
-		
-		try (PreparedStatement ps = con.prepareStatement(sb.toString())) {
+	public void updateDb() throws SQLException {	
+		try (PreparedStatement ps = con.prepareStatement(SQL_UPDATE)) {
 			ps.setString(1, getName());
 			ps.setString(2, getType().getLetter());
 			ps.setInt(3, getFloor());
@@ -351,19 +354,7 @@ public class Room extends HotelData {
 	
 	@Override
 	public void insertIntoDb() throws SQLException {
-		StringBuilder sb = new StringBuilder();
-		sb.append("INSERT INTO " + getTableName() + " (");
-		sb.append(getCol(Cols.NAME) + ",");
-		sb.append(getCol(Cols.TYPE) + ",");
-		sb.append(getCol(Cols.FLOOR) + ",");
-		sb.append(getCol(Cols.LIFT) + ",");
-		sb.append(getCol(Cols.BALCONY) + ",");
-		sb.append(getCol(Cols.AREA) + ",");
-		sb.append(getCol(Cols.PHONE) + ",");
-		sb.append(getCol(Cols.VIEW));
-		sb.append(") VALUES (?,?,?,?,?,?,?,?)");
-		
-		try (PreparedStatement ps = con.prepareStatement(sb.toString(),
+		try (PreparedStatement ps = con.prepareStatement(SQL_INSERT,
 				Statement.RETURN_GENERATED_KEYS)) {
 			ps.setString(1, getName());
 			ps.setString(2, getType().getLetter());
@@ -384,20 +375,8 @@ public class Room extends HotelData {
 	 */
 	@Override
 	public void createTables() throws SQLException {
-		StringBuilder sb = new StringBuilder();
-		sb.append("CREATE TABLE IF NOT EXISTS " + getTableName() + " (");
-		sb.append(getCol(Cols.INDEX) + " INTEGER PRIMARY KEY AUTOINCREMENT, ");
-		sb.append(getCol(Cols.NAME) + " TEXT NOT NULL, ");
-		sb.append(getCol(Cols.TYPE) + " TEXT NOT NULL, ");
-		sb.append(getCol(Cols.FLOOR) + " INTEGER NOT NULL, ");
-		sb.append(getCol(Cols.LIFT) + " INTEGER NOT NULL, "); //0 or 1
-		sb.append(getCol(Cols.BALCONY) + " INTEGER NOT NULL, "); //0 or 1
-		sb.append(getCol(Cols.AREA) + " REAL, ");
-		sb.append(getCol(Cols.PHONE) + " TEXT, ");
-		sb.append(getCol(Cols.VIEW) + " TEXT");
-		sb.append(")"); 
 		try (Statement stmt = con.createStatement()) {
-			stmt.executeUpdate(sb.toString());
+			stmt.executeUpdate(SQL_CREATE);
 		}
 	}
 	

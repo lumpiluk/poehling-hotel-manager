@@ -17,20 +17,48 @@ import java.util.NoSuchElementException;
  */
 public class Address extends HotelData {
 
-	/**
-	 * Columns in this object's table.
-	 * Use getCol(Cols col) to get the respective column name.
-	 * @author lumpiluk
-	 *
-	 */
-	public static enum Cols {
-		INDEX, 
-		ADDRESSEE, // a Person index
-		ADDITION, STREET, SHORT_COUNTRY, //TODO: addition here or in person?
-		ZIP_CODE, TOWN, POSTBOX, POSTBOX_ZIP, POSTBOX_TOWN, STATE, PHONE,
-		CELLPHONE, FAX, EMAIL, WEBSITE, MEMO, DEBITOR, CREDITOR,
-		OTHER, DECEASED, CHILDREN, ADDED, CREATED, PRIVATE;
-	}
+	private final String SQL_TABLE_NAME = "addresses";
+	
+	private final String SQL_CREATE = "CREATE TABLE IF NOT EXISTS "
+			+ SQL_TABLE_NAME + " (index INTEGER PRIMARY KEY AUTOINCREMENT, "
+			+ "addressee INTEGER NOT NULL, "
+			+ "addition TEXT, " // TODO: here or Person?
+			+ "street TEXT, "
+			+ "short_country TEXT, "
+			+ "zip TEXT, "
+			+ "town TEXT, "
+			+ "postbox TEXT, "
+			+ "postbox_zip TEXT, "
+			+ "postbox_town TEXT, "
+			+ "state TEXT, "
+			+ "phone TEXT, "
+			+ "cellphone TEXT, "
+			+ "fax TEXT, "
+			+ "email TEXT, "
+			+ "website TEXT, "
+			+ "memo TEXT, "
+			+ "debitor INTEGER, " // (boolean)
+			+ "creditor INTEGER, "
+			+ "other INTEGER, "
+			+ "deceased INTEGER, " // TODO: here or Person?
+			+ "private INTEGER, "
+			+ "added TEXT, " // (date)
+			+ "created TEXT)";
+	
+	private final String SQL_INSERT = "INSERT INTO " + SQL_TABLE_NAME
+			+ " (addressee, addition, street, short_country, zip, town, " // TODO: when importing: with index-col!!!
+			+ "postbox, postbox_zip, postbox_town, state, phone, cellphone, "
+			+ "fax, email, website, memo, debitor, creditor, other, deceased, "
+			+ "children, added, created, private) "
+			+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	
+	private final String SQL_UPDATE = "UPDATE " + SQL_TABLE_NAME + " SET "
+			+ "addressee = ?, addition = ?, street = ?, short_country = ?, "
+			+ "zip = ?, town = ?, postbox = ?, postbox_zip = ?, "
+			+ "postbox_town = ?, state = ?, phone = ?, cellphone = ?, fax = ?, "
+			+ "email = ?, website = ?, memo = ?, debitor = ?, creditor = ?, "
+			+ "other = ?, deceased = ?, private = ?, added = ?, created = ? "
+			+ "WHERE index = ?";
 	
 	private long id;
 	
@@ -66,7 +94,7 @@ public class Address extends HotelData {
 	private Date created, added;
 
 	/**
-	 * 
+	 * @param con Database connection for this object
 	 */
 	public Address(final Connection con) {
 		super(con);
@@ -80,107 +108,9 @@ public class Address extends HotelData {
 		this.created = new java.sql.Date(0);
 		this.added = new java.sql.Date(0);
 	}
-	
-	/**
-	 * @param id
-	 * @param title
-	 * @param firstNames
-	 * @param surnames
-	 * @param addition
-	 * @param street
-	 * @param shortCountry
-	 * @param zipCode
-	 * @param town
-	 * @param state
-	 * @param postbox
-	 * @param postboxZip
-	 * @param postboxTown
-	 * @param phone
-	 * @param fax
-	 * @param email
-	 * @param website
-	 * @param cellphone
-	 * @param debitor
-	 * @param creditor
-	 * @param other
-	 * @param deceased
-	 * @param privateAddress
-	 * @param created
-	 * @param added
-	 */
-	public Address(long id, Person addressee,
-			String addition, String street, String shortCountry,
-			String zipCode, String town, String state, String postbox,
-			String postboxZip, String postboxTown, String phone, String fax,
-			String email, String website, String cellphone, String memo,
-			boolean debitor, boolean creditor, boolean other,
-			boolean deceased, boolean privateAddress,
-			int people, int children, Date created, Date added,
-			final Connection con) {
-		super(con);
-		this.id = id;
-		this.addresseeId = addressee.getId();
-		this.addition = addition;
-		this.street = street;
-		this.shortCountry = shortCountry;
-		this.zipCode = zipCode;
-		this.town = town;
-		this.state = state;
-		this.postbox = postbox;
-		this.postboxZip = postboxZip;
-		this.postboxTown = postboxTown;
-		this.phone = phone;
-		this.fax = fax;
-		this.email = email;
-		this.website = website;
-		this.memo = memo;
-		this.cellphone = cellphone;
-		this.debitor = debitor;
-		this.creditor = creditor;
-		this.other = other;
-		this.deceased = deceased;
-		this.privateAddress = privateAddress;
-		this.created = created;
-		this.added = added;
-	}
 
 	protected String getTableName() {
 		return "addresses";
-	}
-	
-	/**
-	 * Used for dynamically binding database constants to each class so that
-	 * subclasses implementing a database import can override this method.
-	 * @param col
-	 * @return
-	 */
-	protected String getCol(Cols col) {
-		if (col == Cols.ADDED) { return "added"; }
-		else if (col == Cols.ADDITION) { return "addition"; }
-		else if (col == Cols.ADDRESSEE) { return "addressee"; }
-		else if (col == Cols.CELLPHONE) { return "cellphone"; }
-		else if (col == Cols.CHILDREN) { return "children"; }
-		else if (col == Cols.CREATED) { return "created"; }
-		else if (col == Cols.CREDITOR) { return "creditor"; }
-		else if (col == Cols.DEBITOR) { return "debitor"; }
-		else if (col == Cols.DECEASED) { return "deceased"; }
-		else if (col == Cols.EMAIL) { return "email"; }
-		else if (col == Cols.FAX) { return "fax"; }
-		else if (col == Cols.INDEX) { return "id"; }
-		else if (col == Cols.MEMO) { return "memo"; }
-		else if (col == Cols.OTHER) { return "other"; }
-		else if (col == Cols.PHONE) { return "phone"; }
-		else if (col == Cols.POSTBOX) { return "postbox"; }
-		else if (col == Cols.POSTBOX_TOWN) { return "postbox_town"; }
-		else if (col == Cols.POSTBOX_ZIP) { return "postbox_zip"; }
-		else if (col == Cols.PRIVATE) { return "private"; }
-		else if (col == Cols.SHORT_COUNTRY) { return "short_country"; }
-		else if (col == Cols.STATE) { return "state"; }
-		else if (col == Cols.STREET) { return "street"; }
-		else if (col == Cols.TOWN) { return "town"; }
-		else if (col == Cols.WEBSITE) { return "website"; }
-		else if (col == Cols.ZIP_CODE) { return "zip"; }
-		else { throw new NoSuchElementException(); }
 	}
 	
 	/**
@@ -537,38 +467,37 @@ public class Address extends HotelData {
 	public boolean fromDbAtIndex(long id)
 			throws NoSuchElementException, SQLException {
 		boolean success = false;
-		String query = "SELECT * FROM " + getTableName() + " WHERE "
-				+ getCol(Cols.INDEX) + " = ?";
+		String query = "SELECT * FROM " + getTableName() + " WHERE index = ?";
 		try (PreparedStatement stmt = con.prepareStatement(query)){
 			stmt.setLong(1, id);
 			try (ResultSet rs = stmt.executeQuery()) {
 				if (!rs.first()) {
 					throw new NoSuchElementException();
 				}
-				this.id = rs.getLong(getCol(Cols.INDEX));
-				this.setAddresseeId(rs.getLong(getCol(Cols.ADDRESSEE)));
-				this.setAddition(rs.getString(getCol(Cols.ADDITION)));
-				this.setStreet(rs.getString(getCol(Cols.STREET)));
-				this.setShortCountry(rs.getString(getCol(Cols.SHORT_COUNTRY)));
-				this.setZipCode(rs.getString(getCol(Cols.ZIP_CODE)));
-				this.setTown(rs.getString(getCol(Cols.TOWN)));
-				this.setState(rs.getString(getCol(Cols.STATE)));
-				this.setPostbox(rs.getString(getCol(Cols.POSTBOX)));
-				this.setPostboxZip(rs.getString(getCol(Cols.POSTBOX_ZIP)));
-				this.setPostboxTown(rs.getString(getCol(Cols.POSTBOX_TOWN)));
-				this.setPhone(rs.getString(getCol(Cols.PHONE)));
-				this.setFax(rs.getString(getCol(Cols.FAX)));
-				this.setEmail(rs.getString(getCol(Cols.EMAIL)));
-				this.setWebsite(rs.getString(getCol(Cols.WEBSITE)));
-				this.setCellphone(rs.getString(getCol(Cols.CELLPHONE)));
-				this.setMemo(rs.getString(getCol(Cols.MEMO)));
-				this.setDebitor(rs.getBoolean(getCol(Cols.DEBITOR)));
-				this.setCreditor(rs.getBoolean(getCol(Cols.CREDITOR)));
-				this.setOther(rs.getBoolean(getCol(Cols.OTHER)));
-				this.setDeceased(rs.getBoolean(getCol(Cols.DECEASED)));
-				this.setPrivateAddress(rs.getBoolean(getCol(Cols.PRIVATE)));
-				this.setCreated(rs.getDate(getCol(Cols.CREATED)));
-				this.setAdded(rs.getDate(getCol(Cols.ADDED)));
+				this.id = rs.getLong("index");
+				this.setAddresseeId(rs.getLong("addressee"));
+				this.setAddition(rs.getString("addition"));
+				this.setStreet(rs.getString("street"));
+				this.setShortCountry(rs.getString("short_country"));
+				this.setZipCode(rs.getString("zip"));
+				this.setTown(rs.getString("town"));
+				this.setState(rs.getString("state"));
+				this.setPostbox(rs.getString("postbox"));
+				this.setPostboxZip(rs.getString("postbox_zip"));
+				this.setPostboxTown(rs.getString("postbox_town"));
+				this.setPhone(rs.getString("phone"));
+				this.setFax(rs.getString("fax"));
+				this.setEmail(rs.getString("email"));
+				this.setWebsite(rs.getString("website"));
+				this.setCellphone(rs.getString("cellphone"));
+				this.setMemo(rs.getString("memo"));
+				this.setDebitor(rs.getBoolean("debitor"));
+				this.setCreditor(rs.getBoolean("creditor"));
+				this.setOther(rs.getBoolean("other"));
+				this.setDeceased(rs.getBoolean("deceased"));
+				this.setPrivateAddress(rs.getBoolean("private"));
+				this.setCreated(rs.getDate("created"));
+				this.setAdded(rs.getDate("added"));
 				//TODO: difference between created and added?
 				
 				success = true;
@@ -586,34 +515,7 @@ public class Address extends HotelData {
 		if (getAddresseeId() == 0)
 			throw new NullPointerException("Address needs an addressee!");
 		
-		StringBuilder sb = new StringBuilder();
-		sb.append("UPDATE " + getTableName() + " SET ");
-		sb.append(getCol(Cols.ADDRESSEE) + " = ?,");
-		sb.append(getCol(Cols.ADDITION) + " = ?,"); // TODO: here or Person?
-		sb.append(getCol(Cols.STREET) + " = ?,");
-		sb.append(getCol(Cols.SHORT_COUNTRY) + " = ?,");
-		sb.append(getCol(Cols.ZIP_CODE) + " = ?,");
-		sb.append(getCol(Cols.TOWN) + " = ?,");
-		sb.append(getCol(Cols.POSTBOX) + " = ?,");
-		sb.append(getCol(Cols.POSTBOX_ZIP) + " = ?,");
-		sb.append(getCol(Cols.POSTBOX_TOWN) + " = ?,");
-		sb.append(getCol(Cols.STATE) + " = ?,");
-		sb.append(getCol(Cols.PHONE) + " = ?,");
-		sb.append(getCol(Cols.CELLPHONE) + " = ?,");
-		sb.append(getCol(Cols.FAX) + " = ?,");
-		sb.append(getCol(Cols.EMAIL) + " = ?,");
-		sb.append(getCol(Cols.WEBSITE) + " = ?,");
-		sb.append(getCol(Cols.MEMO) + " = ?,");
-		sb.append(getCol(Cols.DEBITOR) + " = ?,"); // (boolean)
-		sb.append(getCol(Cols.CREDITOR) + " = ?,");
-		sb.append(getCol(Cols.OTHER) + " = ?,");
-		sb.append(getCol(Cols.DECEASED) + " = ?,"); // TODO: here or Person?
-		sb.append(getCol(Cols.PRIVATE) + " = ?,");
-		sb.append(getCol(Cols.ADDED) + " = ?,"); // (date)
-		sb.append(getCol(Cols.CREATED) + " = ?"); // TODO: difference?
-		sb.append(" WHERE " + getCol(Cols.INDEX) + " = ?");
-		
-		try (PreparedStatement stmt = con.prepareStatement(sb.toString())) {
+		try (PreparedStatement stmt = con.prepareStatement(SQL_UPDATE)) {
 			stmt.setLong(1, getAddresseeId());
 			stmt.setString(2, getAddition());
 			stmt.setString(3, getStreet());
@@ -645,34 +547,7 @@ public class Address extends HotelData {
 	
 	@Override
 	public void insertIntoDb() throws SQLException {
-		StringBuilder sb = new StringBuilder();
-		sb.append("INSERT INTO " + getTableName() + " (");
-		sb.append(getCol(Cols.ADDRESSEE) + ",");
-		sb.append(getCol(Cols.ADDITION) + ","); // TODO: here or Person?
-		sb.append(getCol(Cols.STREET) + ",");
-		sb.append(getCol(Cols.SHORT_COUNTRY) + ",");
-		sb.append(getCol(Cols.ZIP_CODE) + ",");
-		sb.append(getCol(Cols.TOWN) + ",");
-		sb.append(getCol(Cols.POSTBOX) + ",");
-		sb.append(getCol(Cols.POSTBOX_ZIP) + ",");
-		sb.append(getCol(Cols.POSTBOX_TOWN) + ",");
-		sb.append(getCol(Cols.STATE) + ",");
-		sb.append(getCol(Cols.PHONE) + ",");
-		sb.append(getCol(Cols.CELLPHONE) + ",");
-		sb.append(getCol(Cols.FAX) + ",");
-		sb.append(getCol(Cols.EMAIL) + ",");
-		sb.append(getCol(Cols.WEBSITE) + ",");
-		sb.append(getCol(Cols.MEMO) + ",");
-		sb.append(getCol(Cols.DEBITOR) + ","); // (boolean)
-		sb.append(getCol(Cols.CREDITOR) + ",");
-		sb.append(getCol(Cols.OTHER) + ",");
-		sb.append(getCol(Cols.DECEASED) + ","); // TODO: here or Person?
-		sb.append(getCol(Cols.PRIVATE) + ",");
-		sb.append(getCol(Cols.ADDED) + ","); // (date)
-		sb.append(getCol(Cols.CREATED)); // TODO: difference?
-		sb.append(") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"); // TODO: correct number of '?'?
-		
-		try (PreparedStatement stmt = con.prepareStatement(sb.toString(),
+		try (PreparedStatement stmt = con.prepareStatement(SQL_INSERT,
 				Statement.RETURN_GENERATED_KEYS)) {
 			stmt.setLong(1, getAddresseeId());
 			stmt.setString(2, getAddition());
@@ -709,36 +584,8 @@ public class Address extends HotelData {
 	 */
 	@Override
 	public void createTables() throws SQLException {
-		StringBuilder sb = new StringBuilder();
-		sb.append("CREATE TABLE IF NOT EXISTS " + getTableName() + " (");
-		sb.append(getCol(Cols.INDEX) + " INTEGER PRIMARY KEY AUTOINCREMENT, ");
-		sb.append(getCol(Cols.ADDRESSEE) + " INTEGER NOT NULL, ");
-		sb.append(getCol(Cols.ADDITION) + " TEXT, "); // TODO: here or Person?
-		sb.append(getCol(Cols.STREET) + " TEXT, ");
-		sb.append(getCol(Cols.SHORT_COUNTRY) + " TEXT, ");
-		sb.append(getCol(Cols.ZIP_CODE) + " TEXT, ");
-		sb.append(getCol(Cols.TOWN) + " TEXT, ");
-		sb.append(getCol(Cols.POSTBOX) + " TEXT, ");
-		sb.append(getCol(Cols.POSTBOX_ZIP) + " TEXT, ");
-		sb.append(getCol(Cols.POSTBOX_TOWN) + " TEXT, ");
-		sb.append(getCol(Cols.STATE) + " TEXT, ");
-		sb.append(getCol(Cols.PHONE) + " TEXT, ");
-		sb.append(getCol(Cols.CELLPHONE) + " TEXT, ");
-		sb.append(getCol(Cols.FAX) + " TEXT, ");
-		sb.append(getCol(Cols.EMAIL) + " TEXT, ");
-		sb.append(getCol(Cols.WEBSITE) + " TEXT, ");
-		sb.append(getCol(Cols.MEMO) + " TEXT, ");
-		sb.append(getCol(Cols.DEBITOR) + " INTEGER, "); // (boolean)
-		sb.append(getCol(Cols.CREDITOR) + " INTEGER, ");
-		sb.append(getCol(Cols.OTHER) + " INTEGER, ");
-		sb.append(getCol(Cols.DECEASED) + " INTEGER, "); // TODO: here or Person?
-		sb.append(getCol(Cols.PRIVATE) + " INTEGER, ");
-		sb.append(getCol(Cols.ADDED) + " TEXT, "); // (date)
-		sb.append(getCol(Cols.CREATED) + " TEXT"); // TODO: difference?
-		sb.append(")");
-		
 		try(Statement stmt = con.createStatement()) {
-			stmt.executeUpdate(sb.toString());
+			stmt.executeUpdate(SQL_CREATE);
 		}
 	}
 	

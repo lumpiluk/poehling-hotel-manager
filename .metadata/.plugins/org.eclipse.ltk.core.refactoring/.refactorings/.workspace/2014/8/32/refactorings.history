@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Delete resource &apos;de.pension-poehling.manager&apos;" deleteContents="true" description="Delete resource &apos;de.pension-poehling.manager&apos;" element1="/de.pension-poehling.manager" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1407065954228"/>
+</session>

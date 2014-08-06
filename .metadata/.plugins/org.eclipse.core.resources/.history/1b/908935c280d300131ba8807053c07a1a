@@ -1,0 +1,727 @@
+/**
+ * 
+ */
+package data;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Time;
+import java.util.ArrayList;
+import java.util.NoSuchElementException;
+
+/**
+ * @author lumpiluk
+ *
+ */
+public class Address extends HotelData {
+
+	/**
+	 * Columns in this object's table.
+	 * Use getCol(Cols col) to get the respective column name.
+	 * @author lumpiluk
+	 *
+	 */
+	public static enum Cols {
+		INDEX, TITLE, FIRST_NAMES, SURNAMES, ADDITION, STREET, SHORT_COUNTRY,
+		ZIP_CODE, TOWN, POSTBOX, POSTBOX_ZIP, POSTBOX_TOWN, STATE, PHONE,
+		CELLPHONE, FAX, EMAIL, WEBSITE, MEMO, FOOD_MEMO, DEBITOR, CREDITOR,
+		OTHER, XMAS_LETTER, DECEASED, PEOPLE, CHILDREN, ADDED, CREATED, PRIVATE;
+		//TODO: birthdays?
+	}
+	
+	private int id;
+	
+	private String title;
+	
+	private String firstNames;
+	
+	private String surnames;
+	
+	private String addition;
+	
+	private String street;
+	
+	private String shortCountry;
+	
+	private String zipCode;
+	
+	private String town;
+	
+	private String state;
+	
+	private String postbox, postboxZip, postboxTown;
+	
+	private String phone, fax, email, website, cellphone;
+	
+	private String memo, foodMemo;
+	
+	private boolean debitor, creditor, other, deceased, xmasLetter,
+		privateAddress;
+	
+	private int people, children;
+	
+	private Time created, added;
+	
+	private ArrayList<Time> birthdays = new ArrayList<Time>(1);
+
+	/**
+	 * 
+	 */
+	public Address(final Connection con) {
+		super(con);
+		this.id = 0;
+		this.title = "";
+		this.firstNames = "";
+		this.surnames = "";
+		this.addition = "";
+		this.street = "";
+		this.shortCountry = "";
+		this.zipCode = "";
+		this.town = "";
+		this.state = "";
+		this.postbox = "";
+		this.postboxZip = "";
+		this.postboxTown = "";
+		this.phone = "";
+		this.fax = "";
+		this.email = "";
+		this.website = "";
+		this.cellphone = "";
+		this.memo = "";
+		this.foodMemo = "";
+		this.debitor = false;
+		this.creditor = false;
+		this.other = false;
+		this.deceased = false;
+		this.xmasLetter = false;
+		this.privateAddress = false;
+		this.people = 1;
+		this.children = 0;
+		this.created = new java.sql.Time(0);
+		this.added = new java.sql.Time(0);
+	}
+	
+	/**
+	 * @param id
+	 * @param title
+	 * @param firstNames
+	 * @param surnames
+	 * @param addition
+	 * @param street
+	 * @param shortCountry
+	 * @param zipCode
+	 * @param town
+	 * @param state
+	 * @param postbox
+	 * @param postboxZip
+	 * @param postboxTown
+	 * @param phone
+	 * @param fax
+	 * @param email
+	 * @param website
+	 * @param cellphone
+	 * @param memo
+	 * @param foodMemo
+	 * @param debitor
+	 * @param creditor
+	 * @param other
+	 * @param deceased
+	 * @param xmasLetter
+	 * @param privateAddress
+	 * @param people
+	 * @param children
+	 * @param created
+	 * @param added
+	 * @param birthdays
+	 */
+	public Address(int id, String title, String firstNames, String surnames,
+			String addition, String street, String shortCountry,
+			String zipCode, String town, String state, String postbox,
+			String postboxZip, String postboxTown, String phone, String fax,
+			String email, String website, String cellphone, String memo,
+			String foodMemo, boolean debitor, boolean creditor, boolean other,
+			boolean deceased, boolean xmasLetter, boolean privateAddress,
+			int people, int children, Time created, Time added,
+			ArrayList<Time> birthdays, final Connection con) {
+		super(con);
+		this.id = id;
+		this.title = title;
+		this.firstNames = firstNames;
+		this.surnames = surnames;
+		this.addition = addition;
+		this.street = street;
+		this.shortCountry = shortCountry;
+		this.zipCode = zipCode;
+		this.town = town;
+		this.state = state;
+		this.postbox = postbox;
+		this.postboxZip = postboxZip;
+		this.postboxTown = postboxTown;
+		this.phone = phone;
+		this.fax = fax;
+		this.email = email;
+		this.website = website;
+		this.cellphone = cellphone;
+		this.memo = memo;
+		this.foodMemo = foodMemo;
+		this.debitor = debitor;
+		this.creditor = creditor;
+		this.other = other;
+		this.deceased = deceased;
+		this.xmasLetter = xmasLetter;
+		this.privateAddress = privateAddress;
+		this.people = people;
+		this.children = children;
+		this.created = created;
+		this.added = added;
+		this.birthdays = birthdays;
+	}
+
+	protected String getTableName() {
+		return "addresses";
+	}
+	
+	/**
+	 * Used for dynamically binding database constants to each class so that
+	 * subclasses implementing a database import can override this method.
+	 * @param col
+	 * @return
+	 */
+	protected String getCol(Cols col) {
+		if (col == Cols.ADDED) { return "added"; }
+		else if (col == Cols.ADDITION) { return "addition"; }
+		else if (col == Cols.CELLPHONE) { return "cellphone"; }
+		else if (col == Cols.CHILDREN) { return "children"; }
+		else if (col == Cols.CREATED) { return "created"; }
+		else if (col == Cols.CREDITOR) { return "creditor"; }
+		else if (col == Cols.DEBITOR) { return "debitor"; }
+		else if (col == Cols.DECEASED) { return "deceased"; }
+		else if (col == Cols.EMAIL) { return "email"; }
+		else if (col == Cols.FAX) { return "fax"; }
+		else if (col == Cols.FIRST_NAMES) { return "first_names"; }
+		else if (col == Cols.FOOD_MEMO) { return "food_memo"; }
+		else if (col == Cols.INDEX) { return "id"; }
+		else if (col == Cols.MEMO) { return "memo"; }
+		else if (col == Cols.OTHER) { return "other"; }
+		else if (col == Cols.PEOPLE) { return "people"; }
+		else if (col == Cols.PHONE) { return "phone"; }
+		else if (col == Cols.POSTBOX) { return "postbox"; }
+		else if (col == Cols.POSTBOX_TOWN) { return "postbox_town"; }
+		else if (col == Cols.POSTBOX_ZIP) { return "postbox_zip"; }
+		else if (col == Cols.PRIVATE) { return "private"; }
+		else if (col == Cols.SHORT_COUNTRY) { return "short_country"; }
+		else if (col == Cols.STATE) { return "state"; }
+		else if (col == Cols.STREET) { return "street"; }
+		else if (col == Cols.SURNAMES) { return "surnames"; }
+		else if (col == Cols.TITLE) { return "title"; }
+		else if (col == Cols.TOWN) { return "town"; }
+		else if (col == Cols.WEBSITE) { return "website"; }
+		else if (col == Cols.XMAS_LETTER) { return "letter"; }
+		else if (col == Cols.ZIP_CODE) { return "zip"; }
+		else { throw new NoSuchElementException(); }
+	}
+	
+	/**
+	 * @return the id
+	 */
+	public int getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	/**
+	 * @return the title
+	 */
+	public String getTitle() {
+		return title;
+	}
+
+	/**
+	 * @param title the title to set
+	 */
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	/**
+	 * @return the firstNames
+	 */
+	public String getFirstNames() {
+		return firstNames;
+	}
+
+	/**
+	 * @param firstNames the firstNames to set
+	 */
+	public void setFirstNames(String firstNames) {
+		this.firstNames = firstNames;
+	}
+
+	/**
+	 * @return the surnames
+	 */
+	public String getSurnames() {
+		return surnames;
+	}
+
+	/**
+	 * @param surnames the surnames to set
+	 */
+	public void setSurnames(String surnames) {
+		this.surnames = surnames;
+	}
+
+	/**
+	 * @return the addition
+	 */
+	public String getAddition() {
+		return addition;
+	}
+
+	/**
+	 * @param addition the addition to set
+	 */
+	public void setAddition(String addition) {
+		this.addition = addition;
+	}
+
+	/**
+	 * @return the street
+	 */
+	public String getStreet() {
+		return street;
+	}
+
+	/**
+	 * @param street the street to set
+	 */
+	public void setStreet(String street) {
+		this.street = street;
+	}
+
+	/**
+	 * @return the shortCountry
+	 */
+	public String getShortCountry() {
+		return shortCountry;
+	}
+
+	/**
+	 * @param shortCountry the shortCountry to set
+	 */
+	public void setShortCountry(String shortCountry) {
+		this.shortCountry = shortCountry;
+	}
+
+	/**
+	 * @return the zipCode
+	 */
+	public String getZipCode() {
+		return zipCode;
+	}
+
+	/**
+	 * @param zipCode the zipCode to set
+	 */
+	public void setZipCode(String zipCode) {
+		this.zipCode = zipCode;
+	}
+
+	/**
+	 * @return the town
+	 */
+	public String getTown() {
+		return town;
+	}
+
+	/**
+	 * @param town the town to set
+	 */
+	public void setTown(String town) {
+		this.town = town;
+	}
+
+	/**
+	 * @return the state
+	 */
+	public String getState() {
+		return state;
+	}
+
+	/**
+	 * @param state the state to set
+	 */
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	/**
+	 * @return the postbox
+	 */
+	public String getPostbox() {
+		return postbox;
+	}
+
+	/**
+	 * @param postbox the postbox to set
+	 */
+	public void setPostbox(String postbox) {
+		this.postbox = postbox;
+	}
+
+	/**
+	 * @return the postboxZip
+	 */
+	public String getPostboxZip() {
+		return postboxZip;
+	}
+
+	/**
+	 * @param postboxZip the postboxZip to set
+	 */
+	public void setPostboxZip(String postboxZip) {
+		this.postboxZip = postboxZip;
+	}
+
+	/**
+	 * @return the postboxTown
+	 */
+	public String getPostboxTown() {
+		return postboxTown;
+	}
+
+	/**
+	 * @param postboxTown the postboxTown to set
+	 */
+	public void setPostboxTown(String postboxTown) {
+		this.postboxTown = postboxTown;
+	}
+
+	/**
+	 * @return the phone
+	 */
+	public String getPhone() {
+		return phone;
+	}
+
+	/**
+	 * @param phone the phone to set
+	 */
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	/**
+	 * @return the fax
+	 */
+	public String getFax() {
+		return fax;
+	}
+
+	/**
+	 * @param fax the fax to set
+	 */
+	public void setFax(String fax) {
+		this.fax = fax;
+	}
+
+	/**
+	 * @return the email
+	 */
+	public String getEmail() {
+		return email;
+	}
+
+	/**
+	 * @param email the email to set
+	 */
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	/**
+	 * @return the website
+	 */
+	public String getWebsite() {
+		return website;
+	}
+
+	/**
+	 * @param website the website to set
+	 */
+	public void setWebsite(String website) {
+		this.website = website;
+	}
+
+	/**
+	 * @return the cellphone number
+	 */
+	public String getCellphone() {
+		return cellphone;
+	}
+
+	/**
+	 * @param cellphone cellphone number
+	 */
+	public void setCellphone(String cellphone) {
+		this.cellphone = cellphone;
+	}
+
+	/**
+	 * @return the memo
+	 */
+	public String getMemo() {
+		return memo;
+	}
+
+	/**
+	 * @param memo the memo to set
+	 */
+	public void setMemo(String memo) {
+		this.memo = memo;
+	}
+
+	/**
+	 * @return the foodMemo
+	 */
+	public String getFoodMemo() {
+		return foodMemo;
+	}
+
+	/**
+	 * @param foodMemo the foodMemo to set
+	 */
+	public void setFoodMemo(String foodMemo) {
+		this.foodMemo = foodMemo;
+	}
+
+	/**
+	 * @return the debitor
+	 */
+	public boolean isDebitor() {
+		return debitor;
+	}
+
+	/**
+	 * @param debitor the debitor to set
+	 */
+	public void setDebitor(boolean debitor) {
+		this.debitor = debitor;
+	}
+
+	/**
+	 * @return the creditor
+	 */
+	public boolean isCreditor() {
+		return creditor;
+	}
+
+	/**
+	 * @param creditor the creditor to set
+	 */
+	public void setCreditor(boolean creditor) {
+		this.creditor = creditor;
+	}
+
+	/**
+	 * @return the other
+	 */
+	public boolean isOther() {
+		return other;
+	}
+
+	/**
+	 * @param other the other to set
+	 */
+	public void setOther(boolean other) {
+		this.other = other;
+	}
+
+	/**
+	 * @return whether or not person is deceased
+	 */
+	public boolean isDeceased() {
+		return deceased;
+	}
+
+	/**
+	 * @param deceased the deceased to set
+	 */
+	public void setDeceased(boolean deceased) {
+		this.deceased = deceased;
+	}
+
+	/**
+	 * @return the xmasLetter
+	 */
+	public boolean getsXmasLetter() {
+		return xmasLetter;
+	}
+
+	/**
+	 * @param xmasLetter the xmasLetter to set
+	 */
+	public void setXmasLetter(boolean xmasLetter) {
+		this.xmasLetter = xmasLetter;
+	}
+
+	/**
+	 * @return the privateAddress
+	 */
+	public boolean isPrivateAddress() {
+		return privateAddress;
+	}
+
+	/**
+	 * @param privateAddress the privateAddress to set
+	 */
+	public void setPrivateAddress(boolean privateAddress) {
+		this.privateAddress = privateAddress;
+	}
+
+	/**
+	 * @return the people
+	 */
+	public int getPeople() {
+		return people;
+	}
+
+	/**
+	 * @param people the people to set
+	 */
+	public void setPeople(int people) {
+		this.people = people;
+	}
+
+	/**
+	 * @return the children
+	 */
+	public int getChildren() {
+		return children;
+	}
+
+	/**
+	 * @param children the children to set
+	 */
+	public void setChildren(int children) {
+		this.children = children;
+	}
+
+	/**
+	 * @return the created
+	 */
+	public Time getCreated() {
+		return created;
+	}
+
+	/**
+	 * @param created the created to set
+	 */
+	public void setCreated(Time created) {
+		this.created = created;
+	}
+
+	/**
+	 * @return the added
+	 */
+	public Time getAdded() {
+		return added;
+	}
+
+	/**
+	 * @param added the added to set
+	 */
+	public void setAdded(Time added) {
+		this.added = added;
+	}
+
+	/**
+	 * @return the birthdays
+	 */
+	public ArrayList<Time> getBirthdays() {
+		return birthdays; //TODO
+	}
+
+	/**
+	 * @param birthdays the birthdays to set
+	 */
+	public void setBirthdays(ArrayList<Time> birthdays) {
+		this.birthdays = birthdays;
+	}
+	
+	/**
+	 * @param bd
+	 */
+	public void addBirthday(Time bd) {
+		birthdays.add(bd); //TODO: list of Name objects with a birthday each!
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @throws SQLException
+	 */
+	@Override
+	public boolean fromDBatIndex(int id)
+			throws NoSuchElementException, SQLException {
+		boolean success = false; //TODO: adapt to this class
+		String query = "SELECT * FROM " + getTableName() + " WHERE "
+				+ getCol(Cols.INDEX) + " = ?";
+		try (PreparedStatement stmt = con.prepareStatement(query)){
+			stmt.setInt(1, id);
+			try (ResultSet rs = stmt.executeQuery()) {
+				if (!rs.first()) {
+					throw new NoSuchElementException();
+				}
+				this.id = rs.getInt(getCol(Cols.INDEX));
+				this.setTitle(rs.getString(getCol(Cols.TITLE)));
+				this.setFirstNames(rs.getString(getCol(Cols.FIRST_NAMES)));
+				this.setSurnames(rs.getString(getCol(Cols.SURNAMES)));
+				this.setAddition(rs.getString(getCol(Cols.ADDITION)));
+				this.setStreet(rs.getString(getCol(Cols.STREET)));
+				this.setShortCountry(rs.getString(getCol(Cols.SHORT_COUNTRY)));
+				this.setZipCode(rs.getString(getCol(Cols.ZIP_CODE)));
+				this.setTown(rs.getString(getCol(Cols.TOWN)));
+				this.setState(rs.getString(getCol(Cols.STATE)));
+				this.setPostbox(rs.getString(getCol(Cols.POSTBOX)));
+				this.setPostboxZip(rs.getString(getCol(Cols.POSTBOX_ZIP)));
+				this.setPostboxTown(rs.getString(getCol(Cols.POSTBOX_TOWN)));
+				this.setPhone(rs.getString(getCol(Cols.PHONE)));
+				this.setFax(rs.getString(getCol(Cols.FAX)));
+				this.setEmail(rs.getString(getCol(Cols.EMAIL)));
+				this.setWebsite(rs.getString(getCol(Cols.WEBSITE)));
+				this.setCellphone(rs.getString(getCol(Cols.CELLPHONE)));
+				this.setMemo(rs.getString(getCol(Cols.MEMO)));
+				this.setFoodMemo(rs.getString(getCol(Cols.FOOD_MEMO)));
+				this.setDebitor(rs.getBoolean(getCol(Cols.DEBITOR)));
+				this.setCreditor(rs.getBoolean(getCol(Cols.CREDITOR)));
+				this.setOther(rs.getBoolean(getCol(Cols.OTHER)));
+				this.setDeceased(rs.getBoolean(getCol(Cols.DECEASED)));
+				this.setXmasLetter(rs.getBoolean(getCol(Cols.XMAS_LETTER)));
+				this.setPrivateAddress(rs.getBoolean(getCol(Cols.PRIVATE)));
+				this.setPeople(rs.getInt(getCol(Cols.PEOPLE)));
+				this.setChildren(rs.getInt(getCol(Cols.CHILDREN)));
+				this.setCreated(rs.getTime(getCol(Cols.CREATED)));
+				this.setAdded(rs.getTime(getCol(Cols.ADDED)));
+				//TODO: difference between created and added?
+				
+				success = true;
+			}
+		}
+		return success;
+	}
+
+	@Override
+	public void updateDB() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+}
