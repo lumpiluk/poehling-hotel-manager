@@ -12,7 +12,7 @@
 hs_err_pid*
 
 # Eclipse files
-build
+#build
 *.iml
 **/**.iml
 *.ipr
