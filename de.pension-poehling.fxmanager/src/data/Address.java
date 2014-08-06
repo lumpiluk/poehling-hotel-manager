@@ -17,9 +17,9 @@ import java.util.NoSuchElementException;
  */
 public class Address extends HotelData {
 
-	private final String SQL_TABLE_NAME = "addresses";
+	private static final String SQL_TABLE_NAME = "addresses";
 	
-	private final String SQL_CREATE = "CREATE TABLE IF NOT EXISTS "
+	private static final String SQL_CREATE = "CREATE TABLE IF NOT EXISTS "
 			+ SQL_TABLE_NAME + " (index INTEGER PRIMARY KEY AUTOINCREMENT, "
 			+ "addressee INTEGER NOT NULL, "
 			+ "addition TEXT, " // TODO: here or Person?
@@ -45,20 +45,20 @@ public class Address extends HotelData {
 			+ "added TEXT, " // (date)
 			+ "created TEXT)";
 	
-	private final String SQL_INSERT = "INSERT INTO " + SQL_TABLE_NAME
+	private static final String SQL_INSERT = "INSERT INTO " + SQL_TABLE_NAME
 			+ " (addressee, addition, street, short_country, zip, town, " // TODO: when importing: with index-col!!!
 			+ "postbox, postbox_zip, postbox_town, state, phone, cellphone, "
 			+ "fax, email, website, memo, debitor, creditor, other, deceased, "
 			+ "children, added, created, private) "
 			+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	
-	private final String SQL_UPDATE = "UPDATE " + SQL_TABLE_NAME + " SET "
-			+ "addressee = ?, addition = ?, street = ?, short_country = ?, "
-			+ "zip = ?, town = ?, postbox = ?, postbox_zip = ?, "
-			+ "postbox_town = ?, state = ?, phone = ?, cellphone = ?, fax = ?, "
-			+ "email = ?, website = ?, memo = ?, debitor = ?, creditor = ?, "
-			+ "other = ?, deceased = ?, private = ?, added = ?, created = ? "
-			+ "WHERE index = ?";
+	private static final String SQL_UPDATE = "UPDATE " + SQL_TABLE_NAME
+			+ " SET addressee = ?, addition = ?, street = ?, "
+			+ "short_country = ?, zip = ?, town = ?, postbox = ?, "
+			+ "postbox_zip = ?, postbox_town = ?, state = ?, phone = ?, "
+			+ "cellphone = ?, fax = ?, email = ?, website = ?, memo = ?, "
+			+ "debitor = ?, creditor = ?, other = ?, deceased = ?, "
+			+ "private = ?, added = ?, created = ? WHERE index = ?";
 	
 	private long id;
 	

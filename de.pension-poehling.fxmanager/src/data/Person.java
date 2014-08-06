@@ -19,15 +19,25 @@ import java.util.NoSuchElementException;
  */
 public class Person extends HotelData {
 
-	/**
-	 * Columns in this object's table.
-	 * Use getCol(Cols col) to get the respective column name.
-	 * @author lumpiluk
-	 *
-	 */
-	protected static enum Cols {
-		INDEX, ADDRESS, TITLE, FIRST_NAMES, SURNAMES, BIRTHDAY, FOOD_MEMO;
-	}
+	private static final String SQL_TABLE_NAME = "people";
+
+	private static final String SQL_CREATE = "CREATE TABLE IF NOT EXISTS "
+			+ SQL_TABLE_NAME + " (index INTEGER PRIMARY KEY AUTOINCREMENT, "
+			+ "address INTEGER, "
+			+ "title TEXT, "
+			+ "first_names TEXT, "
+			+ "surnames TEXT NOT NULL, "
+			+ "birthday TEXT, "
+			+ "food_memo TEXT)";
+	
+	private static final String SQL_INSERT = "INSERT INTO " + SQL_TABLE_NAME
+			+  " (address, title, first_names, surnames, birthday, food_memo) "
+			+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+	
+	private static final String SQL_UPDATE = "UPDATE " + SQL_TABLE_NAME
+			+ " SET address = ?, title = ?, first_names = ?, surnames = ?, "
+			+ "birthday = ?, food_memo = ? "
+			+ "WHERE index = ?";
 	
 	private long id;
 	
@@ -48,27 +58,6 @@ public class Person extends HotelData {
 		super(con);
 		this.setId(0);
 		this.setAddressId(0);
-	}
-
-	/**
-	 * Used for dynamically binding database constants to each class so that
-	 * subclasses implementing a database import can override this method.
-	 * @param col
-	 * @return
-	 */
-	protected String getCol(final Cols col) {
-		if (col == Cols.INDEX) { return "id"; }
-		else if (col == Cols.ADDRESS) { return "address_id"; }
-		else if (col == Cols.TITLE) { return "title"; }
-		else if (col == Cols.FIRST_NAMES) { return "first_names"; }
-		else if (col == Cols.SURNAMES) { return "surnames"; }
-		else if (col == Cols.BIRTHDAY) { return "birthday"; }
-		else if (col == Cols.FOOD_MEMO) { return "food_memo"; }
-		else { throw new NoSuchElementException(); }
-	}
-	
-	protected String getTableName() {
-		return "people";
 	}
 	
 	/**
@@ -193,13 +182,13 @@ public class Person extends HotelData {
 	 */
 	private void prepareDataFromResultSet(final Person p, final ResultSet rs) 
 			throws SQLException {
-		p.setId(rs.getLong(getCol(Cols.INDEX))); // works although private :)
-		p.setAddressId(rs.getLong(getCol(Cols.ADDRESS))); // 0 if SQL NULL
-		p.setBirthday(rs.getDate(getCol(Cols.BIRTHDAY)));
-		p.setFirstNames(rs.getString(getCol(Cols.FIRST_NAMES)));
-		p.setFoodMemo(rs.getString(getCol(Cols.FOOD_MEMO)));
-		p.setSurnames(rs.getString(getCol(Cols.SURNAMES)));
-		p.setTitle(rs.getString(getCol(Cols.TITLE)));
+		p.setId(rs.getLong("index")); // works although private :)
+		p.setAddressId(rs.getLong("address")); // 0 if SQL NULL
+		p.setBirthday(rs.getDate("birthday"));
+		p.setFirstNames(rs.getString("first_names"));
+		p.setFoodMemo(rs.getString("food_memo"));
+		p.setSurnames(rs.getString("surnames"));
+		p.setTitle(rs.getString("title"));
 	}
 	
 	/**
@@ -209,8 +198,7 @@ public class Person extends HotelData {
 	public boolean fromDbAtIndex(final long d) throws NoSuchElementException,
 			SQLException {
 		boolean success = false;
-		String query = "SELECT * FROM " + getTableName() + " WHERE "
-				+ getCol(Cols.INDEX) + " = ?";
+		String query = "SELECT * FROM " + SQL_TABLE_NAME + " WHERE index = ?";
 		try (PreparedStatement stmt = con.prepareStatement(query)) {
 			stmt.setLong(1, this.getId());
 			try (ResultSet rs = stmt.executeQuery()) {
@@ -235,8 +223,7 @@ public class Person extends HotelData {
 		List<Person> resultList = new LinkedList<Person>();
 		if (!indices.isEmpty()) {
 			StringBuilder sql = new StringBuilder();
-			sql.append("SELECT * FROM " + getTableName() + " WHERE "
-					+ getCol(Cols.INDEX) + " IN (");
+			sql.append("SELECT * FROM " + SQL_TABLE_NAME + " WHERE index IN (");
 			for (@SuppressWarnings("unused") Long index : indices) {
 				sql.append("?,");
 			}
@@ -252,7 +239,7 @@ public class Person extends HotelData {
 				}
 				
 				ResultSet rs = stmt.executeQuery();
-				// rs auto-closes with stmt, not try-with-resources necessary
+				// rs auto-closes with stmt, no try-with-resources necessary
 				
 				while (rs.next()) {
 					Person p = new Person(con);
@@ -273,17 +260,7 @@ public class Person extends HotelData {
 	 */
 	@Override
 	public void updateDb() throws SQLException {
-		StringBuilder sb = new StringBuilder();
-		sb.append("UPDATE " + getTableName() + " SET ");
-		sb.append(getCol(Cols.ADDRESS) + " = ?,");
-		sb.append(getCol(Cols.TITLE) + " = ?,");
-		sb.append(getCol(Cols.FIRST_NAMES) + " = ?,");
-		sb.append(getCol(Cols.SURNAMES) + " = ?,");
-		sb.append(getCol(Cols.BIRTHDAY) + " = ?,");
-		sb.append(getCol(Cols.FOOD_MEMO) + " = ?");
-		sb.append(" WHERE " + getCol(Cols.INDEX) + " = ?");
-		
-		try (PreparedStatement stmt = con.prepareStatement(sb.toString())) {
+		try (PreparedStatement stmt = con.prepareStatement(SQL_UPDATE)) {
 			if (getAddressId() == 0) {
 				stmt.setNull(1, java.sql.Types.INTEGER);
 			} else {
@@ -301,18 +278,7 @@ public class Person extends HotelData {
 
 	@Override
 	public void insertIntoDb() throws SQLException {
-		StringBuilder sb = new StringBuilder();
-		sb.append("INSERT OR REPLACE INTO " + getTableName() + " (");
-		sb.append(getCol(Cols.INDEX) + ",");
-		sb.append(getCol(Cols.ADDRESS) + ",");
-		sb.append(getCol(Cols.TITLE) + ",");
-		sb.append(getCol(Cols.FIRST_NAMES) + ",");
-		sb.append(getCol(Cols.SURNAMES) + ",");
-		sb.append(getCol(Cols.BIRTHDAY) + ",");
-		sb.append(getCol(Cols.FOOD_MEMO));
-		sb.append(") VALUES (?,?,?,?,?,?,?)");
-		
-		try (PreparedStatement stmt = con.prepareStatement(sb.toString(),
+		try (PreparedStatement stmt = con.prepareStatement(SQL_INSERT,
 				Statement.RETURN_GENERATED_KEYS)) {
 			stmt.setLong(1, getId());
 			if (getAddressId() == 0) {
@@ -333,19 +299,8 @@ public class Person extends HotelData {
 
 	@Override
 	public void createTables() throws SQLException {
-		StringBuilder sb = new StringBuilder();
-		sb.append("CREATE TABLE IF NOT EXISTS " + getTableName() + " (");
-		sb.append(getCol(Cols.INDEX) + " INTEGER PRIMARY KEY AUTOINCREMENT, "); // (import how?) looked it up; just insert! http://www.sqlite.org/autoinc.html
-		sb.append(getCol(Cols.ADDRESS) + " INTEGER, ");
-		sb.append(getCol(Cols.TITLE) + " TEXT, ");
-		sb.append(getCol(Cols.FIRST_NAMES) + " TEXT, ");
-		sb.append(getCol(Cols.SURNAMES) + " TEXT NOT NULL, ");
-		sb.append(getCol(Cols.BIRTHDAY) + " TEXT"); //in PoehlingPerson use INTEGER!
-		sb.append(getCol(Cols.FOOD_MEMO) + " TEXT");
-		sb.append(")");
-		
 		try(Statement stmt = con.createStatement()) {
-			stmt.executeUpdate(sb.toString());
+			stmt.executeUpdate(SQL_CREATE);
 		}
 	}
 

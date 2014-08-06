@@ -17,9 +17,9 @@ import java.util.NoSuchElementException;
  */
 public class Room extends HotelData {
 
-	private final String SQL_TABLE_NAME = "addresses";
+	private static final String SQL_TABLE_NAME = "rooms";
 
-	private final String SQL_CREATE = "CREATE TABLE IF NOT EXISTS "
+	private static final String SQL_CREATE = "CREATE TABLE IF NOT EXISTS "
 			+ SQL_TABLE_NAME + " (index INTEGER PRIMARY KEY AUTOINCREMENT, "
 			+ "name TEXT NOT NULL, "
 			+ "type TEXT NOT NULL, "
@@ -30,24 +30,14 @@ public class Room extends HotelData {
 			+ "phone TEXT, "
 			+ "view TEXT)";
 	
-	private final String SQL_INSERT = "INSERT INTO " + SQL_TABLE_NAME
+	private static final String SQL_INSERT = "INSERT INTO " + SQL_TABLE_NAME
 			+ " (name, type, floor, lift, balcony, area, phone, view) "
 			+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 	
-	private final String SQL_UPDATE = "UPDATE " + SQL_TABLE_NAME + " SET "
-			+ "name = ?, type = ?, floor = ?, lift = ?, balcony = ?, area = ?, "
-			+ "phone = ?, view = ?"
+	private static final String SQL_UPDATE = "UPDATE " + SQL_TABLE_NAME
+			+ " SET name = ?, type = ?, floor = ?, lift = ?, balcony = ?, "
+			+ "area = ?, phone = ?, view = ?"
 			+ "WHERE index = ?";
-	
-	/**
-	 * Columns in this object's table.
-	 * Use getCol(Cols col) to get the respective column name.
-	 * @author lumpiluk
-	 *
-	 */
-	protected static enum Cols {
-		INDEX, NAME, LIFT, AREA, BALCONY, FLOOR, PHONE, TYPE, VIEW;
-	}
 	
 	public static enum Type {
 		SINGLE("E"),
@@ -158,25 +148,6 @@ public class Room extends HotelData {
 		this.setArea(area);
 		this.setPhone(phone);
 		this.setView(view);
-	}
-	
-	/**
-	 * Used for dynamically binding database constants to each class so that
-	 * subclasses implementing a database import can override this method.
-	 * @param col
-	 * @return
-	 */
-	protected String getCol(Cols col) {
-		if (col == Cols.AREA) { return "area"; }
-		else if (col == Cols.BALCONY) { return "balcony"; }
-		else if (col == Cols.FLOOR) { return "floor"; }
-		else if (col == Cols.INDEX) { return "id"; }
-		else if (col == Cols.LIFT) { return "lift"; }
-		else if (col == Cols.NAME) { return "name"; }
-		else if (col == Cols.PHONE) { return "phone"; }
-		else if (col == Cols.TYPE) { return "type"; }
-		else if (col == Cols.VIEW) { return "view"; }
-		else { throw new NoSuchElementException(); }
 	}
 	
 	/**
