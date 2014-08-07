@@ -28,12 +28,17 @@
 		<mkdir dir="project" />
 		<copy todir="project">
 			<fileset dir="/media/lumpiluk/Data/MyFiles/git/poehling-hotel-manager/de.pension-poehling.fxmanager">
-				<include name="localization/**" />
+				<include name="src/**" />
 			</fileset>
 		</copy>
 		<copy todir="project">
 			<fileset dir="/media/lumpiluk/Data/MyFiles/git/poehling-hotel-manager/de.pension-poehling.fxmanager">
 				<include name="ui/**" />
+			</fileset>
+		</copy>
+		<copy todir="project">
+			<fileset dir="/media/lumpiluk/Data/MyFiles/git/poehling-hotel-manager/de.pension-poehling.fxmanager">
+				<include name="localization/**" />
 			</fileset>
 		</copy>
 		<copy todir="project">
@@ -44,11 +49,6 @@
 		<copy todir="project">
 			<fileset dir="/media/lumpiluk/Data/MyFiles/git/poehling-hotel-manager/de.pension-poehling.fxmanager">
 				<include name="tests/**" />
-			</fileset>
-		</copy>
-		<copy todir="project">
-			<fileset dir="/media/lumpiluk/Data/MyFiles/git/poehling-hotel-manager/de.pension-poehling.fxmanager">
-				<include name="src/**" />
 			</fileset>
 		</copy>
 		

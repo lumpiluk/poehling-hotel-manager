@@ -21,39 +21,7 @@ public class PoehlingAddress extends Address {
 		super(con);
 	}
 	
-	protected final String getCol(Cols col) { //TODO: adapt!
-		if (col == Cols.ADDED) { return "added"; }
-		else if (col == Cols.ADDITION) { return "addition"; }
-		else if (col == Cols.CELLPHONE) { return "cellphone"; }
-		else if (col == Cols.CHILDREN) { return "children"; }
-		else if (col == Cols.CREATED) { return "created"; }
-		else if (col == Cols.CREDITOR) { return "creditor"; }
-		else if (col == Cols.DEBITOR) { return "debitor"; }
-		else if (col == Cols.DECEASED) { return "deceased"; }
-		else if (col == Cols.EMAIL) { return "email"; }
-		else if (col == Cols.FAX) { return "fax"; }
-		else if (col == Cols.FIRST_NAMES) { return "first_names"; }
-		else if (col == Cols.FOOD_MEMO) { return "food_memo"; }
-		else if (col == Cols.INDEX) { return "id"; }
-		else if (col == Cols.MEMO) { return "memo"; }
-		else if (col == Cols.OTHER) { return "other"; }
-		else if (col == Cols.PEOPLE) { return "people"; }
-		else if (col == Cols.PHONE) { return "phone"; }
-		else if (col == Cols.POSTBOX) { return "postbox"; }
-		else if (col == Cols.POSTBOX_TOWN) { return "postbox_town"; }
-		else if (col == Cols.POSTBOX_ZIP) { return "postbox_zip"; }
-		else if (col == Cols.PRIVATE) { return "private"; }
-		else if (col == Cols.SHORT_COUNTRY) { return "short_country"; }
-		else if (col == Cols.STATE) { return "state"; }
-		else if (col == Cols.STREET) { return "street"; }
-		else if (col == Cols.SURNAMES) { return "surnames"; }
-		else if (col == Cols.TITLE) { return "title"; }
-		else if (col == Cols.TOWN) { return "town"; }
-		else if (col == Cols.WEBSITE) { return "website"; }
-		else if (col == Cols.XMAS_LETTER) { return "letter"; }
-		else if (col == Cols.ZIP_CODE) { return "zip"; }
-		else { throw new NoSuchElementException(); }
-	}
+
 
 	/**
 	 * {@inheritDoc}
