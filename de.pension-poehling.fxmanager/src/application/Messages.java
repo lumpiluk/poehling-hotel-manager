@@ -1,5 +1,6 @@
 package application;
 
+import java.util.Calendar;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -19,6 +20,28 @@ public class Messages {
 	
 	public static ResourceBundle getBundle() {
 		return RESOURCE_BUNDLE;
+	}
+	
+	public static String getShortDayOfWeek(int dayOfWeek) 
+			throws IllegalArgumentException {
+		switch (dayOfWeek) {
+		case Calendar.MONDAY:
+			return getString("Weekdays.Monday.Short");
+		case Calendar.TUESDAY:
+			return getString("Weekdays.Tuesday.Short");
+		case Calendar.WEDNESDAY:
+			return getString("Weekdays.Wednesday.Short");
+		case Calendar.THURSDAY:
+			return getString("Weekdays.Thursday.Short");
+		case Calendar.FRIDAY:
+			return getString("Weekdays.Friday.Short");
+		case Calendar.SATURDAY:
+			return getString("Weekdays.Saturday.Short");
+		case Calendar.SUNDAY:
+			return getString("Weekdays.Sunday.Short");
+		default:
+			throw new IllegalArgumentException();			
+		}
 	}
 
 	public static String getString(String key) {
