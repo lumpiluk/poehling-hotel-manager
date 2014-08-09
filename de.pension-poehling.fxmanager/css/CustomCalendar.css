@@ -4,6 +4,35 @@
 	-col-width: 2.5em;
 }
 
+.custom-calendar .bg {
+	-fx-border-width: 0 1 1 0;
+	-fx-border-color: black rgb(80, 80, 80) rgb(170, 170, 170) black;
+}
+
+.custom-calendar .bg-weekday-sunday {
+	-fx-background-color: rgb(255, 240, 240);
+}
+
+.custom-calendar .bg-weekday-saturday {
+	-fx-background-color: rgb(255, 242, 242);
+}
+
+.custom-calendar .bg-row-header {
+	-fx-background-color: rgb(245, 250, 255);
+}
+
+.custom-calendar .bg-col-header {
+	-fx-background-color: rgb(225, 235, 250);
+}
+
+.custom-calendar .bg-odd-row {
+	/*-fx-background-color: rgb(245, 245, 255);*/
+}
+
+.custom-calendar .bg-even-row {
+	
+}
+
 .custom-calendar .calendar-marker {
 	-fx-background-color: 
 		linear-gradient(from 0% 0% to 0% 100%,
@@ -11,6 +40,9 @@
 			rgba(200, 230, 235, 0.9) 100%
 		);
 	-fx-background-radius: 0.3em;
+	-fx-border-radius: 0.3em;
+	-fx-border-color: black;
+	-fx-border-width: 1;
 }
 
 .custom-calendar .calendar-marker:hover {
@@ -26,10 +58,16 @@
 	-fx-text-alignment: center;
 }
 
-.custom-calendar .weekday-sunday {
+.custom-calendar .rows-header {
+	-fx-font-weight: bold;
+	-fx-text-alignment: left;
+	-fx-padding: .2em;
+}
+
+.custom-calendar .header-weekday-sunday {
 	-fx-text-fill: rgb(150, 0, 0);
 }
 
-.custom-calendar .weekday-saturday {
+.custom-calendar .header-weekday-saturday {
 	-fx-text-fill: rgb(120, 0, 0);
 }

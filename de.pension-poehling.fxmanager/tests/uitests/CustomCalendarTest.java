@@ -14,7 +14,7 @@ public class CustomCalendarTest extends Application {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		String[] rows = {"1","2","101", "102", "103", "114", "203","FeWo", "Appartement 1", "Appartement 2"};
+		String[] rows = {"1","2","3","4","5","6","7","8","9","10","11","101", "102", "103", "114", "203","FeWo", "Appartement 1", "Appartement 2"};
 		
 		CustomCalendar<String> root = new CustomCalendar<String>(
 				Arrays.asList(rows));
@@ -35,6 +35,7 @@ public class CustomCalendarTest extends Application {
 		scene.getStylesheets().add(getClass()
 				.getResource("/CustomCalendar.css").toExternalForm());
 		primaryStage.setScene(scene);
+		primaryStage.setTitle("CustomCalendar Component Test");
 		primaryStage.show();
 	}
 	

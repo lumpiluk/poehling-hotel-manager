@@ -35,6 +35,7 @@ import javafx.css.Styleable;
 import javafx.css.StyleableDoubleProperty;
 import javafx.css.StyleableProperty;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
@@ -42,6 +43,8 @@ import javafx.scene.control.Skin;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.shape.Rectangle;
 
 /**
  * Displays an overview of the specified month with occupied markers for
@@ -73,9 +76,12 @@ public class CustomCalendar<M> extends Control {
 	private ArrayList<Label> rowLabels = new ArrayList<Label>(30); // TODO: make property (also for headers etc)
 	
 	/** Row Strings as specified in constructor. */
-	private Iterable<String> rowItems;
+	private List<String> rowItems;
 	
 	private LinkedList<Label> headerLabels = new LinkedList<Label>();
+	
+	private ArrayList<ArrayList<Pane>> backgroundPanes = new
+			ArrayList<ArrayList<Pane>>(10);
 	
 	// Styleable CSS Properties ***********************************************
 	// (would've never gotten this to work without the help of this source file: https://github.com/HanSolo/JFX8CustomControls/blob/master/src/jfx8controls/csspseudoclass/MyCtrl.java)
@@ -211,7 +217,7 @@ public class CustomCalendar<M> extends Control {
 			if (!DateComparator.monthBefore(monthToDisplay, start)) {
 				leftMargin = getColumnWidth() / 2d;
 			}
-			Insets margin = new Insets(0d, rightMargin, 0.0, leftMargin);
+			Insets margin = new Insets(0d, rightMargin, 1d, leftMargin);
 			
 			
 			grid.add(this, startCol, rowIndex);
@@ -246,13 +252,14 @@ public class CustomCalendar<M> extends Control {
 	 * @param rowItems 
 	 * @throws InterruptedException 
 	 */
-	public CustomCalendar(Iterable<String> rowItems) {
+	public CustomCalendar(List<String> rowItems) {
 		super();
 		this.rowItems = rowItems;
 		this.grid = new GridPane();
 		this.getChildren().add(grid);
 		this.getStyleClass().setAll("custom-calendar");
 		monthToDisplay = new GregorianCalendar();
+		makeBackgroundRects();
 		makeRowsHeader();
 		makeDaysHeader();
 		updateView();
@@ -308,6 +315,50 @@ public class CustomCalendar<M> extends Control {
 		}
 	}
 	
+	private void makeBackgroundRects() {
+		int daysInMonth = monthToDisplay.getActualMaximum(
+				Calendar.DAY_OF_MONTH);
+		backgroundPanes.clear();
+		
+		for (int r = 0; r <= rowItems.size(); r++) {
+			ArrayList<Pane> panesRow = new ArrayList<Pane>(32);
+			backgroundPanes.add(panesRow);
+			
+			//new Calendar instance to determine weekdays
+			Calendar tmpCal = (Calendar)monthToDisplay.clone();
+			tmpCal.set(Calendar.DAY_OF_MONTH,
+					tmpCal.getActualMinimum(Calendar.DAY_OF_MONTH));
+			
+			for (int c = 0; c <= daysInMonth; c++) {
+				Pane p = new Pane();
+				
+				// add CSS style classes
+				p.getStyleClass().add("bg");
+				
+				if (r == 0) { p.getStyleClass().add("bg-col-header"); }
+				if (c == 0) { p.getStyleClass().add("bg-row-header"); }
+				
+				if (r % 2 == 0 && r != 0 && c != 0) {
+					p.getStyleClass().add("bg-odd-row");
+				} else if (r != 0 && c != 0) {
+					p.getStyleClass().add("bg-even-row");
+				}
+				
+				if (c > 0) {
+					p.getStyleClass().add("bg-weekday-"
+					+ getCssDayOfWeek(tmpCal.get(Calendar.DAY_OF_WEEK)));
+				}
+				
+				panesRow.add(p);
+				grid.add(p, c, r);
+				
+				if (c > 0) {
+					tmpCal.add(Calendar.DATE, 1); // increase day of month
+				}
+			}
+		}
+	}
+	
 	/**
 	 * Sets up the header row and sets column constraints for the GridPane.
 	 * Column Constraints define the width of each column (hopefully).
@@ -339,8 +390,10 @@ public class CustomCalendar<M> extends Control {
 
 			Label l = new Label(colHeader);
 			l.getStyleClass().add("cols-header");
-			l.getStyleClass().add("weekday-"
+			l.getStyleClass().add("header-weekday-"
 					+ getCssDayOfWeek(tmpCal.get(Calendar.DAY_OF_WEEK)));
+			l.setMaxWidth(Double.MAX_VALUE);
+			l.setAlignment(Pos.TOP_CENTER);
 			headerLabels.add(l);
 			grid.add(l, i, 0);
 			
