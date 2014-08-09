@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.css.CssMetaData;
@@ -38,6 +39,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
+import javafx.scene.control.Skin;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.ColumnConstraints;
@@ -58,8 +60,10 @@ import javafx.scene.paint.Stop;
  * @author lumpiluk
  *
  */
-public class CustomCalendar extends Region {
+public class CustomCalendar extends Control {
 
+	private static final double DEFAULT_COLUMN_WIDTH = 35d;
+	
 	private Calendar monthToDisplay;
 	
 	private final GridPane grid;
@@ -79,61 +83,89 @@ public class CustomCalendar extends Region {
 	
 	private LinkedList<Label> headerLabels = new LinkedList<Label>();
 	
+	// Styleable CSS Properties ***********************************************
 	/** 
 	 * Property to determine width of columns other than column 0.
 	 * Can be set in CSS via -col-width. See also COL_WIDTH.
 	 */
-	private StyleableDoubleProperty colWidth = 
-			new StyleableDoubleProperty(35d) {
-		// cf. example in Javadoc of CssMetaData
-		
-		@Override
-		public String getName() {
-			return "colWidth";
-		}
-		
-		@Override
-		public Object getBean() {
-			return CustomCalendar.this;
-		}
-		
-		@Override
-		public CssMetaData<CustomCalendar, Number> getCssMetaData() {
-			return COL_WIDTH_META_DATA;
-		}
-	};
+	private StyleableDoubleProperty colWidth;
 	
-	/**
-	 * Enables CSS styling of column width via -col-width.
-	 */
-	private static final CssMetaData<CustomCalendar, Number> COL_WIDTH_META_DATA =
-			new CssMetaData<CustomCalendar, Number>("-col-width", 
-					StyleConverter.getSizeConverter(), 15d) {
+	public final double getColumnWidth() {
+		return columnWidthProperty().get();
+	}
+	
+	public final void setColumnWidth(double value) {
+		columnWidthProperty().set(value);
+	}
+	
+	public final DoubleProperty columnWidthProperty() {
+		if (colWidth == null) {
+			colWidth = new StyleableDoubleProperty(DEFAULT_COLUMN_WIDTH) {
+				@Override 
+				public String getName() {	return "colWidth"; }
+				
+				@Override 
+				public Object getBean() {	return CustomCalendar.this;	}
+				
+				@SuppressWarnings("rawtypes")
+				@Override 
+				public CssMetaData getCssMetaData() { 
+					return StyleableProperties.COL_WIDTH_META_DATA;
+				}
+				
+				@Override
+				public void invalidated() {
+					makeDaysHeader();
+				}
+			};
+		}
+		return colWidth;
+	}
+	
+	// CSS Meta Data **********************************************************
+	private static class StyleableProperties {
+		
+		private static final CssMetaData<CustomCalendar, Number> COL_WIDTH_META_DATA =
+				new CssMetaData<CustomCalendar, Number>("-col-width", 
+						StyleConverter.getSizeConverter(), DEFAULT_COLUMN_WIDTH) {
 
-		@Override
-		public boolean isSettable(CustomCalendar c) {
-			return  c.colWidth == null || !c.colWidth.isBound();
-		}
+			@Override
+			public boolean isSettable(CustomCalendar c) {
+				return  c.colWidth == null || !c.colWidth.isBound();
+			}
 
-		@Override
-		public StyleableProperty<Number> getStyleableProperty(
-				CustomCalendar c) {
-			return (StyleableProperty<Number>)c.colWidth;
-		}
+			@Override
+			public StyleableProperty<Number> getStyleableProperty(
+					CustomCalendar c) {
+				return (StyleableProperty<Number>)c.colWidth;
+			}
+			
+			@Override
+			public Number getInitialValue(CustomCalendar c) {
+				return c.getColumnWidth();
+			}
+			
+		};
 		
-	};
+		private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES; 
+		
+		static {
+		 	List<CssMetaData<? extends Styleable, ?>> temp =
+		 			new ArrayList<CssMetaData<? extends Styleable, ?>>(Control.getClassCssMetaData());
+		 	temp.add(COL_WIDTH_META_DATA);
+		 	STYLEABLES = Collections.unmodifiableList(temp);
+		}
+	}
 	
-	/**
-	 * Enables CSS styling with custom properties
-	 */
-	private static final List<CssMetaData<? extends Styleable, ?>> cssMetaDataList; 
+	public static List <CssMetaData <? extends Styleable, ? > > getClassCssMetaData() {
+		return StyleableProperties.STYLEABLES;
+	}
+	 
+	@Override
+	public List <CssMetaData <? extends Styleable, ? > > getControlCssMetaData() {
+		return getClassCssMetaData();
+	}
 	
-	static {
-	 	List<CssMetaData<? extends Styleable, ?>> temp =
-	 			new ArrayList<CssMetaData<? extends Styleable, ?>>(Control.getClassCssMetaData());
-	 	temp.add(COL_WIDTH_META_DATA);
-	 	cssMetaDataList = Collections.unmodifiableList(temp);
-	 }
 	
 	/**
 	 * Control for displaying a marker in a calendar.
@@ -183,30 +215,27 @@ public class CustomCalendar extends Region {
 		this.rowItems = rowItems;
 		this.grid = new GridPane();
 		this.getChildren().add(grid);
-		this.getStyleClass().add("custom-calendar");
+		this.getStyleClass().setAll("custom-calendar");
 		monthToDisplay = new GregorianCalendar();
 		makeRowsHeader();
-		//makeDaysHeader();
+		makeDaysHeader();
 		updateView();
-		
-		colWidth.addListener(new ChangeListener() {
-			@Override
-			public void changed(ObservableValue observable, Object oldValue,
-					Object newValue) {
-				makeDaysHeader();				
-			}	
-		});
 	}
 	
-	 public static List <CssMetaData <? extends Styleable, ? > > getClassCssMetaData() {
-		 return cssMetaDataList;
-	 }
-	 
-	 /* @Override
-	 public List <CssMetaData <? extends Styleable, ? > > getCssMetaData() {
-	     return getClassCssMetaData();
-	 }*/
+	@Override
+	protected Skin createDefaultSkin() {
+		return new CustomCalendarSkin(this);
+	}
 	
+	/**
+	 * Return the path to the CSS file so things are setup right
+	 * @see javafx.scene.control.Control#getUserAgentStylesheet()
+	 */
+	@Override
+	protected String getUserAgentStylesheet() {
+		return getClass().getResource("/CustomCalendar.css").toExternalForm();
+	}
+
 	/**
 	 * Sets up the header row and sets column constraints for the GridPane.
 	 * Column Constraints define the width of each column (hopefully).
@@ -222,7 +251,7 @@ public class CustomCalendar extends Region {
 		grid.getColumnConstraints().add(new ColumnConstraints()); // no fixed width for header column
 		
 		ColumnConstraints widthConstraint = new ColumnConstraints(
-				colWidth.getValue());
+				getColumnWidth());
 		
 		//new Calendar instance to determine weekdays
 		Calendar tmpCal = (Calendar)monthToDisplay.clone();
