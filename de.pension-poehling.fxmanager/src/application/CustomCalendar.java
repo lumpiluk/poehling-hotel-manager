@@ -27,9 +27,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import util.DateComparator;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.css.CssMetaData;
 import javafx.css.StyleConverter;
 import javafx.css.Styleable;
@@ -40,16 +39,9 @@ import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.Skin;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Region;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.Stop;
 
 /**
  * Displays an overview of the specified month with occupied markers for
@@ -58,9 +50,11 @@ import javafx.scene.paint.Stop;
  * Style class for header: cols-header<br />
  * 
  * @author lumpiluk
- *
+ * @param <M> should be an Object implementing the toString() method.
+ * Will be used to tell clicked markers apart. In this case a Booking will be
+ * used.
  */
-public class CustomCalendar extends Control {
+public class CustomCalendar<M> extends Control {
 
 	private static final double DEFAULT_COLUMN_WIDTH = 35d;
 	
@@ -76,7 +70,7 @@ public class CustomCalendar extends Control {
 			new HashMap<String, Integer>(30);
 	
 	/** List of labels for each row with indices as specified in rows. */
-	private ArrayList<Label> rowLabels = new ArrayList<Label>(30);
+	private ArrayList<Label> rowLabels = new ArrayList<Label>(30); // TODO: make property (also for headers etc)
 	
 	/** Row Strings as specified in constructor. */
 	private Iterable<String> rowItems;
@@ -84,6 +78,7 @@ public class CustomCalendar extends Control {
 	private LinkedList<Label> headerLabels = new LinkedList<Label>();
 	
 	// Styleable CSS Properties ***********************************************
+	// (would've never gotten this to work without the help of this source file: https://github.com/HanSolo/JFX8CustomControls/blob/master/src/jfx8controls/csspseudoclass/MyCtrl.java)
 	/** 
 	 * Property to determine width of columns other than column 0.
 	 * Can be set in CSS via -col-width. See also COL_WIDTH.
@@ -107,7 +102,7 @@ public class CustomCalendar extends Control {
 				@Override 
 				public Object getBean() {	return CustomCalendar.this;	}
 				
-				@SuppressWarnings("rawtypes")
+				@SuppressWarnings({ "rawtypes", "unchecked" })
 				@Override 
 				public CssMetaData getCssMetaData() { 
 					return StyleableProperties.COL_WIDTH_META_DATA;
@@ -176,31 +171,72 @@ public class CustomCalendar extends Control {
 	 */
 	public class CalendarMarker extends Label {
 		
-		public CalendarMarker() {
-			this("", null);
-		}
-
-		public CalendarMarker(String text) {
-			this(text, null);
-		}
+		private Calendar start = monthToDisplay;
+		private Calendar end = monthToDisplay;
+		private M comparator; // TODO: use this or sth else for click event or not at all...
 		
-		public CalendarMarker(String text, Node graphic) {
-			super(text, graphic);
+		private String text; // TODO: property?
+		
+		/**
+		 * Constructor.
+		 * @param comparator should be an Object implementing the toString()
+		 * method. Will be used to tell clicked markers apart. In this case a
+		 * Booking will be used. Null is not allowed.
+		 * @param start
+		 * @param end
+		 * @throws IllegalArgumentException
+		 */
+		public CalendarMarker(String text, Calendar start, Calendar end,
+				int rowIndex) throws IllegalArgumentException {
+			this(text, null);
+			this.text = text;
 			
-			// set background
-			/*Color cTop = new Color(0.3, 0.3, 0.3, 0.9);
-			Color cBottom = new Color(0.35, 0.35, 0.35, 0.9);
-			BackgroundFill bgFill = new BackgroundFill(
-					new LinearGradient(0.0, 0.0, 0.0, 1.0, true, // TODO: correct values?
-							CycleMethod.NO_CYCLE, 
-							new Stop(0, cTop), new Stop(1, cBottom)),
-					CornerRadii.EMPTY, Insets.EMPTY);
-			this.setBackground(new Background(bgFill));*/ // now in css
+			if (!DateComparator.monthInRange(monthToDisplay, start, end)) {
+				throw new IllegalArgumentException();
+			}
 			
 			this.getStyleClass().add("calendar-marker");
 			this.setPadding(new Insets(3.5, 5.0, 3.5, 5.0));
 			this.setMinWidth(0.0);
 			this.setMaxWidth(Double.MAX_VALUE);
+			
+			int startCol = getColIndexForDayOfMonth(start);
+			int endCol = getColIndexForDayOfMonth(end);
+			
+			// define margins
+			double leftMargin = 0d, rightMargin = 0d;
+			if (!DateComparator.monthAfter(monthToDisplay, end)) {
+				rightMargin = getColumnWidth() / 2d;
+			}
+			if (!DateComparator.monthBefore(monthToDisplay, start)) {
+				leftMargin = getColumnWidth() / 2d;
+			}
+			Insets margin = new Insets(0d, rightMargin, 0.0, leftMargin);
+			
+			
+			grid.add(this, startCol, rowIndex);
+			GridPane.setColumnSpan(this, endCol - startCol + 1);
+			GridPane.setMargin(this, margin);
+			installTooltip();
+		}
+		
+		private void installTooltip() {
+			Tooltip t = new Tooltip(text);
+			Tooltip.install(this, t);
+		}
+		
+		@SuppressWarnings("unused")
+		private CalendarMarker() {
+			this("", null);
+		}
+
+		@SuppressWarnings("unused")
+		private CalendarMarker(String text) {
+			this(text, null);
+		}
+		
+		private CalendarMarker(String text, Node graphic) {
+			super(text, graphic);
 		}
 		
 	}
@@ -222,20 +258,56 @@ public class CustomCalendar extends Control {
 		updateView();
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	protected Skin createDefaultSkin() {
 		return new CustomCalendarSkin(this);
 	}
 	
 	/**
-	 * Return the path to the CSS file so things are setup right
+	 * Return the path to the CSS file so things are set up right
 	 * @see javafx.scene.control.Control#getUserAgentStylesheet()
 	 */
 	@Override
 	protected String getUserAgentStylesheet() {
 		return getClass().getResource("/CustomCalendar.css").toExternalForm();
 	}
-
+	
+	/**
+	 * @param day
+	 * @return the index of the grid column for the specified day.
+	 */
+	protected final int getColIndexForDayOfMonth(Calendar day) {
+		if (DateComparator.monthAfter(monthToDisplay, day)) {
+			return monthToDisplay.getActualMaximum(Calendar.DAY_OF_MONTH);
+		}
+		if (DateComparator.monthBefore(monthToDisplay, day)) {
+			return monthToDisplay.getActualMinimum(Calendar.DAY_OF_MONTH); // hopefully 1 for column 1, not 0
+		}
+		return day.get(Calendar.DAY_OF_MONTH);
+	}
+	
+	/**
+	 * Used to enable styling of e.g. headers for a particular day of the week.
+	 * E.g. via class .weekday-sunday -> make text red
+	 * @param dayOfWeek
+	 * @return
+	 * @throws IllegalArgumentException
+	 */
+	private static String getCssDayOfWeek(int dayOfWeek) 
+			throws IllegalArgumentException {
+		switch (dayOfWeek) {
+		case Calendar.MONDAY: return "monday";
+		case Calendar.TUESDAY: return "tuesday";
+		case Calendar.WEDNESDAY: return "wednesday";
+		case Calendar.THURSDAY: return "thursday";
+		case Calendar.FRIDAY: return "friday";
+		case Calendar.SATURDAY: return "saturday";
+		case Calendar.SUNDAY: return "sunday";
+		default: throw new IllegalArgumentException();			
+		}
+	}
+	
 	/**
 	 * Sets up the header row and sets column constraints for the GridPane.
 	 * Column Constraints define the width of each column (hopefully).
@@ -262,26 +334,30 @@ public class CustomCalendar extends Control {
 			// create header text and label
 			String colHeader = Messages.getShortDayOfWeek(
 					tmpCal.get(Calendar.DAY_OF_WEEK));
-			colHeader += "\n" + i;
-			tmpCal.set(Calendar.DAY_OF_MONTH,
-					tmpCal.get(Calendar.DAY_OF_MONTH) + 1); // increase day of month
+			colHeader += "\n" + i; 
+			
 
 			Label l = new Label(colHeader);
 			l.getStyleClass().add("cols-header");
+			l.getStyleClass().add("weekday-"
+					+ getCssDayOfWeek(tmpCal.get(Calendar.DAY_OF_WEEK)));
 			headerLabels.add(l);
 			grid.add(l, i, 0);
 			
 			// apply constraint
 			grid.getColumnConstraints().add(widthConstraint);
+			
+			tmpCal.add(Calendar.DATE, 1); // increase day of month
 		}
 	}
 	
 	private void makeRowsHeader() {
 		int i = 0;
 		for (String rowString : rowItems) {
-			rows.put(rowString, i);
+			rows.put(rowString, i + 1);
 			Label l = new Label(rowString);
 			l.getStyleClass().add("rows-header");
+			l.setMaxWidth(Double.MAX_VALUE);
 			rowLabels.add(l);
 			grid.add(l, 0, i + 1);
 			i++;
@@ -298,35 +374,24 @@ public class CustomCalendar extends Control {
 	}
 	
 	/**
-	 * Checks whether the currently displayed month is within the specified
-	 * date range. This method is used in placeMarker(...).
-	 * @param start
-	 * @param end
-	 * @return true if current month is within range
-	 */
-	private boolean monthInRange(final Calendar start, final Calendar end) { // TODO FIXME: consider hours, minutes, seconds?
-		Calendar firstDay = (Calendar)monthToDisplay.clone();
-		Calendar lastDay = (Calendar)monthToDisplay.clone();
-		firstDay.set(Calendar.DAY_OF_MONTH, 
-				firstDay.getActualMinimum(Calendar.DAY_OF_MONTH));
-		lastDay.set(Calendar.DAY_OF_MONTH,
-				lastDay.getActualMinimum(Calendar.DAY_OF_MONTH));
-		return (start.after(lastDay) && end.after(lastDay)) ||
-				(start.before(firstDay) && end.before(lastDay));
-	}
-	
-	/**
 	 * Places a marker for the specified date range.
 	 * @param start Beginning of date range shown by new marker.
 	 * @param end End of date range shown by new marker.
+	 * @param rowIndex
+	 * @param text
 	 * @throws IllegalArgumentException if date range from start to end does
 	 * not overlap with the currently displayed month.
 	 */
-	public void placeMarker(final Calendar start, final Calendar end)
-			throws IllegalArgumentException {
-		if (monthInRange(start, end)) {
+	public void placeMarker(String text, int rowIndex, final Calendar start,
+			final Calendar end)	throws IllegalArgumentException,
+			NullPointerException {
+		if (!DateComparator.monthInRange(monthToDisplay, start, end)) {
 			throw new IllegalArgumentException();
 		}
+		// TODO: make list!
+		CalendarMarker m = new CalendarMarker(text, start, end,
+			rowIndex);
+
 	}
 	
 	private void updateView() {
