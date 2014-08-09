@@ -1,0 +1,35 @@
+.custom-calendar {
+	-fx-skin: "application.CustomCalendarSkin"; /* TODO: generalize (own package for custom controls?) */
+	-fx-background-color: rgba(1.0, 1.0, 1.0, 0.0);
+	-col-width: 2.5em;
+}
+
+.custom-calendar .calendar-marker {
+	-fx-background-color: 
+		linear-gradient(from 0% 0% to 0% 100%,
+			rgba(200, 240, 245, 0.9) 0%,
+			rgba(200, 230, 235, 0.9) 100%
+		);
+	-fx-background-radius: 0.3em;
+}
+
+.custom-calendar .calendar-marker:hover {
+	-fx-background-color: 
+		linear-gradient(from 0% 0% to 0% 100%,
+			rgba(190, 230, 235, 0.9) 0%,
+			rgba(190, 220, 225, 0.9) 100%
+		);
+}
+
+.custom-calendar .cols-header {
+	-fx-font-weight: bold;
+	-fx-text-alignment: center;
+}
+
+.custom-calendar .weekday-sunday {
+	-fx-text-fill: rgb(150, 0, 0);
+}
+
+.custom-calendar .weekday-saturday {
+	-fx-text-fill: rgb(120, 0, 0);
+}
