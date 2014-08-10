@@ -23,12 +23,16 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import util.DateComparator;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.css.CssMetaData;
 import javafx.css.StyleConverter;
 import javafx.css.Styleable;
@@ -44,7 +48,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.shape.Rectangle;
 
 /**
  * Displays an overview of the specified month with occupied markers for
@@ -57,7 +60,7 @@ import javafx.scene.shape.Rectangle;
  * Will be used to tell clicked markers apart. In this case a Booking will be
  * used.
  */
-public class CustomCalendar<M> extends Control {
+public class CustomCalendar extends Control {
 
 	private static final double DEFAULT_COLUMN_WIDTH = 35d;
 	
@@ -69,8 +72,8 @@ public class CustomCalendar<M> extends Control {
 	 * LinkedHashMap to quickly check which row in the GridPane a
 	 * CalendarMarker has to go into.
 	 */
-	private HashMap<String, Integer> rows = 
-			new HashMap<String, Integer>(30);
+	//private HashMap<String, Integer> rows = 
+	//		new HashMap<String, Integer>(30);
 	
 	/** List of labels for each row with indices as specified in rows. */
 	private ArrayList<Label> rowLabels = new ArrayList<Label>(30); // TODO: make property (also for headers etc)
@@ -177,11 +180,9 @@ public class CustomCalendar<M> extends Control {
 	 */
 	public class CalendarMarker extends Label {
 		
-		private Calendar start = monthToDisplay;
-		private Calendar end = monthToDisplay;
-		private M comparator; // TODO: use this or sth else for click event or not at all...
-		
-		private String text; // TODO: property?
+		private ObjectProperty<Calendar> start;
+		private ObjectProperty<Calendar> end;
+		private IntegerProperty rowIndex;
 		
 		/**
 		 * Constructor.
@@ -195,55 +196,122 @@ public class CustomCalendar<M> extends Control {
 		public CalendarMarker(String text, Calendar start, Calendar end,
 				int rowIndex) throws IllegalArgumentException {
 			this(text, null);
-			this.text = text;
-			
-			if (!DateComparator.monthInRange(monthToDisplay, start, end)) {
-				throw new IllegalArgumentException();
-			}
+			this.rowIndex = new SimpleIntegerProperty(rowIndex);
 			
 			this.getStyleClass().add("calendar-marker");
 			this.setPadding(new Insets(3.5, 5.0, 3.5, 5.0));
 			this.setMinWidth(0.0);
 			this.setMaxWidth(Double.MAX_VALUE);
 			
-			int startCol = getColIndexForDayOfMonth(start);
-			int endCol = getColIndexForDayOfMonth(end);
+			this.start = new SimpleObjectProperty<Calendar>(start);
+			this.end = new SimpleObjectProperty<Calendar>(end);
+			setPropertyListeners();
+			dateRangeChanged();
+			installTooltip();
+		}
+		
+		private void dateRangeChanged() {
+			if (!DateComparator.monthInRange(monthToDisplay, getStart(), getEnd())) {
+				throw new IllegalArgumentException();
+			}
+			grid.getChildren().remove(this); // remove marker from grid if possible
+			
+			int startCol = getColIndexForDayOfMonth(getStart());
+			int endCol = getColIndexForDayOfMonth(getEnd());
 			
 			// define margins
 			double leftMargin = 0d, rightMargin = 0d;
-			if (!DateComparator.monthAfter(monthToDisplay, end)) {
+			if (!DateComparator.monthAfter(monthToDisplay, getEnd())) {
 				rightMargin = getColumnWidth() / 2d;
 			}
-			if (!DateComparator.monthBefore(monthToDisplay, start)) {
+			if (!DateComparator.monthBefore(monthToDisplay, getStart())) {
 				leftMargin = getColumnWidth() / 2d;
 			}
 			Insets margin = new Insets(0d, rightMargin, 1d, leftMargin);
 			
-			
-			grid.add(this, startCol, rowIndex);
+			//add to grid
+			grid.add(this, startCol, rowIndex.get());
 			GridPane.setColumnSpan(this, endCol - startCol + 1);
 			GridPane.setMargin(this, margin);
-			installTooltip();
+		}
+		
+		private void setPropertyListeners() {
+			
+			rowIndex.addListener(
+					(ChangeListener<Number>) (observable, oldValue, newValue) -> {
+				if ((Integer)newValue < 1 ||
+						(Integer)newValue > rowItems.size()) {
+					throw new IllegalArgumentException();
+				}
+				GridPane.setRowIndex(CalendarMarker.this, (Integer)newValue);
+			});
+			
+			start.addListener(
+					(ChangeListener<Calendar>) (observable, oldValue, newValue) -> {
+				dateRangeChanged();
+			});
+			
+			end.addListener(
+					(ChangeListener<Calendar>) (observable, oldValue, newValue) -> {
+				dateRangeChanged();
+			});
+			
+		}
+		
+		// getters and setter for row index
+		public int getRowIndex() {
+			return this.rowIndex.get();
+		}
+		
+		public void setRowIndex(final int value) {
+			this.rowIndex.set(value);
+		}
+		
+		public IntegerProperty rowIndexProperty() {
+			return rowIndex;
+		}
+		
+		// getters and setter for start date
+		public Calendar getStart() {
+			return start.get();
+		}
+		
+		public void setStart(final Calendar value) {
+			start.set(value);
+		}
+		
+		public ObjectProperty<Calendar> startProperty() {
+			return start;
+		}
+		
+		// getters and setter for end date
+		public Calendar getEnd() {
+			return end.get();
+		}
+		
+		public void setEnd(final Calendar value) {
+			end.set(value);
+		}
+		
+		public ObjectProperty<Calendar> endProperty() {
+			return end;
 		}
 		
 		private void installTooltip() {
-			Tooltip t = new Tooltip(text);
+			Tooltip t = new Tooltip(this.getText());
 			Tooltip.install(this, t);
 		}
 		
-		@SuppressWarnings("unused")
-		private CalendarMarker() {
-			this("", null);
-		}
-
-		@SuppressWarnings("unused")
-		private CalendarMarker(String text) {
-			this(text, null);
+		public void removeFromGrid() {
+			grid.getChildren().remove(this);
 		}
 		
-		private CalendarMarker(String text, Node graphic) {
-			super(text, graphic);
-		}
+		// privatized constructors from Label; don't need these
+		@SuppressWarnings("unused")
+		private CalendarMarker() { this("", null);	}
+		@SuppressWarnings("unused")
+		private CalendarMarker(String t) { this(t, null); }
+		private CalendarMarker(String t, Node g) { super(t, g);	}
 		
 	}
 	
@@ -258,11 +326,7 @@ public class CustomCalendar<M> extends Control {
 		this.grid = new GridPane();
 		this.getChildren().add(grid);
 		this.getStyleClass().setAll("custom-calendar");
-		monthToDisplay = new GregorianCalendar();
-		makeBackgroundRects();
-		makeRowsHeader();
-		makeDaysHeader();
-		updateView();
+		setMonth(new GregorianCalendar());
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -318,6 +382,12 @@ public class CustomCalendar<M> extends Control {
 	private void makeBackgroundRects() {
 		int daysInMonth = monthToDisplay.getActualMaximum(
 				Calendar.DAY_OF_MONTH);
+		// remove old panes if existing
+		for (ArrayList<Pane> r : backgroundPanes) {
+			for (Pane p : r) {
+				grid.getChildren().remove(p);
+			}
+		}
 		backgroundPanes.clear();
 		
 		for (int r = 0; r <= rowItems.size(); r++) {
@@ -345,10 +415,14 @@ public class CustomCalendar<M> extends Control {
 				}
 				
 				if (c > 0) {
-					p.getStyleClass().add("bg-weekday-"
-					+ getCssDayOfWeek(tmpCal.get(Calendar.DAY_OF_WEEK)));
+					p.getStyleClass().add("bg-weekday-"	+ getCssDayOfWeek(
+							tmpCal.get(Calendar.DAY_OF_WEEK)));
+					if (DateComparator.isToday(tmpCal)) {
+						p.getStyleClass().add("bg-today");
+					}
 				}
 				
+				// add cell background pane to row list and to the grid
 				panesRow.add(p);
 				grid.add(p, c, r);
 				
@@ -369,7 +443,11 @@ public class CustomCalendar<M> extends Control {
 		int daysInMonth = monthToDisplay.getActualMaximum(
 				Calendar.DAY_OF_MONTH);
 		
+		for (Label l : headerLabels) {
+			grid.getChildren().remove(l);
+		}
 		headerLabels.clear();
+		
 		grid.getColumnConstraints().clear();
 		grid.getColumnConstraints().add(new ColumnConstraints()); // no fixed width for header column
 		
@@ -405,9 +483,13 @@ public class CustomCalendar<M> extends Control {
 	}
 	
 	private void makeRowsHeader() {
+		for (Label l : rowLabels) {
+			grid.getChildren().remove(l);
+		}
+		rowLabels.clear();
+		
 		int i = 0;
 		for (String rowString : rowItems) {
-			rows.put(rowString, i + 1);
 			Label l = new Label(rowString);
 			l.getStyleClass().add("rows-header");
 			l.setMaxWidth(Double.MAX_VALUE);
@@ -422,8 +504,12 @@ public class CustomCalendar<M> extends Control {
 	 * 
 	 * @param m Month to display, must be between 0 and 11 (cf. Calendar.MONTH)
 	 */
-	public void setMonth(int m) {
-		monthToDisplay.set(Calendar.MONTH, m);
+	public void setMonth(Calendar m) {
+		monthToDisplay = m;
+		makeBackgroundRects();
+		makeRowsHeader();
+		makeDaysHeader();
+		updateView();
 	}
 	
 	/**
@@ -432,27 +518,27 @@ public class CustomCalendar<M> extends Control {
 	 * @param end End of date range shown by new marker.
 	 * @param rowIndex
 	 * @param text
+	 * @return TODO
 	 * @throws IllegalArgumentException if date range from start to end does
 	 * not overlap with the currently displayed month.
 	 */
-	public void placeMarker(String text, int rowIndex, final Calendar start,
-			final Calendar end)	throws IllegalArgumentException,
-			NullPointerException {
+	public CalendarMarker createMarker(String text, int rowIndex,
+			final Calendar start, final Calendar end)
+			throws IllegalArgumentException, NullPointerException {
+		
 		if (!DateComparator.monthInRange(monthToDisplay, start, end)) {
 			throw new IllegalArgumentException();
 		}
-		// TODO: make list!
-		CalendarMarker m = new CalendarMarker(text, start, end,
+		return new CalendarMarker(text, start, end,
 			rowIndex);
-
 	}
 	
 	private void updateView() {
 		// remove obsolete markers
-		Iterable<Node> children = this.getChildren();
-		for (Node child : children) {
+		//Iterable<Node> children = this.getChildren();
+		//for (Node child : children) {
 			// TODO if child is marker and not some kind of design element then remove...
-		}
+		//}
 		// TODO add markers for current month (threaded loading from db?)
 	}
 	

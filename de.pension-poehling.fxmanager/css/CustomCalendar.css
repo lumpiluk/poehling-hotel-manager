@@ -1,12 +1,13 @@
 .custom-calendar {
 	-fx-skin: "application.CustomCalendarSkin"; /* TODO: generalize (own package for custom controls?) */
 	-fx-background-color: rgba(1.0, 1.0, 1.0, 0.0);
-	-col-width: 2.5em;
+	-col-width: 2.2em;
 }
 
 .custom-calendar .bg {
 	-fx-border-width: 0 1 1 0;
 	-fx-border-color: black rgb(80, 80, 80) rgb(170, 170, 170) black;
+	-fx-background-color: white;
 }
 
 .custom-calendar .bg-weekday-sunday {
@@ -15,6 +16,10 @@
 
 .custom-calendar .bg-weekday-saturday {
 	-fx-background-color: rgb(255, 242, 242);
+}
+
+.custom-calendar .bg-today {
+	-fx-background-color: rgb(230, 250, 255);
 }
 
 .custom-calendar .bg-row-header {

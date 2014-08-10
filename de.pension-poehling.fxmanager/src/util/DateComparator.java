@@ -1,6 +1,7 @@
 package util;
 
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class DateComparator {
 
@@ -68,6 +69,16 @@ public class DateComparator {
 				lastDay.getActualMinimum(Calendar.DAY_OF_MONTH));
 		return (dayAfter(lastDay, start) && dayAfter(lastDay, end)) ||
 				(dayBefore(firstDay, start) && dayBefore(lastDay, end));
+	}
+	
+	public static final boolean isToday(Calendar c) {
+		int month = c.get(Calendar.MONTH);
+		int year = c.get(Calendar.YEAR);
+		int day = c.get(Calendar.DAY_OF_MONTH);
+		Calendar today = new GregorianCalendar();
+		return day == today.get(Calendar.DAY_OF_MONTH) &&
+				month == today.get(Calendar.MONTH) &&
+				year == today.get(Calendar.YEAR);
 	}
 	
 }

@@ -6,7 +6,12 @@ import java.util.GregorianCalendar;
 
 import util.DateComparator;
 import application.CustomCalendar;
+import application.CustomCalendar.CalendarMarker;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -16,16 +21,15 @@ public class CustomCalendarTest extends Application {
 	public void start(Stage primaryStage) throws Exception {
 		String[] rows = {"1","2","3","4","5","6","7","8","9","10","11","101", "102", "103", "114", "203","FeWo", "Appartement 1", "Appartement 2"};
 		
-		CustomCalendar<String> root = new CustomCalendar<String>(
-				Arrays.asList(rows));
+		CustomCalendar root = new CustomCalendar(Arrays.asList(rows));
 		
 		Calendar start = new GregorianCalendar(2014, 7, 4);
 		Calendar end = new GregorianCalendar(2014, 7, 12);
-		root.placeMarker("Familie Stratmann", 2, start, end);
+		CalendarMarker m1 = root.createMarker("Familie Stratmann", 2, start, end);
 		
 		Calendar start2 = new GregorianCalendar(2014, 7, 10);
 		Calendar end2 = new GregorianCalendar(2014, 7, 13);
-		root.placeMarker("Herr Mustermann", 7, start2, end2);
+		CalendarMarker m2 = root.createMarker("Herr Mustermann", 7, start2, end2);
 		
 		System.out.println(DateComparator.dayBefore(start, end));
 		System.out.println(DateComparator.monthBefore(start, end));
@@ -37,6 +41,28 @@ public class CustomCalendarTest extends Application {
 		primaryStage.setScene(scene);
 		primaryStage.setTitle("CustomCalendar Component Test");
 		primaryStage.show();
+		
+		// change start of m1 after 5s
+		Thread thread = new Thread(new Task<Void>() {
+			@Override
+			public Void call() {
+				System.out.println("waiting");
+				try {
+					Thread.sleep(5000);
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							m1.setStart(new GregorianCalendar(2014, 7, 7));
+						}
+					});
+					System.out.println("changed start");
+				} catch (InterruptedException e) {	}
+				return null;
+			}
+		});
+		thread.setDaemon(true);
+		thread.start();
+		
 	}
 	
 	public static void main(String[] args) {

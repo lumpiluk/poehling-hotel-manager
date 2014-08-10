@@ -26,21 +26,39 @@ public class Messages {
 			throws IllegalArgumentException {
 		switch (dayOfWeek) {
 		case Calendar.MONDAY:
-			return getString("Weekdays.Monday.Short");
+			return getString("Calendar.Weekdays.Monday.Short");
 		case Calendar.TUESDAY:
-			return getString("Weekdays.Tuesday.Short");
+			return getString("Calendar.Weekdays.Tuesday.Short");
 		case Calendar.WEDNESDAY:
-			return getString("Weekdays.Wednesday.Short");
+			return getString("Calendar.Weekdays.Wednesday.Short");
 		case Calendar.THURSDAY:
-			return getString("Weekdays.Thursday.Short");
+			return getString("Calendar.Weekdays.Thursday.Short");
 		case Calendar.FRIDAY:
-			return getString("Weekdays.Friday.Short");
+			return getString("Calendar.Weekdays.Friday.Short");
 		case Calendar.SATURDAY:
-			return getString("Weekdays.Saturday.Short");
+			return getString("Calendar.Weekdays.Saturday.Short");
 		case Calendar.SUNDAY:
-			return getString("Weekdays.Sunday.Short");
+			return getString("Calendar.Weekdays.Sunday.Short");
 		default:
 			throw new IllegalArgumentException();			
+		}
+	}
+	
+	public static String getMonth(int month) throws IllegalArgumentException {
+		switch (month) {
+		case Calendar.JANUARY: return getString("Calendar.Months.January");
+		case Calendar.FEBRUARY: return getString("Calendar.Months.February");
+		case Calendar.MARCH: return getString("Calendar.Months.March");
+		case Calendar.APRIL: return getString("Calendar.Months.April");
+		case Calendar.MAY: return getString("Calendar.Months.May");
+		case Calendar.JUNE: return getString("Calendar.Months.June");
+		case Calendar.JULY: return getString("Calendar.Months.July");
+		case Calendar.AUGUST: return getString("Calendar.Months.August");
+		case Calendar.SEPTEMBER: return getString("Calendar.Months.September");
+		case Calendar.OCTOBER: return getString("Calendar.Months.October");
+		case Calendar.NOVEMBER: return getString("Calendar.Months.November");
+		case Calendar.DECEMBER: return getString("Calendar.Months.December");
+		default: throw new IllegalArgumentException();
 		}
 	}
 
