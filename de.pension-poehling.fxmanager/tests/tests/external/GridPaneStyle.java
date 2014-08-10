@@ -3,7 +3,7 @@
  * This class may be deleted once CustomCalendar is properly styled.
  */
 
-package external;
+package tests.external;
 
 import javafx.application.Application;
 import javafx.geometry.HPos;

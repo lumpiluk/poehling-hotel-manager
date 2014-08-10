@@ -1,4 +1,4 @@
-package uitests;
+package tests.uitests;
 
 import java.util.Arrays;
 import java.util.Calendar;

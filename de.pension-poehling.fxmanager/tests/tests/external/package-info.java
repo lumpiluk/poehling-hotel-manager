@@ -5,4 +5,4 @@
  * @author lumpiluk
  *
  */
-package uitests;
+package tests.external;

@@ -62,9 +62,9 @@
                </GridPane.margin>
             </Pane>
             <TextField text="a" GridPane.columnIndex="12" GridPane.rowIndex="1" />
-            <FlowPane alignment="CENTER" columnHalignment="CENTER" minWidth="0.0" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="13" GridPane.columnSpan="3" GridPane.rowIndex="3">
+            <FlowPane alignment="CENTER" columnHalignment="CENTER" minWidth="0.0" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: rgb(200,255,255); -fx-border-color: red green black brown; -fx-border-width: 5;" GridPane.columnIndex="13" GridPane.rowIndex="3">
                <GridPane.margin>
-                  <Insets left="15.0" right="15.0" />
+                  <Insets />
                </GridPane.margin>
             </FlowPane>
             <Pane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="16" GridPane.columnSpan="3" GridPane.rowIndex="2">
@@ -82,6 +82,10 @@
                   <Insets bottom="5.0" left="7.0" right="7.0" top="5.0" />
                </padding>
             </Label>
+            <Line endY="100.0" stroke="#8a8a8a" GridPane.columnIndex="16" GridPane.rowIndex="2" />
+            <Label alignment="TOP_CENTER" maxWidth="1.7976931348623157E308" text="1" textAlignment="CENTER" GridPane.columnIndex="11" />
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="10.0" stroke="BLACK" strokeType="INSIDE" width="10.0" GridPane.columnIndex="6" GridPane.rowIndex="3" />
+            <Pane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: green;" GridPane.columnIndex="20" GridPane.rowIndex="2" />
          </children>
       </GridPane>
    </content>
