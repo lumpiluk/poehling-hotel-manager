@@ -1,7 +1,7 @@
 /**
  * 
  */
-package application;
+package application.customControls;
 
 import javafx.scene.control.Control;
 import javafx.scene.control.SkinBase;

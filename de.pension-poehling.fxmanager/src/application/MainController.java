@@ -8,15 +8,14 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import application.customControls.CalendarPane;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.Region;
 
 public class MainController {
 
@@ -65,9 +64,7 @@ public class MainController {
         assert leftMenu != null : "fx:id=\"leftMenu\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert btnRoomPlan != null : "fx:id=\"btnRoomPlan\" was not injected: check your FXML file 'MainWindow.fxml'.";
 
-        VBox calendarPane = (VBox)FXMLLoader.load(
-				getClass().getResource("/CalendarPane.fxml"),
-				Messages.getBundle());
+        Region calendarPane = new CalendarPane(); // TODO: handle exceptions!
         
         appBody.getItems().add(1, calendarPane);
         

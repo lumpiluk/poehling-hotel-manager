@@ -1,17 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.layout.*?>
 <?import java.lang.*?>
 <?import javafx.scene.control.*?>
 
-
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="308.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <ToolBar prefHeight="40.0" prefWidth="200.0">
+      <ToolBar>
         <items>
           <Button mnemonicParsing="false" text="%Ui.Customer.NewCustomerBtn.text" />
         </items>
       </ToolBar>
-      <TitledPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="SOMETIMES" />
+      <Label maxWidth="1.7976931348623157E308" styleClass="form-header" text="%Ui.Customer.addresseeHeader.text">
+         <font>
+            <Font name="System Bold" size="13.0" />
+         </font>
+      </Label>
+      <TabPane tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab closable="false" text="%Ui.Customer.newPersonTab" />
+          <Tab closable="false" text="%Ui.Customer.existingPersonTab" />
+        </tabs>
+      </TabPane>
+      <GridPane maxWidth="1.7976931348623157E308">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
+          <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints vgrow="SOMETIMES" />
+          <RowConstraints vgrow="SOMETIMES" />
+          <RowConstraints vgrow="SOMETIMES" />
+          <RowConstraints vgrow="SOMETIMES" />
+            <RowConstraints vgrow="SOMETIMES" />
+            <RowConstraints vgrow="SOMETIMES" />
+            <RowConstraints vgrow="SOMETIMES" />
+            <RowConstraints vgrow="SOMETIMES" />
+            <RowConstraints vgrow="SOMETIMES" />
+            <RowConstraints vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Label text="%Ui.Customer.streetLbl" GridPane.rowIndex="1" />
+            <Label text="%Ui.Customer.zipLbl" GridPane.rowIndex="2" />
+            <Label text="%Ui.Customer.townLbl" GridPane.rowIndex="3" />
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <ComboBox maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" />
+            <Label text="%Ui.Customer.countryLbl" GridPane.rowIndex="5" />
+            <Label text="%Ui.Customer.stateLbl" GridPane.rowIndex="4" />
+            <ComboBox maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <Label maxWidth="1.7976931348623157E308" styleClass="form-header" text="%Ui.Customer.contactHeader.text" GridPane.columnSpan="2" GridPane.rowIndex="6">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </Label>
+            <Label text="%Ui.Customer.streetLbl" GridPane.rowIndex="7" />
+            <Label text="%Ui.Customer.streetLbl" GridPane.rowIndex="8" />
+            <Label text="%Ui.Customer.streetLbl" GridPane.rowIndex="9" />
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="7" />
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="8" />
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="9" />
+            <Label maxWidth="1.7976931348623157E308" styleClass="form-header" text="%Ui.Customer.addressHeader.text" GridPane.columnSpan="2">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </Label>
+         </children>
+      </GridPane>
    </children>
 </VBox>

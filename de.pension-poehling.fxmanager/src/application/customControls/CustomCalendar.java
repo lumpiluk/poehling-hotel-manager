@@ -17,7 +17,7 @@
 /**
  * 
  */
-package application;
+package application.customControls;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import util.DateComparator;
+import util.Messages;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;

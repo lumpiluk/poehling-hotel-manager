@@ -5,8 +5,8 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import util.DateComparator;
-import application.CustomCalendar;
-import application.CustomCalendar.CalendarMarker;
+import application.customControls.CustomCalendar;
+import application.customControls.CustomCalendar.CalendarMarker;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
