@@ -33,9 +33,6 @@ public class CalendarPaneController {
     @FXML // fx:id="priorMonthBtn"
     private Button priorMonthBtn; // Value injected by FXMLLoader
 
-    @FXML // fx:id="newBookingBtn"
-    private Button newBookingBtn; // Value injected by FXMLLoader
-
     @FXML // fx:id="nextYearBtn"
     private Button nextYearBtn; // Value injected by FXMLLoader
 
@@ -50,11 +47,6 @@ public class CalendarPaneController {
 
     @FXML // fx:id="yearLbl"
     private Label yearLbl; // Value injected by FXMLLoader
-
-    @FXML
-    void newBookingBtnAction(ActionEvent event) {
-    	
-    }
 
     @FXML
     void todayBtnAction(ActionEvent event) {
@@ -102,10 +94,11 @@ public class CalendarPaneController {
         assert todayBtn != null : "fx:id=\"todayBtn\" was not injected: check your FXML file 'CalendarPane.fxml'.";
         assert priorYearBtn != null : "fx:id=\"priorYearBtn\" was not injected: check your FXML file 'CalendarPane.fxml'.";
         assert priorMonthBtn != null : "fx:id=\"priorMonthBtn\" was not injected: check your FXML file 'CalendarPane.fxml'.";
-        assert newBookingBtn != null : "fx:id=\"newBookingBtn\" was not injected: check your FXML file 'CalendarPane.fxml'.";
         assert nextYearBtn != null : "fx:id=\"nextYearBtn\" was not injected: check your FXML file 'CalendarPane.fxml'.";
         assert nextMonthBtn != null : "fx:id=\"nextMonthBtn\" was not injected: check your FXML file 'CalendarPane.fxml'.";
         assert contentPane != null : "fx:id=\"contentPane\" was not injected: check your FXML file 'CalendarPane.fxml'.";
+        assert yearLbl != null : "fx:id=\"yearLbl\" was not injected: check your FXML file 'CalendarPane.fxml'.";
+        assert monthLbl != null : "fx:id=\"monthLbl\" was not injected: check your FXML file 'CalendarPane.fxml'.";
         
         updateLabels();
         

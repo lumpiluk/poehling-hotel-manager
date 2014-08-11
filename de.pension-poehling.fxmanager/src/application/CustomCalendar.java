@@ -401,6 +401,8 @@ public class CustomCalendar extends Control {
 			
 			for (int c = 0; c <= daysInMonth; c++) {
 				Pane p = new Pane();
+				p.setMouseTransparent(true);
+				p.setCache(false);
 				
 				// add CSS style classes
 				p.getStyleClass().add("bg");

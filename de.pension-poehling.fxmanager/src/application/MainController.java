@@ -65,7 +65,7 @@ public class MainController {
         assert leftMenu != null : "fx:id=\"leftMenu\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert btnRoomPlan != null : "fx:id=\"btnRoomPlan\" was not injected: check your FXML file 'MainWindow.fxml'.";
 
-        BorderPane calendarPane = (BorderPane)FXMLLoader.load(
+        VBox calendarPane = (VBox)FXMLLoader.load(
 				getClass().getResource("/CalendarPane.fxml"),
 				Messages.getBundle());
         

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.web.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.control.*?>
@@ -7,9 +8,10 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane prefHeight="663.0" prefWidth="665.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.CalendarPaneController">
-   <top>
-      <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+
+<VBox prefHeight="483.0" prefWidth="497.0" styleClass="calendar-pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.CalendarPaneController">
+   <children>
+      <ToolBar prefHeight="40.0" prefWidth="200.0">
          <items>
             <Button fx:id="todayBtn" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#todayBtnAction" text="%Ui.Calendar.Today.text" />
             <Separator orientation="VERTICAL" styleClass="toolbar-separator">
@@ -23,6 +25,7 @@
             <Button fx:id="priorMonthBtn" mnemonicParsing="false" onAction="#priorMonthBtnAction" scaleX="0.7" scaleY="0.7" text="&lt;" />
             <Label fx:id="monthLbl" alignment="CENTER" text="Januar" />
             <Button fx:id="nextMonthBtn" mnemonicParsing="false" onAction="#nextMonthBtnAction" scaleX="0.7" scaleY="0.7" text="&gt;" />
+            <VBox />
             <Separator orientation="VERTICAL" styleClass="toolbar-separator">
                <opaqueInsets>
                   <Insets />
@@ -36,15 +39,6 @@
             <Button fx:id="nextYearBtn" mnemonicParsing="false" onAction="#nextYearBtnAction" scaleX="0.7" scaleY="0.7" text="&gt;" />
          </items>
       </ToolBar>
-   </top>
-   <bottom>
-      <ToolBar nodeOrientation="RIGHT_TO_LEFT" prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-        <items>
-          <Button fx:id="newBookingBtn" mnemonicParsing="false" onAction="#newBookingBtnAction" text="%Ui.Calendar.NewBooking.text" />
-        </items>
-      </ToolBar>
-   </bottom>
-   <center>
-      <ScrollPane fx:id="contentPane" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
-   </center>
-</BorderPane>
+      <ScrollPane fx:id="contentPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" pannable="true" VBox.vgrow="ALWAYS" />
+   </children>
+</VBox>

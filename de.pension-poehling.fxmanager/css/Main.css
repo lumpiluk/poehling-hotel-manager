@@ -1,0 +1,7 @@
+.calendar-pane #monthLbl {
+	-fx-pref-width: 6.5em;
+}
+
+.calendar-pane #yearLbl {
+	-fx-pref-width: 4em;
+}
