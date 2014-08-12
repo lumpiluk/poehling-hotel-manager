@@ -14,7 +14,7 @@
         <menus>
           <Menu text="%Ui.Menu.File.text">
             <items>
-                  <MenuItem mnemonicParsing="false" text="%key.unspecified" />
+                  <MenuItem text="%Ui.Menu.File.Print" />
               <MenuItem text="%Ui.Menu.File.Close.text" />
             </items>
           </Menu>
@@ -25,35 +25,35 @@
           </Menu>
         </menus>
       </MenuBar>
-      <SplitPane fx:id="appBody" dividerPositions="0.1810747663551402" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+      <SplitPane fx:id="appBody" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
          <items>
-            <SplitPane fx:id="leftPane" dividerPositions="0.5" orientation="VERTICAL" prefWidth="200.0" SplitPane.resizableWithParent="false">
+            <SplitPane fx:id="leftPane" dividerPositions="0.5" orientation="VERTICAL" SplitPane.resizableWithParent="false">
                <items>
                   <Accordion fx:id="leftMenu">
                     <panes>
-                      <TitledPane text="%Ui.LeftMenu.Bookings.text">
+                      <TitledPane fx:id="bookingsTitledPane" text="%Ui.LeftMenu.Bookings.text">
                            <content>
                               <VBox alignment="TOP_CENTER">
                                  <children>
                                     <ToggleButton fx:id="btnCalendar" maxWidth="1.7976931348623157E308" mnemonicParsing="false" selected="true" text="%Ui.LeftMenu.Bookings.BtnCalendar.text">
+                                       <VBox.margin>
+                                          <Insets bottom="3.0" />
+                                       </VBox.margin>
                                        <toggleGroup>
-                                          <ToggleGroup fx:id="LeftMenuGroup" />
+                                          <ToggleGroup fx:id="leftMenuGroup" />
                                        </toggleGroup>
+                                    </ToggleButton>
+                                    <ToggleButton fx:id="btnRoomPlan" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="%Ui.LeftMenu.Bookings.BtnRooms.text" toggleGroup="$leftMenuGroup">
                                        <VBox.margin>
                                           <Insets bottom="3.0" />
                                        </VBox.margin>
                                     </ToggleButton>
-                                    <ToggleButton fx:id="btnRoomPlan" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="%Ui.LeftMenu.Bookings.BtnRooms.text" toggleGroup="$LeftMenuGroup">
+                                    <ToggleButton fx:id="btnCustomers" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="%Ui.LeftMenu.Bookings.Customers.text" toggleGroup="$leftMenuGroup">
                                        <VBox.margin>
                                           <Insets bottom="3.0" />
                                        </VBox.margin>
                                     </ToggleButton>
-                                    <ToggleButton fx:id="btnCalendar2" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="%Ui.LeftMenu.Bookings.Customers.text" toggleGroup="$LeftMenuGroup">
-                                       <VBox.margin>
-                                          <Insets bottom="3.0" />
-                                       </VBox.margin>
-                                    </ToggleButton>
-                                    <ToggleButton fx:id="btnCalendar3" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="%Ui.LeftMenu.Bookings.Invoices.text" toggleGroup="$LeftMenuGroup" />
+                                    <ToggleButton fx:id="btnCalendar3" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="%Ui.LeftMenu.Bookings.Invoices.text" toggleGroup="$leftMenuGroup" />
                                  </children>
                               </VBox>
                            </content>
@@ -73,7 +73,6 @@
                   <AnchorPane prefHeight="200.0" prefWidth="200.0" />
                </items>
             </SplitPane>
-            <VBox prefHeight="200.0" prefWidth="100.0" />
          </items>
       </SplitPane>
    </children>

@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import application.Messages;
+import util.Messages;
 
 /**
  * Provides methods to load a certain kind of data from a given DB into a subclass of HotelData.

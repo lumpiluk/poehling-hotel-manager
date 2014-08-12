@@ -24,7 +24,7 @@ public class CustomCalendarTest extends Application {
 		CustomCalendar root = new CustomCalendar(Arrays.asList(rows));
 		
 		Calendar start = new GregorianCalendar(2014, 7, 4);
-		Calendar end = new GregorianCalendar(2014, 7, 12);
+		Calendar end = new GregorianCalendar(2014, 8, 12);
 		CalendarMarker m1 = root.createMarker("Familie Stratmann", 2, start, end);
 		
 		Calendar start2 = new GregorianCalendar(2014, 7, 10);

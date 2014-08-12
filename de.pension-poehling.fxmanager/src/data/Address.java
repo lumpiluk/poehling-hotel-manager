@@ -53,7 +53,7 @@ public class Address extends HotelData {
 			+ "email TEXT, "
 			+ "website TEXT, "
 			+ "memo TEXT, "
-			+ "debitor INTEGER, " // (boolean)
+			+ "debitor INTEGER, " // (boolean?)
 			+ "creditor INTEGER, "
 			+ "other INTEGER, "
 			+ "deceased INTEGER, " // TODO: here or Person?

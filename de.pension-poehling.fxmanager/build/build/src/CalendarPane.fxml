@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.web.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.control.*?>
@@ -7,18 +8,12 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-
-<BorderPane prefHeight="373.0" prefWidth="492.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
-   <center>
-      <Pane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER" />
-   </center>
-   <top>
-      <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="365.0" prefWidth="525.0" styleClass="calendar-pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.customControls.CalendarPane">
+   <children>
+      <ToolBar maxWidth="1.7976931348623157E308">
          <items>
-            <Button mnemonicParsing="false" scaleX="0.7" scaleY="0.7" text="&lt;" />
-            <Label alignment="CENTER" prefWidth="80.0" text="January" />
-            <Button mnemonicParsing="false" scaleX="0.7" scaleY="0.7" text="&gt;" />
-            <Separator orientation="VERTICAL">
+            <Button fx:id="todayBtn" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#todayBtnAction" text="%Ui.Calendar.Today.text" />
+            <Separator orientation="VERTICAL" styleClass="toolbar-separator">
                <opaqueInsets>
                   <Insets />
                </opaqueInsets>
@@ -26,17 +21,23 @@
                   <Insets left="20.0" right="20.0" />
                </padding>
             </Separator>
-            <Button mnemonicParsing="false" scaleX="0.7" scaleY="0.7" text="&lt;" />
-            <Label alignment="CENTER" prefWidth="50.0" text="2014" />
-            <Button mnemonicParsing="false" scaleX="0.7" scaleY="0.7" text="&gt;" />
+            <Button fx:id="priorMonthBtn" mnemonicParsing="false" onAction="#priorMonthBtnAction" scaleX="0.7" scaleY="0.7" text="&lt;" />
+            <Label fx:id="monthLbl" alignment="CENTER" text="Januar" />
+            <Button fx:id="nextMonthBtn" mnemonicParsing="false" onAction="#nextMonthBtnAction" scaleX="0.7" scaleY="0.7" text="&gt;" />
+            <VBox />
+            <Separator orientation="VERTICAL" styleClass="toolbar-separator">
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <padding>
+                  <Insets left="20.0" right="20.0" />
+               </padding>
+            </Separator>
+            <Button fx:id="priorYearBtn" mnemonicParsing="false" onAction="#priorYearBtnAction" scaleX="0.7" scaleY="0.7" text="&lt;" />
+            <Label fx:id="yearLbl" alignment="CENTER" text="2014" />
+            <Button fx:id="nextYearBtn" mnemonicParsing="false" onAction="#nextYearBtnAction" scaleX="0.7" scaleY="0.7" text="&gt;" />
          </items>
       </ToolBar>
-   </top>
-   <bottom>
-      <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-        <items>
-          <Button mnemonicParsing="false" text="Neuer Auftrag" />
-        </items>
-      </ToolBar>
-   </bottom>
-</BorderPane>
+      <ScrollPane fx:id="contentPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" pannable="true" VBox.vgrow="ALWAYS" />
+   </children>
+</VBox>

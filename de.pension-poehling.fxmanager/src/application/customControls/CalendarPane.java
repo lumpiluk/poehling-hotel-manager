@@ -26,14 +26,11 @@ import java.util.ResourceBundle;
 import util.Messages;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.Region;
 
-public class CalendarPane extends Region {
+public class CalendarPane extends AbstractControl {
 
 	private CustomCalendar customCalendar;
 	
@@ -70,15 +67,7 @@ public class CalendarPane extends Region {
     private Label yearLbl; // Value injected by FXMLLoader
 
     public CalendarPane() throws IOException {
-    	loadFXML();
-    }
-    
-    private void loadFXML() throws IOException {
-    	FXMLLoader loader = new FXMLLoader();
-    	loader.setController(this);
-    	loader.setLocation(getClass().getResource("/MainWindow.fxml"));
-    	loader.setResources(Messages.getBundle());
-    	this.getChildren().add((Node)loader.load());
+    	
     }
     
     @FXML
@@ -139,6 +128,7 @@ public class CalendarPane extends Region {
         String[] testRows = {"1","2","3","4","5","6","7","8","9","10","11","101", "102", "103", "114", "203","FeWo", "Appartement 1", "Appartement 2"};
 		customCalendar = new CustomCalendar(Arrays.asList(testRows));
         
+		
         contentPane.setContent(customCalendar);
     }
 }
