@@ -29,6 +29,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ToolBar;
 
 public class CalendarPane extends AbstractControl {
 
@@ -65,7 +66,12 @@ public class CalendarPane extends AbstractControl {
 
     @FXML // fx:id="yearLbl"
     private Label yearLbl; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="tbMonthPicker"
+    private ToolBar tbMonthPicker; // Value injected by FXMLLoader
 
+    //private ListSpinner<String> monthSpinner; // TODO?
+    
     public CalendarPane() throws IOException {
     	
     }
@@ -121,6 +127,9 @@ public class CalendarPane extends AbstractControl {
         assert contentPane != null : "fx:id=\"contentPane\" was not injected: check your FXML file 'CalendarPane.fxml'.";
         assert yearLbl != null : "fx:id=\"yearLbl\" was not injected: check your FXML file 'CalendarPane.fxml'.";
         assert monthLbl != null : "fx:id=\"monthLbl\" was not injected: check your FXML file 'CalendarPane.fxml'.";
+        assert tbMonthPicker != null : "fx:id=\"tbMonthPicker\" was not injected: check your FXML file 'CalendarPane.fxml'.";
+        
+        //tbMonthPicker.getItems().add(2, element);
         
         updateLabels();
         

@@ -4,13 +4,9 @@
 
 package application;
 
-import java.awt.Desktop.Action;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-
-import org.controlsfx.dialog.DialogStyle;
-import org.controlsfx.dialog.Dialogs;
 
 import util.Messages;
 import util.Messages.ErrorType;
@@ -25,7 +21,6 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.layout.Region;
 
 public class MainController {
 
@@ -56,23 +51,23 @@ public class MainController {
 			}
 			
 			if (oldValue == btnCalendar) {
-				hideCalendar();
+				hideCalendarView();
 			} else if (oldValue == btnRoomPlan) {
-				
+				hideRoomPlanView();
 			} else if (oldValue == btnCustomers) {
-				
+				hideCustomerView();
 			} else if (oldValue == btnInvoices) {
-				
+				hideInvoiceView();
 			}
 			
 			if (newValue == btnCalendar && !appBody.getItems().contains(calendarPane)) {
-				showCalendar();
+				showCalendarView();
 			} else if (newValue == btnRoomPlan) {
-				
+				showRoomPlanView();
 			} else if (newValue == btnCustomers) {
-				
+				showCustomerView();
 			} else if (newValue == btnInvoices) {
-				
+				showInvoiceView();
 			}
 			
 		}
@@ -99,11 +94,23 @@ public class MainController {
     // custom controls to be toggled by buttons within the leftMenuGroup
     private CalendarPane calendarPane;
     
-    private void hideCalendar() {
+    private void hideCalendarView() {
     	appBody.getItems().remove(calendarPane);
     }
     
-    private void showCalendar() {
+    private void hideRoomPlanView() {
+    	
+    }
+    
+    private void hideCustomerView() {
+    	
+    }
+    
+    private void hideInvoiceView() {
+    	
+    }
+    
+    private void showCalendarView() {
 		try {
 			calendarPane = new CalendarPane();
 			calendarPane.load();
@@ -115,6 +122,18 @@ public class MainController {
 		} catch (IOException e) {
 			Messages.showError(e, ErrorType.UI);
 		}
+    }
+    
+    private void showRoomPlanView() {
+    	
+    }
+    
+    private void showCustomerView() {
+    	
+    }
+    
+    private void showInvoiceView() {
+    	
     }
     
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -131,7 +150,7 @@ public class MainController {
         assert bookingsTitledPane != null : "fx:id=\"bookingsTitledPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
 
         leftMenuGroup.selectedToggleProperty().addListener(leftMenuGroupListener);
-        showCalendar(); // TODO: load from settings what to show first?
+        showCalendarView(); // TODO: load from settings what to show first?
         //System.out.println(com.sun.javafx.runtime.VersionInfo.getRuntimeVersion());
         
         leftMenu.setExpandedPane(bookingsTitledPane);

@@ -33,7 +33,7 @@
 		<mkdir dir="project" />
 		<copy todir="project">
 			<fileset dir="/media/lumpiluk/Data/MyFiles/git/poehling-hotel-manager/de.pension-poehling.fxmanager">
-				<include name="fxml/**" />
+				<include name="tests/**" />
 			</fileset>
 		</copy>
 		<copy todir="project">
@@ -43,7 +43,7 @@
 		</copy>
 		<copy todir="project">
 			<fileset dir="/media/lumpiluk/Data/MyFiles/git/poehling-hotel-manager/de.pension-poehling.fxmanager">
-				<include name="tests/**" />
+				<include name="db-import/**" />
 			</fileset>
 		</copy>
 		<copy todir="project">
@@ -53,7 +53,7 @@
 		</copy>
 		<copy todir="project">
 			<fileset dir="/media/lumpiluk/Data/MyFiles/git/poehling-hotel-manager/de.pension-poehling.fxmanager">
-				<include name="db-import/**" />
+				<include name="fxml/**" />
 			</fileset>
 		</copy>
 		<copy todir="project">
@@ -204,6 +204,9 @@
 			<fx:resources refid="appRes"/>
 		</fx:deploy>
 		
+		<fx:csstobin outdir="build/classes">
+			<fileset dir="build/classes" includes="**/*.css"/>
+		</fx:csstobin>			
 		
 	</target>
 </project>

@@ -93,6 +93,13 @@ public abstract class HotelData {
 	public abstract void insertIntoDb() throws SQLException;
 	
 	/**
+	 * Deletes the current record (usually determined by its index) from the
+	 * database, if it exists.
+	 * @throws SQLException
+	 */
+	public abstract void deleteFromDb() throws SQLException;
+	
+	/**
 	 * Creates the necessary tables for the class in the given DB connection.
 	 * Would've liked to make this method static, but unfortunately Java 1.7
 	 * doesn't allow me to make a method both abstract and static.

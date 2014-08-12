@@ -58,8 +58,7 @@ public class Address extends HotelData {
 			+ "other INTEGER, "
 			+ "deceased INTEGER, " // TODO: here or Person?
 			+ "private INTEGER, "
-			+ "added TEXT, " // (date)
-			+ "created TEXT)";
+			+ "created TEXT)"; // (date)
 	
 	private static final String SQL_INSERT = "INSERT INTO " + SQL_TABLE_NAME
 			+ " (addressee, addition, street, short_country, zip, town, " // TODO: when importing: with index-col!!!
@@ -75,6 +74,9 @@ public class Address extends HotelData {
 			+ "cellphone = ?, fax = ?, email = ?, website = ?, memo = ?, "
 			+ "debitor = ?, creditor = ?, other = ?, deceased = ?, "
 			+ "private = ?, added = ?, created = ? WHERE index = ?";
+	
+	private static final String SQL_DELETE = "DELETE FROM " + SQL_TABLE_NAME
+			+ " WHERE index = ?";
 	
 	private long id;
 	
@@ -561,6 +563,9 @@ public class Address extends HotelData {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void insertIntoDb() throws SQLException {
 		try (PreparedStatement stmt = con.prepareStatement(SQL_INSERT,
@@ -591,6 +596,16 @@ public class Address extends HotelData {
 			
 			stmt.executeUpdate();
 			this.setId(stmt.getGeneratedKeys().getLong(1));
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void deleteFromDb() throws SQLException {
+		try(PreparedStatement stmt = con.prepareStatement(SQL_DELETE)) {
+			stmt.setLong(1, getId());
 		}
 	}
 

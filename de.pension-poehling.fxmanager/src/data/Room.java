@@ -55,6 +55,9 @@ public class Room extends HotelData {
 			+ "area = ?, phone = ?, view = ?"
 			+ "WHERE index = ?";
 	
+	private static final String SQL_DELETE = "DELETE FROM " + SQL_TABLE_NAME
+			+ " WHERE index = ?";
+	
 	public static enum Type {
 		SINGLE("E"),
 		DOUBLE("D"),
@@ -169,7 +172,7 @@ public class Room extends HotelData {
 	/**
 	 * @return the room's ID in the DB
 	 */
-	public long getID() {
+	public long getId() {
 		return id;
 	}
 	
@@ -333,7 +336,7 @@ public class Room extends HotelData {
 			ps.setDouble(6, getArea());
 			ps.setString(7, getPhone());
 			ps.setString(8, getView());
-			ps.setLong(9, getID());
+			ps.setLong(9, getId());
 			ps.executeUpdate();
 		}
 		
@@ -353,6 +356,13 @@ public class Room extends HotelData {
 			ps.setString(8, getView());
 			ps.executeUpdate();
 			this.setId(ps.getGeneratedKeys().getLong(1));
+		}
+	}
+	
+	@Override
+	public void deleteFromDb() throws SQLException {
+		try(PreparedStatement stmt = con.prepareStatement(SQL_DELETE)) {
+			stmt.setLong(1, getId());
 		}
 	}
 

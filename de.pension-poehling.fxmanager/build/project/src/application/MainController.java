@@ -65,7 +65,7 @@ public class MainController {
 				
 			}
 			
-			if (newValue == btnCalendar) {
+			if (newValue == btnCalendar && !appBody.getItems().contains(calendarPane)) {
 				showCalendar();
 			} else if (newValue == btnRoomPlan) {
 				
@@ -111,7 +111,7 @@ public class MainController {
 			appBody.getItems().add(1, calendarPane);
 			SplitPane.setResizableWithParent(leftPane, false);
 			SplitPane.setResizableWithParent(calendarPane, true);
-			appBody.setDividerPositions(.2d);
+			appBody.setDividerPositions(0.0);
 		} catch (IOException e) {
 			Messages.showError(e, ErrorType.UI);
 		}

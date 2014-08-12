@@ -55,6 +55,9 @@ public class Person extends HotelData {
 			+ "birthday = ?, food_memo = ? "
 			+ "WHERE index = ?";
 	
+	private static final String SQL_DELETE = "DELETE FROM " + SQL_TABLE_NAME
+			+ " WHERE index = ?";
+	
 	private long id;
 	
 	private long addressId;
@@ -311,6 +314,13 @@ public class Person extends HotelData {
 			this.setId(stmt.getGeneratedKeys().getLong(1)); // get newly assigned id
 		}
 		
+	}
+	
+	@Override
+	public void deleteFromDb() throws SQLException {
+		try(PreparedStatement stmt = con.prepareStatement(SQL_DELETE)) {
+			stmt.setLong(1, getId());
+		}
 	}
 
 	@Override

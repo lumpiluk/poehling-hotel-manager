@@ -14,4 +14,6 @@
 <fullyQualifiedTypeName name="javafx.fxml.Initializable"/>
 <fullyQualifiedTypeName name="java.util.ResourceBundle"/>
 <fullyQualifiedTypeName name="javafx.fxml.FXMLLoader"/>
+<fullyQualifiedTypeName name="util.Messages.ErrorType"/>
+<fullyQualifiedTypeName name="javafx.scene.control.ToolBar"/>
 </qualifiedTypeNameHistroy>

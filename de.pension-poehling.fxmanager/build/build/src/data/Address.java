@@ -53,13 +53,12 @@ public class Address extends HotelData {
 			+ "email TEXT, "
 			+ "website TEXT, "
 			+ "memo TEXT, "
-			+ "debitor INTEGER, " // (boolean)
+			+ "debitor INTEGER, " // (boolean?)
 			+ "creditor INTEGER, "
 			+ "other INTEGER, "
 			+ "deceased INTEGER, " // TODO: here or Person?
 			+ "private INTEGER, "
-			+ "added TEXT, " // (date)
-			+ "created TEXT)";
+			+ "created TEXT)"; // (date)
 	
 	private static final String SQL_INSERT = "INSERT INTO " + SQL_TABLE_NAME
 			+ " (addressee, addition, street, short_country, zip, town, " // TODO: when importing: with index-col!!!

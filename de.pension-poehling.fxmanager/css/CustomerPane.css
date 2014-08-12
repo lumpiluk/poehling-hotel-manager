@@ -1,0 +1,15 @@
+#customerFormGrid {
+	-fx-padding: .2em;
+}
+
+#lvPeople {
+	-fx-pref-height: 7em;
+}
+
+#memoField {
+	-fx-pref-height: 7em;
+}
+
+.form-header {
+	-fx-padding: .5em 0 .2em 0;
+}
