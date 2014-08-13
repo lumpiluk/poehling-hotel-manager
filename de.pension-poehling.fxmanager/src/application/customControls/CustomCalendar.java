@@ -57,9 +57,6 @@ import javafx.scene.layout.Pane;
  * Style class for header: cols-header<br />
  * 
  * @author lumpiluk
- * @param <M> should be an Object implementing the toString() method.
- * Will be used to tell clicked markers apart. In this case a Booking will be
- * used.
  */
 public class CustomCalendar extends Control {
 
@@ -68,13 +65,6 @@ public class CustomCalendar extends Control {
 	private Calendar monthToDisplay;
 	
 	private final GridPane grid;
-	
-	/**
-	 * LinkedHashMap to quickly check which row in the GridPane a
-	 * CalendarMarker has to go into.
-	 */
-	//private HashMap<String, Integer> rows = 
-	//		new HashMap<String, Integer>(30);
 	
 	/** List of labels for each row with indices as specified in rows. */
 	private ArrayList<Label> rowLabels = new ArrayList<Label>(30); // TODO: make property (also for headers etc)

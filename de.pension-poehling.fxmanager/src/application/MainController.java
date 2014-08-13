@@ -11,6 +11,8 @@ import java.util.ResourceBundle;
 import util.Messages;
 import util.Messages.ErrorType;
 import application.customControls.CalendarPane;
+import application.customControls.CustomerForm;
+import application.customControls.CustomerPane;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -94,6 +96,9 @@ public class MainController {
     // custom controls to be toggled by buttons within the leftMenuGroup
     private CalendarPane calendarPane;
     
+    //private CustomerView customerView;
+    private CustomerForm customerForm; // temporary
+    
     private void hideCalendarView() {
     	appBody.getItems().remove(calendarPane);
     }
@@ -111,17 +116,10 @@ public class MainController {
     }
     
     private void showCalendarView() {
-		try {
-			calendarPane = new CalendarPane();
-			calendarPane.load();
-
-			appBody.getItems().add(1, calendarPane);
-			SplitPane.setResizableWithParent(leftPane, false);
-			SplitPane.setResizableWithParent(calendarPane, true);
-			appBody.setDividerPositions(0.0);
-		} catch (IOException e) {
-			Messages.showError(e, ErrorType.UI);
-		}
+		appBody.getItems().add(1, calendarPane);
+		SplitPane.setResizableWithParent(leftPane, false);
+		SplitPane.setResizableWithParent(calendarPane, true);
+		appBody.setDividerPositions(0.0);
     }
     
     private void showRoomPlanView() {
@@ -129,7 +127,15 @@ public class MainController {
     }
     
     private void showCustomerView() {
-    	
+    	try {
+			customerForm = new CustomerForm();
+			customerForm.load();
+	    	appBody.getItems().add(1, customerForm);
+	    	appBody.setDividerPositions(0.0);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
     private void showInvoiceView() {
@@ -149,6 +155,17 @@ public class MainController {
         assert btnRoomPlan != null : "fx:id=\"btnRoomPlan\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert bookingsTitledPane != null : "fx:id=\"bookingsTitledPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
 
+        // init custom controls
+        try {
+	        calendarPane = new CalendarPane();
+			calendarPane.load();
+			
+			//customerView = new CustomerView();
+			//customerView.load();
+	    } catch (IOException e) {
+			Messages.showError(e, ErrorType.UI);
+		}
+        
         leftMenuGroup.selectedToggleProperty().addListener(leftMenuGroupListener);
         showCalendarView(); // TODO: load from settings what to show first?
         //System.out.println(com.sun.javafx.runtime.VersionInfo.getRuntimeVersion());

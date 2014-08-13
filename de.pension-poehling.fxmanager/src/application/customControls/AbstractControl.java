@@ -4,13 +4,15 @@
 package application.customControls;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 import util.Messages;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.layout.Region;
+import javafx.scene.control.Control;
+import javafx.scene.control.Skin;
 
 /**
  * Abstract class for custom controls using FXML. This class handles loading
@@ -22,20 +24,76 @@ import javafx.scene.layout.Region;
  * @author lumpiluk
  *
  */
-public abstract class AbstractControl extends Region {
+public abstract class AbstractControl extends Control {
 
 	private static final String fxmlPath = "/%s.fxml";
 	
+	private static final String cssPath = "/%s.css";
+	
+	private static final String skinClass = "%sSkin";
+	
+	/**
+	 * Creates a new instance of the desired control.
+	 * To actually create the JavaFX control the load()-method has to be called
+	 * additionally!
+	 * @throws IOException
+	 */
 	public AbstractControl() throws IOException {
 
 	}
 	
+	/**
+	 * Loads the FXML file.
+	 * This method has to be called in addition to the constructor.
+	 * Cannot be done inside the constructor itself as it would cause some kind
+	 * of stack overflow...
+	 * @throws IOException
+	 */
 	public void load() throws IOException {
 		FXMLLoader loader = new FXMLLoader();
     	loader.setLocation(getClass().getResource(String.format(
     			fxmlPath, this.getClass().getSimpleName())));
     	loader.setResources(Messages.getBundle());
     	this.getChildren().add((Node)loader.load());
+	}
+	
+	/**
+	 * Return the path to the CSS file so things are set up right
+	 * @see javafx.scene.control.Control#getUserAgentStylesheet()
+	 */
+	@Override
+	protected String getUserAgentStylesheet() {
+		String css;
+		//try {
+			css = getClass().getResource(String.format(cssPath,
+					this.getClass().getSimpleName())).toExternalForm();
+		/*} catch (NullPointerException e) {
+			Messages.showError(e, Messages.ErrorType.UI);
+			css = null;
+		}*/
+		return css;
+	}
+	
+	/**
+	 * @return the default skin for this custom control. (Required when
+	 * extending javafx.scene.control.Control)
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	protected Skin createDefaultSkin() {
+		Skin defaultSkin;
+		try {
+			defaultSkin = (Skin)Class.forName(String.format(skinClass,
+					this.getClass().getName()))
+					.getDeclaredConstructor(Control.class).newInstance(this);
+		} catch (ClassNotFoundException | InstantiationException
+				| IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException | NoSuchMethodException
+				| SecurityException e) {
+			Messages.showError(e, Messages.ErrorType.UI);
+			defaultSkin = null;
+		}
+		return defaultSkin;
 	}
 	
 	@Override
