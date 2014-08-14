@@ -10,7 +10,7 @@
 
 <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="365.0" prefWidth="525.0" styleClass="calendar-pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.customControls.CalendarPane">
    <children>
-      <ToolBar maxWidth="1.7976931348623157E308">
+      <ToolBar fx:id="tbMonthPicker" maxWidth="1.7976931348623157E308" VBox.vgrow="SOMETIMES">
          <items>
             <Button fx:id="todayBtn" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#todayBtnAction" text="%Ui.Calendar.Today.text" />
             <Separator orientation="VERTICAL" styleClass="toolbar-separator">

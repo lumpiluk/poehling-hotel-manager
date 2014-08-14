@@ -8,10 +8,11 @@ import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 import java.net.URL;
 
-import org.controlsfx.validation.ValidationResult;
-import org.controlsfx.validation.ValidationSupport;
-
+import data.Address;
 import util.Messages;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -21,6 +22,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
@@ -132,20 +134,42 @@ public class CustomerForm extends AbstractControl {
     @FXML // fx:id="btnEditCustomer"
     private Button btnEditCustomer; // Value injected by FXMLLoader
     
-    private final ValidationSupport validationSupport = new ValidationSupport();
+    @FXML // fx:id="customersTable"
+    private TableView<Address> customersTable; // Value injected by FXMLLoader
+    
+    //private final ValidationSupport validationSupport = new ValidationSupport(); // TODO: see initValidationSupport() below
+    
+    ObservableList<Address> customersTableData;
 
+    @FXML
+    void btnNewAddressClicked(ActionEvent event) {
+
+    }
+
+    @FXML
+    void btnRemoveAddressClicked(ActionEvent event) {
+
+    }
+
+    @FXML
+    void btnEditAddressClicked(ActionEvent event) {
+
+    }
+    
     /**
      * Registers validators from ControlsFX on the input fields so that
      * the user will know whether all inputs are correct.
      */
     public void initValidationSupport() {
+    	// TODO: implement this once bug in ControlsFX has been fixed! (supposed to happen in 8.0.7)
+    	// https://bitbucket.org/controlsfx/controlsfx/issue/285/validator-support-change-resize-behavior
+    	
     	// email field
-    	validationSupport.registerValidator(tfEmail, (Control c, String s) ->
+    	/*validationSupport.registerValidator(tfEmail, (Control c, String s) ->
 			ValidationResult.fromErrorIf(tfEmail,
 					Messages.getString("Ui.Customer.emailValidation"),
-					s == null || s.trim().equals("") || emailRegex.matcher(s).matches())
-		);
-    	
+					s == null || s.trim().equals("") || !emailRegex.matcher(s).matches())
+		);*/
     	
     }
     
@@ -180,7 +204,12 @@ public class CustomerForm extends AbstractControl {
         assert btnNewAddress != null : "fx:id=\"btnNewAddress\" was not injected: check your FXML file 'CustomerPane.fxml'.";
         assert btnRemoveCustomer != null : "fx:id=\"btnRemoveCustomer\" was not injected: check your FXML file 'CustomerPane.fxml'.";
         assert btnEditCustomer != null : "fx:id=\"btnEditCustomer\" was not injected: check your FXML file 'CustomerPane.fxml'.";
+        assert customersTable != null : "fx:id=\"customersTable\" was not injected: check your FXML file 'CustomerForm.fxml'.";
 
+        // init customers table
+        customersTableData = FXCollections.observableArrayList();
+        //customersTable.setItems(customersTableData);
+        
         scrollPane.setFitToWidth(true);        
         
         initValidationSupport();

@@ -12,7 +12,6 @@ import util.Messages;
 import util.Messages.ErrorType;
 import application.customControls.CalendarPane;
 import application.customControls.CustomerForm;
-import application.customControls.CustomerPane;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
