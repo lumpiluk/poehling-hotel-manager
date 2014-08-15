@@ -25,6 +25,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Date;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.NoSuchElementException;
 
 /**
@@ -33,7 +35,7 @@ import java.util.NoSuchElementException;
  */
 public class Address extends HotelData {
 
-	private static final String SQL_TABLE_NAME = "addresses";
+	public static final String SQL_TABLE_NAME = "addresses";
 	
 	private static final String SQL_CREATE = "CREATE TABLE IF NOT EXISTS "
 			+ SQL_TABLE_NAME + " (index INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -78,6 +80,15 @@ public class Address extends HotelData {
 	private static final String SQL_DELETE = "DELETE FROM " + SQL_TABLE_NAME
 			+ " WHERE index = ?";
 	
+	private static final String SQL_SELECT_ALL = String.format(
+			"SELECT * FROM %1$s LEFT OUTER JOIN %2$s ON %1$s.addressee = "
+			+ "%2$s.address", SQL_TABLE_NAME, Person.SQL_TABLE_NAME);
+	
+	private static final String SQL_SELECT = String.format(
+			"%1$s WHERE %2$s.index = ?", SQL_SELECT_ALL, SQL_TABLE_NAME
+			);
+	
+	
 	private long id;
 	
 	/** 
@@ -85,7 +96,7 @@ public class Address extends HotelData {
 	 * More people can be assigned to this address by their ADDRESS field
 	 * and obtained by this object's getPeople method (TODO).
 	 */
-	private long addresseeId;
+	private Person addressee;
 	
 	private String addition;
 	
@@ -117,7 +128,6 @@ public class Address extends HotelData {
 	public Address(final Connection con) {
 		super(con);
 		this.id = 0;
-		this.addresseeId = 0;
 		this.debitor = false;
 		this.creditor = false;
 		this.other = false;
@@ -125,10 +135,6 @@ public class Address extends HotelData {
 		this.privateAddress = false;
 		this.created = new java.sql.Date(0);
 		this.added = new java.sql.Date(0);
-	}
-
-	protected String getTableName() {
-		return "addresses";
 	}
 	
 	/**
@@ -138,92 +144,41 @@ public class Address extends HotelData {
 		return id;
 	}
 
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(long id) {
-		this.id = id;
-	}
+	/** @param id the id to set */
+	public void setId(long id) { this.id = id; }
 
-	private long getAddresseeId() {
-		return addresseeId;
-	}
+	/** @return the addressee Person object associated with this address */
+	public Person getAddressee() { return addressee; }
 	
-	/**
-	 * @return the addressee
-	 */
-	public Person getAddressee() throws SQLException {
-		Person addressee = new Person(con);
-		addressee.fromDbAtIndex(getAddresseeId());
-		return addressee;
-	}
+	/** @return the toString() value of the addressee Person object. */
+	public String getAddresseeString() { return addressee.toString(); }
 
-	/**
-	 * @param addressee the addressee to set
-	 */
-	public void setAddressee(Person addressee) {
-		this.addresseeId = addressee.getId();
-	}
-	
-	private void setAddresseeId(long id) {
-		this.addresseeId = id;
-	}
+	/** @param addressee the addressee to set */
+	public void setAddressee(Person addressee) { this.addressee = addressee; }
 
-	/**
-	 * @return the addition
-	 */
-	public String getAddition() {
-		return addition;
-	}
+	/** @return the addition */ // TODO: what is this anyway?!
+	public String getAddition() { return addition; }
 
-	/**
-	 * @param addition the addition to set
-	 */
-	public void setAddition(String addition) {
-		this.addition = addition;
-	}
+	/** @param addition the addition to set */
+	public void setAddition(String addition) { this.addition = addition; }
 
-	/**
-	 * @return the street
-	 */
-	public String getStreet() {
-		return street;
-	}
+	/** @return the street */
+	public String getStreet() { return street; }
 
-	/**
-	 * @param street the street to set
-	 */
-	public void setStreet(String street) {
-		this.street = street;
-	}
+	/** @param street the street to set */
+	public void setStreet(String street) { this.street = street; }
 
-	/**
-	 * @return the shortCountry
-	 */
-	public String getShortCountry() {
-		return shortCountry;
-	}
+	/** @return the shortCountry */
+	public String getShortCountry() { return shortCountry; }
 
-	/**
-	 * @param shortCountry the shortCountry to set
-	 */
-	public void setShortCountry(String shortCountry) {
-		this.shortCountry = shortCountry;
-	}
+	/** @param shortCountry the shortCountry to set */
+	public void setShortCountry(String shortCountry) { this.shortCountry = shortCountry; }
 
-	/**
-	 * @return the zipCode
-	 */
-	public String getZipCode() {
-		return zipCode;
-	}
+	/** @return the zipCode */
+	public String getZipCode() { return zipCode; }
 
-	/**
-	 * @param zipCode the zipCode to set
-	 */
-	public void setZipCode(String zipCode) {
-		this.zipCode = zipCode;
-	}
+	/** @param zipCode the zipCode to set */
+	public void setZipCode(String zipCode) { this.zipCode = zipCode; }
 
 	/**
 	 * @return the town
@@ -469,6 +424,11 @@ public class Address extends HotelData {
 	public Date getAdded() {
 		return added;
 	}
+	
+	public String getAddedString() {
+		DateFormat format = new SimpleDateFormat("yyyy-MM-dd"); // TODO: settings specific?
+		return format.format(added);
+	}
 
 	/**
 	 * @param added the added to set
@@ -485,37 +445,46 @@ public class Address extends HotelData {
 	public boolean fromDbAtIndex(long id)
 			throws NoSuchElementException, SQLException {
 		boolean success = false;
-		String query = "SELECT * FROM " + getTableName() + " WHERE index = ?";
-		try (PreparedStatement stmt = con.prepareStatement(query)){
+		try (PreparedStatement stmt = con.prepareStatement(SQL_SELECT)){
 			stmt.setLong(1, id);
 			try (ResultSet rs = stmt.executeQuery()) {
 				if (!rs.first()) {
 					throw new NoSuchElementException();
 				}
-				this.id = rs.getLong("index");
-				this.setAddresseeId(rs.getLong("addressee"));
-				this.setAddition(rs.getString("addition"));
-				this.setStreet(rs.getString("street"));
-				this.setShortCountry(rs.getString("short_country"));
-				this.setZipCode(rs.getString("zip"));
-				this.setTown(rs.getString("town"));
-				this.setState(rs.getString("state"));
-				this.setPostbox(rs.getString("postbox"));
-				this.setPostboxZip(rs.getString("postbox_zip"));
-				this.setPostboxTown(rs.getString("postbox_town"));
-				this.setPhone(rs.getString("phone"));
-				this.setFax(rs.getString("fax"));
-				this.setEmail(rs.getString("email"));
-				this.setWebsite(rs.getString("website"));
-				this.setCellphone(rs.getString("cellphone"));
-				this.setMemo(rs.getString("memo"));
-				this.setDebitor(rs.getBoolean("debitor"));
-				this.setCreditor(rs.getBoolean("creditor"));
-				this.setOther(rs.getBoolean("other"));
-				this.setDeceased(rs.getBoolean("deceased"));
-				this.setPrivateAddress(rs.getBoolean("private"));
-				this.setCreated(rs.getDate("created"));
-				this.setAdded(rs.getDate("added"));
+				this.id = rs.getLong(SQL_TABLE_NAME + ".index");
+				
+				Person a = new Person(con);
+				a.setAddress(this);
+				a.setId(rs.getLong(Person.SQL_TABLE_NAME + ".index"));
+				a.setFirstNames(rs.getString(Person.SQL_TABLE_NAME + ".first_names"));
+				a.setSurnames(rs.getString(Person.SQL_TABLE_NAME + ".surnames"));
+				a.setTitle(rs.getString(Person.SQL_TABLE_NAME + ".title"));
+				a.setBirthday(rs.getDate(Person.SQL_TABLE_NAME + ".birthday"));
+				a.setFoodMemo(rs.getString(Person.SQL_TABLE_NAME + ".food_memo"));
+				this.setAddressee(a);
+				
+				this.setAddition(rs.getString(SQL_TABLE_NAME + ".addition"));
+				this.setStreet(rs.getString(SQL_TABLE_NAME + ".street"));
+				this.setShortCountry(rs.getString(SQL_TABLE_NAME + ".short_country"));
+				this.setZipCode(rs.getString(SQL_TABLE_NAME + ".zip"));
+				this.setTown(rs.getString(SQL_TABLE_NAME + ".town"));
+				this.setState(rs.getString(SQL_TABLE_NAME + ".state"));
+				this.setPostbox(rs.getString(SQL_TABLE_NAME + ".postbox"));
+				this.setPostboxZip(rs.getString(SQL_TABLE_NAME + ".postbox_zip"));
+				this.setPostboxTown(rs.getString(SQL_TABLE_NAME + ".postbox_town"));
+				this.setPhone(rs.getString(SQL_TABLE_NAME + ".phone"));
+				this.setFax(rs.getString(SQL_TABLE_NAME + ".fax"));
+				this.setEmail(rs.getString(SQL_TABLE_NAME + ".email"));
+				this.setWebsite(rs.getString(SQL_TABLE_NAME + ".website"));
+				this.setCellphone(rs.getString(SQL_TABLE_NAME + ".cellphone"));
+				this.setMemo(rs.getString(SQL_TABLE_NAME + ".memo"));
+				this.setDebitor(rs.getBoolean(SQL_TABLE_NAME + ".debitor"));
+				this.setCreditor(rs.getBoolean(SQL_TABLE_NAME + ".creditor"));
+				this.setOther(rs.getBoolean(SQL_TABLE_NAME + ".other"));
+				this.setDeceased(rs.getBoolean(SQL_TABLE_NAME + ".deceased"));
+				this.setPrivateAddress(rs.getBoolean(SQL_TABLE_NAME + ".private"));
+				this.setCreated(rs.getDate(SQL_TABLE_NAME + ".created"));
+				this.setAdded(rs.getDate(SQL_TABLE_NAME + ".added"));
 				//TODO: difference between created and added?
 				
 				success = true;
@@ -530,11 +499,11 @@ public class Address extends HotelData {
 	 */
 	@Override
 	public void updateDb() throws SQLException, NullPointerException {
-		if (getAddresseeId() == 0)
+		if (getAddressee() == null)
 			throw new NullPointerException("Address needs an addressee!");
 		
 		try (PreparedStatement stmt = con.prepareStatement(SQL_UPDATE)) {
-			stmt.setLong(1, getAddresseeId());
+			stmt.setLong(1, getAddressee().getId());
 			stmt.setString(2, getAddition());
 			stmt.setString(3, getStreet());
 			stmt.setString(4, getShortCountry());
@@ -570,7 +539,7 @@ public class Address extends HotelData {
 	public void insertIntoDb() throws SQLException {
 		try (PreparedStatement stmt = con.prepareStatement(SQL_INSERT,
 				Statement.RETURN_GENERATED_KEYS)) {
-			stmt.setLong(1, getAddresseeId());
+			stmt.setLong(1, getAddressee().getId());
 			stmt.setString(2, getAddition());
 			stmt.setString(3, getStreet());
 			stmt.setString(4, getShortCountry());

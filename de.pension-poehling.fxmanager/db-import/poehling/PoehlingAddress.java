@@ -20,16 +20,6 @@ public class PoehlingAddress extends Address {
 	public PoehlingAddress(Connection con) {
 		super(con);
 	}
-	
-
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected String getTableName() {
-		return "adressen";
-	}
 
 	/* (non-Javadoc)
 	 * @see data.Address#fromDbAtIndex(long)

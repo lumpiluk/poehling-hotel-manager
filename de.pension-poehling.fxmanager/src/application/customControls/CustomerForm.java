@@ -8,6 +8,8 @@ import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 import java.net.URL;
 
+import org.controlsfx.control.CheckComboBox;
+
 import data.Address;
 import util.Messages;
 import javafx.collections.FXCollections;
@@ -22,10 +24,13 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 
 /**
  * @author lumpiluk
@@ -135,7 +140,12 @@ public class CustomerForm extends AbstractControl {
     private Button btnEditCustomer; // Value injected by FXMLLoader
     
     @FXML // fx:id="customersTable"
-    private TableView<Address> customersTable; // Value injected by FXMLLoader
+    private TableView<?> customersTable; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="customersToolBox"
+    private HBox customersToolBox; // Value injected by FXMLLoader
+    
+    private CheckComboBox<String> ccbFlagsFilter;
     
     //private final ValidationSupport validationSupport = new ValidationSupport(); // TODO: see initValidationSupport() below
     
@@ -156,11 +166,16 @@ public class CustomerForm extends AbstractControl {
 
     }
     
+    @SuppressWarnings("unchecked")
+	private TableView<Address> getCustomersTable() {
+    	return (TableView<Address>)customersTable;
+    }
+    
     /**
      * Registers validators from ControlsFX on the input fields so that
      * the user will know whether all inputs are correct.
      */
-    public void initValidationSupport() {
+    private void initValidationSupport() {
     	// TODO: implement this once bug in ControlsFX has been fixed! (supposed to happen in 8.0.7)
     	// https://bitbucket.org/controlsfx/controlsfx/issue/285/validator-support-change-resize-behavior
     	
@@ -173,9 +188,34 @@ public class CustomerForm extends AbstractControl {
     	
     }
     
+    @SuppressWarnings("unchecked")
+	private void initCustomersTable() {
+    	TableColumn<Address, String> addresseeCol = new TableColumn<Address, String>(Messages.getString("Ui.Customers.Table.addresseeCol"));
+    	addresseeCol.setCellValueFactory(new PropertyValueFactory<Address, String>("addresseeString"));
+    	
+    	TableColumn<Address, String> addressCol = new TableColumn<Address, String>(Messages.getString("Ui.Customers.Table.addressCol"));
+    	addressCol.setCellValueFactory(new PropertyValueFactory<Address, String>("fullAddressString"));
+    	
+    	TableColumn<Address, String> phoneCol = new TableColumn<Address, String>(Messages.getString("Ui.Customers.Table.phoneCol"));
+    	phoneCol.setCellValueFactory(new PropertyValueFactory<Address, String>("phone"));
+    	
+    	TableColumn<Address, String> mobileCol = new TableColumn<Address, String>(Messages.getString("Ui.Customers.Table.mobileCol"));
+    	phoneCol.setCellValueFactory(new PropertyValueFactory<Address, String>("cellphone"));
+    	
+    	TableColumn<Address, String> addedDateCol = new TableColumn<Address, String>(Messages.getString("Ui.Customers.Table.addedDateCol"));
+    	addressCol.setCellValueFactory(new PropertyValueFactory<Address, String>("addedString"));
+    	
+    	//TableColumn<Address, String> latestBookingCol = new TableColumn<Address, String>(Messages.getString("Ui.Customers.Table.latestBookingCol"));
+        
+    	getCustomersTable().getColumns().addAll(addresseeCol, addressCol, phoneCol, mobileCol, addedDateCol);
+        customersTableData = FXCollections.observableArrayList();
+        getCustomersTable().setItems(customersTableData);
+    }
+    
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
-        assert tabNewPerson != null : "fx:id=\"tabNewPerson\" was not injected: check your FXML file 'CustomerForm.fxml'.";
+    	assert customersTable != null : "fx:id=\"customersTable\" was not injected: check your FXML file 'CustomerForm.fxml'.";
+    	assert tabNewPerson != null : "fx:id=\"tabNewPerson\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert tfMobile != null : "fx:id=\"tfMobile\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert tfPostboxTown != null : "fx:id=\"tfPostboxTown\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert cbPrivate != null : "fx:id=\"cbPrivate\" was not injected: check your FXML file 'CustomerForm.fxml'.";
@@ -204,11 +244,12 @@ public class CustomerForm extends AbstractControl {
         assert btnNewAddress != null : "fx:id=\"btnNewAddress\" was not injected: check your FXML file 'CustomerPane.fxml'.";
         assert btnRemoveCustomer != null : "fx:id=\"btnRemoveCustomer\" was not injected: check your FXML file 'CustomerPane.fxml'.";
         assert btnEditCustomer != null : "fx:id=\"btnEditCustomer\" was not injected: check your FXML file 'CustomerPane.fxml'.";
-        assert customersTable != null : "fx:id=\"customersTable\" was not injected: check your FXML file 'CustomerForm.fxml'.";
+        assert customersToolBox != null : "fx:id=\"customersToolBox\" was not injected: check your FXML file 'CustomerForm.fxml'.";
 
-        // init customers table
-        customersTableData = FXCollections.observableArrayList();
-        //customersTable.setItems(customersTableData);
+        ccbFlagsFilter = new CheckComboBox<String>();
+        customersToolBox.getChildren().add(1, ccbFlagsFilter);
+        
+        initCustomersTable();       
         
         scrollPane.setFitToWidth(true);        
         

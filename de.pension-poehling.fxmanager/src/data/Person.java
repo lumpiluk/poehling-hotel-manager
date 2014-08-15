@@ -35,7 +35,7 @@ import java.util.NoSuchElementException;
  */
 public class Person extends HotelData {
 
-	private static final String SQL_TABLE_NAME = "people";
+	public static final String SQL_TABLE_NAME = "people";
 
 	private static final String SQL_CREATE = "CREATE TABLE IF NOT EXISTS "
 			+ SQL_TABLE_NAME + " (index INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -86,7 +86,7 @@ public class Person extends HotelData {
 		return id;
 	}
 	
-	private void setId(long id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 	
@@ -191,6 +191,11 @@ public class Person extends HotelData {
 	 */
 	public void setFoodMemo(String foodMemo) {
 		this.foodMemo = foodMemo;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("%1$s %2$s %3$s", getTitle(), getFirstNames(), getSurnames());
 	}
 	
 	/**

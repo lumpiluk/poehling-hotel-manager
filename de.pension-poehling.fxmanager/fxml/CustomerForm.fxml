@@ -6,13 +6,13 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-
-<SplitPane dividerPositions="0.7" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="718.0" prefWidth="994.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.customControls.CustomerForm">
+<SplitPane dividerPositions="0.7" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="718.0" prefWidth="796.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.customControls.CustomerForm">
    <items>
       <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0">
          <children>
-            <HBox maxWidth="1.7976931348623157E308" minWidth="0.0" spacing="5.0">
+            <HBox fx:id="customersToolBox" maxWidth="1.7976931348623157E308" minWidth="0.0" spacing="5.0">
                <children>
+                  <Label maxHeight="1.7976931348623157E308" text="%Ui.Customers.FilterFlagsLbl.text" />
                   <TextField maxWidth="1.7976931348623157E308" promptText="%Ui.Customers.SearchBox.prompt" HBox.hgrow="ALWAYS" />
                   <Button mnemonicParsing="false" text="%Ui.Customers.SearchBtn.text" />
                </children>
@@ -26,11 +26,7 @@
                   <Insets />
                </VBox.margin>
             </HBox>
-            <TableView maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" VBox.vgrow="ALWAYS">
-               <columns>
-                  <TableColumn maxWidth="1.7976931348623157E308" minWidth="0.0" prefWidth="333.0" text="C1" />
-                  <TableColumn maxWidth="1.7976931348623157E308" minWidth="0.0" prefWidth="0.0" text="C2" />
-               </columns>
+            <TableView fx:id="customersTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" VBox.vgrow="ALWAYS">
                <columnResizePolicy>
                   <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                </columnResizePolicy>

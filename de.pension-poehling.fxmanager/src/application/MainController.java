@@ -96,7 +96,7 @@ public class MainController {
     private CalendarPane calendarPane;
     
     //private CustomerView customerView;
-    private CustomerForm customerForm; // temporary
+    private CustomerForm customerForm; // TODO: change name?
     
     private void hideCalendarView() {
     	appBody.getItems().remove(calendarPane);
@@ -107,7 +107,7 @@ public class MainController {
     }
     
     private void hideCustomerView() {
-    	
+    	appBody.getItems().remove(customerForm);
     }
     
     private void hideInvoiceView() {
@@ -126,15 +126,10 @@ public class MainController {
     }
     
     private void showCustomerView() {
-    	try {
-			customerForm = new CustomerForm();
-			customerForm.load();
-	    	appBody.getItems().add(1, customerForm);
-	    	appBody.setDividerPositions(0.0);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    	appBody.getItems().add(1, customerForm);
+    	SplitPane.setResizableWithParent(leftPane, false);
+		SplitPane.setResizableWithParent(customerForm, true);
+    	appBody.setDividerPositions(0.0);
     }
     
     private void showInvoiceView() {
@@ -158,6 +153,9 @@ public class MainController {
         try {
 	        calendarPane = new CalendarPane();
 			calendarPane.load();
+			
+			customerForm = new CustomerForm();
+			customerForm.load();
 			
 			//customerView = new CustomerView();
 			//customerView.load();
