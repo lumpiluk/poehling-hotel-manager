@@ -1,7 +1,7 @@
 /**
  * 
  */
-package poehling;
+package dbimport.poehling;
 
 import java.sql.Connection;
 import java.sql.SQLException;

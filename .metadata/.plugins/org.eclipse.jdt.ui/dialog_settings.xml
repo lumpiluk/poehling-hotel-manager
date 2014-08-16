@@ -92,6 +92,19 @@
 		<section name="projects">
 		</section>
 	</section>
+	<section name="FatJarPackageWizard">
+		<item value="/media/lumpiluk/Data/MyFiles/git/poehling-hotel-manager" key="FatJarPackageWizardPage.ANTSCRIPT_LOCATION"/>
+		<item value="Main - de.pension-poehling.fxmanager" key="FatJarPackageWizardPage.LAUNCH_CONFIGURATION_SELECTION_NAME"/>
+		<item value="/home/lumpiluk/Desktop/Untitled.jar" key="FatJarPackageWizardPage.DESTINATION_PATH_SELECTION"/>
+		<item value="false" key="FatJarPackageWizardPage.ANTSCRIPT_SAVE"/>
+		<item value="1" key="FatJarPackageWizardPage.LIBRARY_HANDLING"/>
+		<list key="FatJarPackageWizardPage.DESTINATION_NAMES_ID">
+			<item value="/home/lumpiluk/Desktop/Untitled.jar"/>
+		</list>
+		<list key="FatJarPackageWizardPage.ANTSCRIPT_LOCATION_HISTORY">
+			<item value=".xml"/>
+		</list>
+	</section>
 	<section name="JavaBuildConfigurationBlock">
 		<item value="true" key="expanded2"/>
 		<item value="true" key="expanded1"/>

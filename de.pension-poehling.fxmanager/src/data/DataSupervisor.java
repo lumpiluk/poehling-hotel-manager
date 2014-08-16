@@ -20,8 +20,10 @@
 package data;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,7 +52,7 @@ public class DataSupervisor {
 	private final ObservableList<String> flags = FXCollections.observableArrayList();
 	
 	/** true iff connection to the DB has been established and all lists are loaded */
-	private boolean initialized = false;
+	private boolean flagsInitialized = false;
 	
 	/** 
 	 * Thread factory for databaseExectuor.
@@ -86,6 +88,15 @@ public class DataSupervisor {
 		
 	}
 	
+	private void init() {
+		
+	}
+	
+	/** @param con The database connection to a Hotel Manager database. */
+	public void setConnection(Connection con) {
+		this.con = con;
+	}
+	
 	/** Task for handling adding of new flags concurrently. */
 	private class InsertFlagTask extends Task<Void> {
 		private ListChangeListener.Change<? extends String> c;
@@ -96,7 +107,13 @@ public class DataSupervisor {
 		
 		@Override protected Void call() throws Exception {
 			String insertQuery = "INSERT INTO flags (name) VALUES (?)";
-			// TODO: finish
+			try (PreparedStatement ps = con.prepareStatement(insertQuery)) {
+				for (String newFlag : c.getAddedSubList()) {
+					ps.setString(1, newFlag);
+					ps.addBatch();
+				}
+				ps.executeBatch();
+			}
 			return null;
 		}
 	}
@@ -111,10 +128,24 @@ public class DataSupervisor {
 		
 		@Override protected Void call() throws Exception {
 			String deleteQuery = "DELETE FROM flags WHERE name = ?";
-			// TODO: finish
+			try (PreparedStatement ps = con.prepareStatement(deleteQuery)) {
+				for (String flatToDelete : c.getRemoved()) {
+					ps.setString(1, flatToDelete);
+				}
+			}
 			return null;
 		}
 	}
+	
+	private ListChangeListener<String> flagsListener = new ListChangeListener<String>() {
+		@Override public void onChanged(ListChangeListener.Change<? extends String> c) {
+			if (c.wasAdded()) {
+				databaseExecutor.submit(new InsertFlagTask(c));					
+			} else if (c.wasRemoved()) {
+				databaseExecutor.submit(new RemoveFlagTask(c));
+			}
+		}
+	};
 	
 	private void initFlags() throws SQLException {
 		ArrayList<String> items = new ArrayList<String>();
@@ -122,27 +153,26 @@ public class DataSupervisor {
 		
 		try (ResultSet rs = con.createStatement().executeQuery(query)) {
 			while(rs.next()) {
-				items.add(rs.getString(0));
+				items.add(rs.getString(0)); // TODO: necessary to run this in Platform.runLater()?
 			}
 		}
 		
+		// remove listener first so that adding items to the list will have no effect on the database
+		flags.removeListener(flagsListener);
 		flags.setAll(items);
-		
-		// handle adding to and removing from flags concurrently
-		flags.addListener(new ListChangeListener<String>() {
-			@Override public void onChanged(ListChangeListener.Change<? extends String> c) {
-				if (c.wasAdded()) {
-					databaseExecutor.submit(new InsertFlagTask(c));					
-				} else if (c.wasRemoved()) {
-					databaseExecutor.submit(new RemoveFlagTask(c));
-				}
-			}
-		});
+		flags.addListener(flagsListener);
+	}
+	
+	private void createFlagsTable() throws SQLException {
+		final String createQuery = "CREATE TABLE flags (name TEXT NOT NULL)";
+		try (Statement stmt = con.createStatement()) {
+			stmt.executeUpdate(createQuery);
+		}
 	}
 	
 	/** @return True iff connection to the DB has been established and all lists are loaded. */
 	public boolean isInitialized() {
-		return initialized;
+		return flagsInitialized;
 	}
 	
 	/** @return List of possible flags an address can have. Used throughout the application. */
@@ -152,13 +182,34 @@ public class DataSupervisor {
 	
 	/**
 	 * Creates all required tables in a new database.
-	 * @throws SQLException
+	 * @see createTablesConcurrently
+	 * @return true if table creation completed successfully
 	 */
-	public void createTables() throws SQLException {
-		(new Room(con)).createTables();
-		(new Person(con)).createTables();
-		(new Address(con)).createTables();
-		// TODO: boookings/orders, invoices, flags, states, cities(?)...
+	public boolean createTables() {
+		boolean success = false;
+		try {
+			(new Room(con)).createTables();
+			(new Person(con)).createTables();
+			(new Address(con)).createTables();
+			createFlagsTable();
+			success = true;
+		} catch (SQLException e) {
+			Messages.showError(e, Messages.ErrorType.DB);
+		}
+		return success;
+	}
+	
+	/**
+	 * Concurrently creates all required tables in a new database.
+	 * @see createTables
+	 */
+	public void createTablesConcurrently() {
+		databaseExecutor.submit(new Task<Boolean>(){
+			@Override protected Boolean call() {
+				return createTables();				
+			}
+		});
+		// TODO: bookings/orders, invoices, flags, states, cities(?)...
 	}
 	
 }

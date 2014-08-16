@@ -2,6 +2,7 @@
  * 
  */
 /**
+ * Miscellaneous utilities; localization and time handling.
  * @author lumpiluk
  *
  */

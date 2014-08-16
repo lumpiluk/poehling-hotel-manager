@@ -12,6 +12,7 @@ import org.controlsfx.control.CheckComboBox;
 import org.controlsfx.control.CheckListView;
 
 import data.Address;
+import data.DataSupervisor;
 import util.Messages;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -33,6 +34,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.text.Text;
 
 /**
  * @author lumpiluk
@@ -44,8 +46,15 @@ public class CustomerForm extends AbstractControl {
 			"^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
 			+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
 	
+	private DataSupervisor dataSupervisor;
+	
 	public CustomerForm() throws IOException {
 		super();
+	}
+	
+	public CustomerForm(DataSupervisor ds) throws IOException {
+		this();
+		this.dataSupervisor = ds;
 	}
 	
 	@FXML // ResourceBundle that was given to the FXMLLoader
@@ -217,6 +226,7 @@ public class CustomerForm extends AbstractControl {
     	getCustomersTable().getColumns().addAll(addresseeCol, addressCol, phoneCol, mobileCol, addedDateCol);
         customersTableData = FXCollections.observableArrayList();
         getCustomersTable().setItems(customersTableData);
+        getCustomersTable().setPlaceholder(new Text(Messages.getString("Ui.Customers.Table.Placeholder.text")));
     }
     
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -256,12 +266,20 @@ public class CustomerForm extends AbstractControl {
 
         clvCustomerFlags = new CheckListView<String>();
         clvCustomerFlags.getStyleClass().add("clvCustomerFlags");
-        tpFlags.setContent(clvCustomerFlags);
         
         ccbFlagsFilter = new CheckComboBox<String>();
+        
+        if (dataSupervisor != null) {
+        	clvCustomerFlags.setItems(dataSupervisor.getFlagsObservable());
+        	ccbFlagsFilter = new CheckComboBox<String>(dataSupervisor.getFlagsObservable());
+        } // TODO: else exception?
+        
+        // add flags check list view to according titled pane
+        tpFlags.setContent(clvCustomerFlags);
+        // add checked combo box to tool bar
         customersToolBox.getChildren().add(1, ccbFlagsFilter);
         
-        initCustomersTable();       
+        initCustomersTable();
         
         scrollPane.setFitToWidth(true);        
         

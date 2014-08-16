@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="db-import/|db-import/|db-import/poehling/" kind="src" path="src"/>
+	<classpathentry excluding="dbimport/|dbimport/|null" kind="src" path="src"/>
 	<classpathentry kind="src" path="localization"/>
 	<classpathentry kind="src" path="fxml"/>
 	<classpathentry kind="src" path="css"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="con" path="org.eclipse.fx.ide.jdt.core.JAVAFX_CONTAINER"/>
-	<classpathentry kind="src" path="db-import"/>
+	<classpathentry kind="src" path="dbimport"/>
 	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.7.15-M1.jar"/>
 	<classpathentry kind="lib" path="lib/controlsfx-8.0.6.jar"/>
