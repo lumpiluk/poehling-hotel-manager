@@ -12,6 +12,7 @@ import util.Messages;
 import util.Messages.ErrorType;
 import application.customControls.CalendarPane;
 import application.customControls.CustomerForm;
+import application.customControls.DbConPane;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -48,6 +49,12 @@ public class MainController {
 
     @FXML // fx:id="btnCalendar"
     private ToggleButton btnCalendar; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="btnDbOpenCreate"
+    private ToggleButton btnDbOpenCreate; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="btnStaticData"
+    private ToggleButton btnStaticData; // Value injected by FXMLLoader
 
     @FXML // fx:id="leftMenu"
     private Accordion leftMenu; // Value injected by FXMLLoader
@@ -68,7 +75,9 @@ public class MainController {
 		@Override
 		public void changed(ObservableValue<? extends Toggle> observable,
 				Toggle oldValue, Toggle newValue) {
-			if (newValue == null || oldValue == newValue) {
+			if (newValue == null) {
+				oldValue.setSelected(true);
+			} else if (oldValue == newValue) {
 				return;
 			}
 			
@@ -80,6 +89,8 @@ public class MainController {
 				hideCustomerView();
 			} else if (oldValue == btnInvoices) {
 				hideInvoiceView();
+			} else if (oldValue == btnDbOpenCreate) {
+				hideDbConnectionView();
 			}
 			
 			if (newValue == btnCalendar && !appBody.getItems().contains(calendarPane)) {
@@ -90,6 +101,8 @@ public class MainController {
 				showCustomerView();
 			} else if (newValue == btnInvoices) {
 				showInvoiceView();
+			} else if (newValue == btnDbOpenCreate) {
+				showDbConnectionView();
 			}
 			
 		}
@@ -99,6 +112,8 @@ public class MainController {
     private CalendarPane calendarPane;
     
     private CustomerForm customerForm; // TODO: change name?
+    
+    private DbConPane dbConnectionPane;
     
     private void hideCalendarView() {
     	appBody.getItems().remove(calendarPane);
@@ -114,6 +129,10 @@ public class MainController {
     
     private void hideInvoiceView() {
     	
+    }
+    
+    private void hideDbConnectionView() {
+    	appBody.getItems().remove(dbConnectionPane);
     }
     
     private void showCalendarView() {
@@ -139,6 +158,13 @@ public class MainController {
     	
     }
     
+    private void showDbConnectionView() {
+    	appBody.setDividerPositions(0.0);
+    	appBody.getItems().add(1, dbConnectionPane);
+    	SplitPane.setResizableWithParent(leftPane, false);
+		SplitPane.setResizableWithParent(dbConnectionPane, true);
+    }
+    
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() throws IOException {
         assert mainMenu != null : "fx:id=\"mainMenu\" was not injected: check your FXML file 'MainWindow.fxml'.";
@@ -148,6 +174,8 @@ public class MainController {
         assert btnInvoices != null : "fx:id=\"btnInvoices\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert btnCustomers != null : "fx:id=\"btnCustomers\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert btnCalendar != null : "fx:id=\"btnCalendar\" was not injected: check your FXML file 'MainWindow.fxml'.";
+        assert btnDbOpenCreate != null : "fx:id=\"btnDbOpenCreate\" was not injected: check your FXML file 'MainWindow.fxml'.";
+        assert btnStaticData != null : "fx:id=\"btnStaticData\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert leftMenu != null : "fx:id=\"leftMenu\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert btnRoomPlan != null : "fx:id=\"btnRoomPlan\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert bookingsTitledPane != null : "fx:id=\"bookingsTitledPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
@@ -155,7 +183,10 @@ public class MainController {
 
         // init custom controls
         try {
-	        calendarPane = new CalendarPane();
+	        dbConnectionPane = new DbConPane();
+	        dbConnectionPane.load();
+        	
+        	calendarPane = new CalendarPane();
 			calendarPane.load();
 			
 			customerForm = new CustomerForm();
@@ -168,10 +199,10 @@ public class MainController {
 		}
         
         leftMenuGroup.selectedToggleProperty().addListener(leftMenuGroupListener);
-        showCalendarView(); // TODO: load from settings what to show first?
+        showDbConnectionView(); // TODO: load from settings what to show first?
         //System.out.println(com.sun.javafx.runtime.VersionInfo.getRuntimeVersion());
         
-        leftMenu.setExpandedPane(bookingsTitledPane);
+        leftMenu.setExpandedPane(databaseTitledPane);
         
     }
 }

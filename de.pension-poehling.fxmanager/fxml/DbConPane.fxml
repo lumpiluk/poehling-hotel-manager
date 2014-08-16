@@ -5,14 +5,14 @@
 <?import javafx.scene.layout.*?>
 
 
-<VBox fillWidth="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <Label maxWidth="1.7976931348623157E308" text="In Ihrem Benutzerverzeichnis konnte keine bereits vorhandene Datenbank gefunden werden." />
+<SplitPane dividerPositions="0.4" prefHeight="160.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.customControls.DbConPane">
+  <items>
       <VBox>
          <children>
-            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" text="Neue Datenbank erstellen..." />
-            <Button disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" text="Existierende Datenbank importieren..." />
+            <Button fx:id="btnNewDb" maxWidth="1.7976931348623157E308" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#btnNewDbClicked" text="Neue Datenbank erstellen..." />
+            <Button fx:id="btnImportDb" maxWidth="1.7976931348623157E308" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#btnImportDbClicked" text="Existierende Datenbank importieren..." />
          </children>
       </VBox>
-   </children>
-</VBox>
+      <Label fx:id="lblStatus" maxWidth="1.7976931348623157E308" text="In Ihrem Benutzerverzeichnis konnte keine bereits vorhandene Datenbank gefunden werden." wrapText="true" />
+  </items>
+</SplitPane>
