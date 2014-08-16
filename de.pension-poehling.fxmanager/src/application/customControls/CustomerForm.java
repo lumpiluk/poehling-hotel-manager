@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import java.net.URL;
 
 import org.controlsfx.control.CheckComboBox;
+import org.controlsfx.control.CheckListView;
 
 import data.Address;
 import util.Messages;
@@ -19,14 +20,15 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Control;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
@@ -76,8 +78,8 @@ public class CustomerForm extends AbstractControl {
     @FXML // fx:id="tfTown"
     private TextField tfTown; // Value injected by FXMLLoader
 
-    @FXML // fx:id="memoField"
-    private TextField memoField; // Value injected by FXMLLoader
+    @FXML // fx:id="memoArea"
+    private TextArea memoArea; // Value injected by FXMLLoader
 
     @FXML // fx:id="cbDeceased"
     private CheckBox cbDeceased; // Value injected by FXMLLoader
@@ -145,7 +147,12 @@ public class CustomerForm extends AbstractControl {
     @FXML // fx:id="customersToolBox"
     private HBox customersToolBox; // Value injected by FXMLLoader
     
+    @FXML // fx:id="tpFlags"
+    private TitledPane tpFlags; // Value injected by FXMLLoader
+    
     private CheckComboBox<String> ccbFlagsFilter;
+    
+    private CheckListView<String> clvCustomerFlags;
     
     //private final ValidationSupport validationSupport = new ValidationSupport(); // TODO: see initValidationSupport() below
     
@@ -223,7 +230,7 @@ public class CustomerForm extends AbstractControl {
         assert tfPostboxZip != null : "fx:id=\"tfPostboxZip\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert btnEditPerson != null : "fx:id=\"btnEditPerson\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert tfTown != null : "fx:id=\"tfTown\" was not injected: check your FXML file 'CustomerForm.fxml'.";
-        assert memoField != null : "fx:id=\"memoField\" was not injected: check your FXML file 'CustomerForm.fxml'.";
+        assert memoArea != null : "fx:id=\"memoArea\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert cbDeceased != null : "fx:id=\"cbDeceased\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert tfFax != null : "fx:id=\"tfFax\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert lvPeople != null : "fx:id=\"lvPeople\" was not injected: check your FXML file 'CustomerForm.fxml'.";
@@ -245,7 +252,12 @@ public class CustomerForm extends AbstractControl {
         assert btnRemoveCustomer != null : "fx:id=\"btnRemoveCustomer\" was not injected: check your FXML file 'CustomerPane.fxml'.";
         assert btnEditCustomer != null : "fx:id=\"btnEditCustomer\" was not injected: check your FXML file 'CustomerPane.fxml'.";
         assert customersToolBox != null : "fx:id=\"customersToolBox\" was not injected: check your FXML file 'CustomerForm.fxml'.";
+        assert tpFlags != null : "fx:id=\"tpFlags\" was not injected: check your FXML file 'CustomerForm.fxml'.";
 
+        clvCustomerFlags = new CheckListView<String>();
+        clvCustomerFlags.getStyleClass().add("clvCustomerFlags");
+        tpFlags.setContent(clvCustomerFlags);
+        
         ccbFlagsFilter = new CheckComboBox<String>();
         customersToolBox.getChildren().add(1, ccbFlagsFilter);
         

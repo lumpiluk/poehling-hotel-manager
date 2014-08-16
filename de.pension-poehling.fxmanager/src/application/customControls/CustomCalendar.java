@@ -428,8 +428,7 @@ public class CustomCalendar extends Control {
 	
 	/**
 	 * Sets up the header row and sets column constraints for the GridPane.
-	 * Column Constraints define the width of each column (hopefully).
-	 * TODO: find out if they do ;)
+	 * Column Constraints define the width of each column.
 	 * @throws InterruptedException 
 	 */
 	private void makeDaysHeader() {

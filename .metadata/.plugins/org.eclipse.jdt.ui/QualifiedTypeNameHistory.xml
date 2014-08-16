@@ -16,4 +16,8 @@
 <fullyQualifiedTypeName name="javafx.fxml.FXMLLoader"/>
 <fullyQualifiedTypeName name="util.Messages.ErrorType"/>
 <fullyQualifiedTypeName name="javafx.scene.control.ToolBar"/>
+<fullyQualifiedTypeName name="javafx.scene.control.cell.PropertyValueFactory"/>
+<fullyQualifiedTypeName name="javafx.scene.layout.HBox"/>
+<fullyQualifiedTypeName name="org.controlsfx.control.CheckComboBox"/>
+<fullyQualifiedTypeName name="javafx.scene.layout.VBox"/>
 </qualifiedTypeNameHistroy>

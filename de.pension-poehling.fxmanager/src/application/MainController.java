@@ -39,6 +39,27 @@ public class MainController {
 
     @FXML // fx:id="appBody"
     private SplitPane appBody; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="btnInvoices"
+    private ToggleButton btnInvoices; // Value injected by FXMLLoader
+
+    @FXML // fx:id="btnCustomers"
+    private ToggleButton btnCustomers; // Value injected by FXMLLoader
+
+    @FXML // fx:id="btnCalendar"
+    private ToggleButton btnCalendar; // Value injected by FXMLLoader
+
+    @FXML // fx:id="leftMenu"
+    private Accordion leftMenu; // Value injected by FXMLLoader
+
+    @FXML // fx:id="btnRoomPlan"
+    private ToggleButton btnRoomPlan; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="bookingsTitledPane
+    private TitledPane bookingsTitledPane; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="databaseTitledPane"
+    private TitledPane databaseTitledPane; // Value injected by FXMLLoader
 
     @FXML // fx:id="leftMenuGroup"
     private ToggleGroup leftMenuGroup; // Value injected by FXMLLoader
@@ -74,28 +95,9 @@ public class MainController {
 		}
     };
 
-    @FXML // fx:id="btnInvoices"
-    private ToggleButton btnInvoices; // Value injected by FXMLLoader
-
-    @FXML // fx:id="btnCustomers"
-    private ToggleButton btnCustomers; // Value injected by FXMLLoader
-
-    @FXML // fx:id="btnCalendar"
-    private ToggleButton btnCalendar; // Value injected by FXMLLoader
-
-    @FXML // fx:id="leftMenu"
-    private Accordion leftMenu; // Value injected by FXMLLoader
-
-    @FXML // fx:id="btnRoomPlan"
-    private ToggleButton btnRoomPlan; // Value injected by FXMLLoader
-    
-    @FXML // fx:id="bookingsTitledPane
-    private TitledPane bookingsTitledPane; // Value injected by FXMLLoader
-
     // custom controls to be toggled by buttons within the leftMenuGroup
     private CalendarPane calendarPane;
     
-    //private CustomerView customerView;
     private CustomerForm customerForm; // TODO: change name?
     
     private void hideCalendarView() {
@@ -126,10 +128,11 @@ public class MainController {
     }
     
     private void showCustomerView() {
+    	appBody.setDividerPositions(0.0);
     	appBody.getItems().add(1, customerForm);
     	SplitPane.setResizableWithParent(leftPane, false);
 		SplitPane.setResizableWithParent(customerForm, true);
-    	appBody.setDividerPositions(0.0);
+    	
     }
     
     private void showInvoiceView() {
@@ -148,6 +151,7 @@ public class MainController {
         assert leftMenu != null : "fx:id=\"leftMenu\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert btnRoomPlan != null : "fx:id=\"btnRoomPlan\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert bookingsTitledPane != null : "fx:id=\"bookingsTitledPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
+        assert databaseTitledPane != null : "fx:id=\"databaseTitledPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
 
         // init custom controls
         try {
