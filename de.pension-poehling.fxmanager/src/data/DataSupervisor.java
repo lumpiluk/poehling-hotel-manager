@@ -19,12 +19,17 @@
  */
 package data;
 
+import java.io.File;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLTimeoutException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -42,8 +47,29 @@ import javafx.concurrent.Task;
  */
 public class DataSupervisor {
 
+	public static enum ConnectionStatus {
+		CONNECTION_ESTABLISHED, DRIVER_NOT_FOUND, SQL_EXCEPTION, SQL_TIMEOUT;
+	}
+	
+	public class ObservableConnectionState extends Observable {
+    	private DataSupervisor.ConnectionStatus status;
+    	
+    	public void setConnectionState(DataSupervisor.ConnectionStatus value) {
+    		this.status = value;
+    		this.setChanged();
+    		this.notifyObservers();
+    	}
+    	
+    	public DataSupervisor.ConnectionStatus getStatus() {
+    		return status;
+    	}
+    }
+	
 	/** Connection to the database */
 	private Connection con;
+	
+	/** Notifies observers when a connection to the db has been established. */
+	private ObservableConnectionState conState;
 	
 	/** executes database operations concurrent to JavaFX operations. */
 	private ExecutorService databaseExecutor;
@@ -92,9 +118,53 @@ public class DataSupervisor {
 		
 	}
 	
-	/** @param con The database connection to a Hotel Manager database. */
+	/** 
+	 * Alternative to calling one of the connectToDb methods.
+	 * @param con The database connection to a Hotel Manager database.
+	 */
 	public void setConnection(Connection con) {
 		this.con = con;
+	}
+	
+	/** 
+	 * Attempts to connect to an offline database.
+	 * @param dbFile the database file.
+	 * @o Observer to be notified about changes in the state of connection.
+	 * May be null.
+	 */
+	public void connectToDb(File dbFile, Observer o) {
+		if (o != null) {
+			this.conState.addObserver(o);
+		}
+		try {
+			final String sDriverName = "org.sqlite.JDBC";
+			final String conString = "jdbc:sqlite:%s";
+			Class.forName(sDriverName);
+			
+			con = DriverManager.getConnection(String.format(conString,
+					dbFile.getAbsolutePath()));
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			conState.setConnectionState(ConnectionStatus.DRIVER_NOT_FOUND);
+			Messages.showError(e, Messages.ErrorType.DB);
+		} catch (SQLTimeoutException e) {
+			conState.setConnectionState(ConnectionStatus.SQL_TIMEOUT);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			conState.setConnectionState(ConnectionStatus.SQL_EXCEPTION);
+		}
+	}
+	
+	public void connectToDbConcurrently(Observer o) {
+		
+	}
+	
+	public void connectToDbConcurrently(File dbFile) {
+		
+	}
+	
+	public void connectToDbConcurrently(File dbFile, Observer o) {
+		
 	}
 	
 	/** Task for handling adding of new flags concurrently. */
@@ -137,6 +207,10 @@ public class DataSupervisor {
 		}
 	}
 	
+	/** 
+	 * Listens to changes in the list of flags, 
+	 * adds to or removes from db accordingly. 
+	 */
 	private ListChangeListener<String> flagsListener = new ListChangeListener<String>() {
 		@Override public void onChanged(ListChangeListener.Change<? extends String> c) {
 			if (c.wasAdded()) {
@@ -147,6 +221,7 @@ public class DataSupervisor {
 		}
 	};
 	
+	/** Initializes the list of flags, including listeners etc. */
 	private void initFlags() throws SQLException {
 		ArrayList<String> items = new ArrayList<String>();
 		final String query = "SELECT name FROM flags";
@@ -163,6 +238,7 @@ public class DataSupervisor {
 		flags.addListener(flagsListener);
 	}
 	
+	/** Creates a table in the database with only one column for the flags. */
 	private void createFlagsTable() throws SQLException {
 		final String createQuery = "CREATE TABLE flags (name TEXT NOT NULL)";
 		try (Statement stmt = con.createStatement()) {

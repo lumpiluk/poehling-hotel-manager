@@ -22,11 +22,14 @@ package application.customControls;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.ResourceBundle;
 
 import org.controlsfx.dialog.DialogStyle;
 import org.controlsfx.dialog.Dialogs;
 
+import data.DataSupervisor;
 import util.Messages;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -39,7 +42,30 @@ import javafx.scene.control.Label;
  * @author lumpiluk
  */
 public class DbConPane extends AbstractControl {
+	
+	/** 
+	 * Handles updates from DataSupervisor when trying to connect to a
+	 * database.
+	 */
+	private Observer connectionStateObserver = new Observer() {
 
+		@Override public void update(Observable o, Object arg) {
+			DataSupervisor.ConnectionStatus newStatus =
+					((DataSupervisor.ObservableConnectionState)o).getStatus();
+			switch (newStatus) {
+			case CONNECTION_ESTABLISHED:
+				
+				break;
+
+				
+				
+			default:
+				break;
+			}
+		}
+		
+	};
+	
 	@FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
 
@@ -54,8 +80,12 @@ public class DbConPane extends AbstractControl {
 
     @FXML // fx:id="lblStatus"
     private Label lblStatus; // Value injected by FXMLLoader
-	
+    
+    private DataSupervisor dataSupervisor;
+    
 	/**
+	 * Default constructor, only needed by JavaFX/FXML.
+	 * Please use a constructor with DataSupervisor parameter instead!
 	 * @throws IOException
 	 */
 	public DbConPane() throws IOException {
@@ -73,9 +103,14 @@ public class DbConPane extends AbstractControl {
     }
     
     private void tryOpenDefaultDb() {
+    	if (dataSupervisor == null) {
+    		Messages.showError(Messages.getString("Ui.DbConnection.Status.Error.NoDataSupervisor"),
+    				Messages.ErrorType.DB);
+    	}
     	String dbFilePath = System.getProperty("user.home")
-				+ "/.HotelManager/";
+				+ "/.HotelManager/testDb.sqlite";
 		File dbFile = new File(dbFilePath);
+		System.out.println("Connecting to " + dbFile.getAbsolutePath());
 		if (!dbFile.exists()) {
 			lblStatus.setText(Messages.getString("Ui.DbConnection.NoDefaultDbFound.Status.text"));
 			return;
@@ -83,13 +118,16 @@ public class DbConPane extends AbstractControl {
 		lblStatus.setText(Messages.getString("Ui.DbConnection.Opening.Status.text"));
     }
 	
+    public void initData(DataSupervisor dataSupervisor) {
+    	this.dataSupervisor = dataSupervisor;
+    	tryOpenDefaultDb();
+    }
+    
 	@FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
         assert btnNewDb != null : "fx:id=\"btnNewDb\" was not injected: check your FXML file 'DbConPane.fxml'.";
         assert btnImportDb != null : "fx:id=\"btnImportDb\" was not injected: check your FXML file 'DbConPane.fxml'.";
         assert lblStatus != null : "fx:id=\"lblStatus\" was not injected: check your FXML file 'DbConPane.fxml'.";
-
-        tryOpenDefaultDb();
         
     }
 

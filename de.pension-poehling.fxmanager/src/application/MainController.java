@@ -8,8 +8,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import data.DataSupervisor;
 import util.Messages;
 import util.Messages.ErrorType;
+import application.customControls.AbstractControl;
 import application.customControls.CalendarPane;
 import application.customControls.CustomerForm;
 import application.customControls.DbConPane;
@@ -75,9 +77,11 @@ public class MainController {
 		@Override
 		public void changed(ObservableValue<? extends Toggle> observable,
 				Toggle oldValue, Toggle newValue) {
+			// make toggleButtons persistent within group: don't allow no button to be selected!
 			if (newValue == null) {
 				oldValue.setSelected(true);
-			} else if (oldValue == newValue) {
+				return;
+			} else if (oldValue == null || oldValue == newValue) {
 				return;
 			}
 			
@@ -114,6 +118,8 @@ public class MainController {
     private CustomerForm customerForm; // TODO: change name?
     
     private DbConPane dbConnectionPane;
+    
+    private DataSupervisor dataSupervisor;
     
     private void hideCalendarView() {
     	appBody.getItems().remove(calendarPane);
@@ -181,16 +187,20 @@ public class MainController {
         assert bookingsTitledPane != null : "fx:id=\"bookingsTitledPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert databaseTitledPane != null : "fx:id=\"databaseTitledPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
 
+        dataSupervisor = new DataSupervisor();
+        
         // init custom controls
         try {
-	        dbConnectionPane = new DbConPane();
-	        dbConnectionPane.load();
+	        dbConnectionPane = (DbConPane) AbstractControl.getInstance(DbConPane.class);
+	        dbConnectionPane.initData(dataSupervisor);
+	        //dbConnectionPane.load();
+	        
         	
-        	calendarPane = new CalendarPane();
-			calendarPane.load();
+        	calendarPane = (CalendarPane) AbstractControl.getInstance(CalendarPane.class);
+			//calendarPane.load();
 			
-			customerForm = new CustomerForm();
-			customerForm.load();
+			customerForm = (CustomerForm) AbstractControl.getInstance(CustomerForm.class);
+			//customerForm.load();
 			
 			//customerView = new CustomerView();
 			//customerView.load();

@@ -43,19 +43,35 @@ public abstract class AbstractControl extends Control {
 	}
 	
 	/**
-	 * Loads the FXML file.
-	 * This method has to be called in addition to the constructor.
-	 * Cannot be done inside the constructor itself as it would cause some kind
-	 * of stack overflow...
+	 * Loads the FXML file and creates a new instance of the requested
+	 * AbstractControl extending class.<br />
+	 * (Had to be done in this way due to limitations of JavaFX and in order to
+	 * still be able to keep this abstract class...)
 	 * @throws IOException
 	 */
-	public void load() throws IOException {
+	public static AbstractControl getInstance(Class<? extends AbstractControl> c)
+			throws IOException {
+		System.out.println("Loading " + c.getResource(String.format(
+    			fxmlPath, c.getSimpleName())));
+		
 		FXMLLoader loader = new FXMLLoader();
-    	loader.setLocation(getClass().getResource(String.format(
-    			fxmlPath, this.getClass().getSimpleName())));
+		
+		loader.setLocation(c.getResource(String.format(
+    			fxmlPath, c.getSimpleName())));
     	loader.setResources(Messages.getBundle());
-    	this.getChildren().add((Node)loader.load());
+    	
+    	Node node = (Node) loader.load();
+    	AbstractControl a = loader.getController();
+    	
+    	a.getChildren().add(node);
+    	
+    	return loader.getController();
 	}
+	
+	
+	/*public void load() throws IOException {	
+    	this.getChildren().add((Node)loader.load());
+	}*/
 	
 	/**
 	 * Return the path to the CSS file so things are set up right

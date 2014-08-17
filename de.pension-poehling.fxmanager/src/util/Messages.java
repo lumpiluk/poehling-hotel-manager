@@ -83,10 +83,14 @@ public class Messages {
 	
 	public static void showError(Exception e, ErrorType t) {
 		e.printStackTrace();
+		showError(Messages.getString(String.format("Error.%s.text", t))
+					+ "\n" + e.toString(), t);
+	}
+	
+	public static void showError(String s, ErrorType t) {
 		Dialogs.create()
 			.title(Messages.getString(String.format("Error.%s.title", t)))
-			.message(Messages.getString(String.format("Error.%s.text", t))
-					+ "\n" + e.toString())
+			.message(s)
 			.style(DialogStyle.NATIVE)
 			.showError();
 	}
