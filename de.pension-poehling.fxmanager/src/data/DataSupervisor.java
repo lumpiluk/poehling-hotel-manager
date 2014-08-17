@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ExecutorService;
@@ -37,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import util.Messages;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -99,26 +101,12 @@ public class DataSupervisor {
 	} 
 	
 	public DataSupervisor() {
-		
+		conState = new ObservableConnectionState();
 		databaseExecutor = Executors.newFixedThreadPool(1, new DatabaseThreadFactory()); // allows only one thread at a time to work on the db
-		
-		databaseExecutor.submit(new Task<Void>(){
-			@Override protected Void call() {
-				
-				try {
-					initFlags();
-				} catch (SQLException e) {
-					Messages.showError(e, Messages.ErrorType.DB);
-				}
-				
-				return null;
-			}
-		});
-		
 	}
 	
-	private void init() {
-		
+	private void init() throws SQLException {
+		initFlags();
 	}
 	
 	/** 
@@ -132,30 +120,21 @@ public class DataSupervisor {
 	/** 
 	 * Attempts to connect to an offline database.
 	 * @param dbFile the database file.
+	 * @throws ClassNotFoundException 
+	 * @throws SQLException 
 	 * @o will be notified about changes in the state of connection.
 	 * May be null.
 	 */
-	public void connectToDb(File dbFile, Observer o) {
-		if (o != null) {
-			this.conState.addObserver(o);
-		}
-		try {
-			final String sDriverName = "org.sqlite.JDBC";
-			final String conString = "jdbc:sqlite:%s";
-			Class.forName(sDriverName);
-			
-			con = DriverManager.getConnection(String.format(conString,
-					dbFile.getAbsolutePath()));
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			conState.setConnectionState(ConnectionStatus.DRIVER_NOT_FOUND);
-			Messages.showError(e, Messages.ErrorType.DB);
-		} catch (SQLTimeoutException e) {
-			conState.setConnectionState(ConnectionStatus.SQL_TIMEOUT);
-		} catch (SQLException e) {
-			e.printStackTrace();
-			conState.setConnectionState(ConnectionStatus.SQL_EXCEPTION);
-		}
+	public void connectToDb(File dbFile, Observer o)
+			throws ClassNotFoundException, SQLException {
+		
+		final String sDriverName = "org.sqlite.JDBC";
+		final String conString = "jdbc:sqlite:%s";
+		Class.forName(sDriverName);
+		
+		con = DriverManager.getConnection(String.format(conString,
+				dbFile.getAbsolutePath()));
+		init();
 	}
 	
 	/**
@@ -174,6 +153,14 @@ public class DataSupervisor {
 		connectToDbConcurrently(dbFile, null);
 	}
 	
+	private void setConnectionStateLater(ConnectionStatus value) {
+		Platform.runLater(new Runnable() {
+			@Override public void run() {
+				conState.setConnectionState(value);
+			}
+		});
+	}
+	
 	/**
 	 * Concurrently connects to an offline SQLite database.
 	 * @param dbFile the database file
@@ -181,10 +168,26 @@ public class DataSupervisor {
 	 * May be null.
 	 */
 	public void connectToDbConcurrently(File dbFile, Observer o) {
+		if (o != null) {
+			this.conState.addObserver(o);
+		}
+		
 		databaseExecutor.submit(new Task<Void>() {
 
 			@Override protected Void call() throws Exception {
-				connectToDb(dbFile, o);
+				try {
+					connectToDb(dbFile, o);
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+					setConnectionStateLater(ConnectionStatus.DRIVER_NOT_FOUND);
+					Messages.showError(e, Messages.ErrorType.DB);
+				} catch (SQLTimeoutException e) {
+					setConnectionStateLater(ConnectionStatus.SQL_TIMEOUT);
+				} catch (SQLException e) {
+					e.printStackTrace();
+					setConnectionStateLater(ConnectionStatus.SQL_EXCEPTION);
+				}
+				conState.setConnectionState(ConnectionStatus.CONNECTION_ESTABLISHED);
 				return null;
 			}
 			
@@ -274,7 +277,7 @@ public class DataSupervisor {
 		
 		try (ResultSet rs = con.createStatement().executeQuery(query)) {
 			while(rs.next()) {
-				items.add(rs.getString(0)); // TODO: necessary to run this in Platform.runLater()?
+				items.add(rs.getString(1)); // TODO: necessary to run this in Platform.runLater()?
 			}
 		}
 		
@@ -294,7 +297,7 @@ public class DataSupervisor {
 	
 	/** @return True iff connection to the DB has been established and all lists are loaded. */
 	public boolean isInitialized() {
-		return flagsInitialized;
+		return flagsInitialized; // TODO finish, needed?
 	}
 	
 	/** @return List of possible flags an address can have. Used throughout the application. */

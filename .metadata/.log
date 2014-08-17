@@ -5680,3 +5680,31 @@ java.lang.RuntimeException
 	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:603)
 	at org.eclipse.equinox.launcher.Main.run(Main.java:1465)
 	at org.eclipse.equinox.launcher.Main.main(Main.java:1438)
+
+!ENTRY org.eclipse.jface.text 4 0 2014-08-17 22:24:26.218
+!MESSAGE Unexpected runtime error while computing a text hover
+!STACK 0
+java.lang.NullPointerException
+	at java.util.ArrayList.addAll(ArrayList.java:562)
+	at org.eclipse.fx.ide.css.cssext.ui.CssFile.collectCssExtension(CssFile.java:146)
+	at org.eclipse.fx.ide.css.cssext.ui.CssFile.getEnabledCssExtensions(CssFile.java:112)
+	at org.eclipse.fx.ide.css.cssext.ui.CssExtManager.collectModels(CssExtManager.java:345)
+	at org.eclipse.fx.ide.css.cssext.ui.CssExtManager.findPropertyByName(CssExtManager.java:107)
+	at org.eclipse.fx.ide.css.cssext.ui.doc.CssExtDocParser.findPropertyByName(CssExtDocParser.java:360)
+	at org.eclipse.fx.ide.css.cssext.ui.doc.CssExtDocParser.getDocHeadForProperty(CssExtDocParser.java:243)
+	at org.eclipse.fx.ide.css.cssext.ui.doc.CssExtDocParser.getDocHead(CssExtDocParser.java:407)
+	at org.eclipse.fx.ide.css.cssext.ui.internal.DefaultCssExtProvider.getDocumentationHeader(DefaultCssExtProvider.java:38)
+	at org.eclipse.fx.ide.css.ui.hover.CssHoverProvider.hasHover(CssHoverProvider.java:173)
+	at org.eclipse.xtext.ui.editor.hover.html.DefaultEObjectHoverProvider.getHoverInfoAsHtml(DefaultEObjectHoverProvider.java:76)
+	at org.eclipse.fx.ide.css.ui.hover.CssHoverProvider.getHoverInfoAsHtml(CssHoverProvider.java:156)
+	at org.eclipse.xtext.ui.editor.hover.html.DefaultEObjectHoverProvider.getHoverInfo(DefaultEObjectHoverProvider.java:91)
+	at org.eclipse.xtext.ui.editor.hover.html.DefaultEObjectHoverProvider$2.getInfo(DefaultEObjectHoverProvider.java:519)
+	at org.eclipse.xtext.ui.editor.hover.DispatchingEObjectTextHover.getHoverInfo(DispatchingEObjectTextHover.java:41)
+	at org.eclipse.xtext.ui.editor.hover.AbstractEObjectHover$2.exec(AbstractEObjectHover.java:84)
+	at org.eclipse.xtext.ui.editor.hover.AbstractEObjectHover$2.exec(AbstractEObjectHover.java:1)
+	at org.eclipse.xtext.util.concurrent.AbstractReadWriteAcces.readOnly(AbstractReadWriteAcces.java:62)
+	at org.eclipse.xtext.ui.editor.model.XtextDocument$XtextDocumentLocker.readOnly(XtextDocument.java:254)
+	at org.eclipse.xtext.ui.editor.model.XtextDocument.readOnly(XtextDocument.java:87)
+	at org.eclipse.xtext.ui.editor.hover.AbstractEObjectHover.getHoverInfo2(AbstractEObjectHover.java:76)
+	at org.eclipse.xtext.ui.editor.hover.AbstractCompositeHover.getHoverInfo2(AbstractCompositeHover.java:90)
+	at org.eclipse.jface.text.TextViewerHoverManager$4.run(TextViewerHoverManager.java:166)

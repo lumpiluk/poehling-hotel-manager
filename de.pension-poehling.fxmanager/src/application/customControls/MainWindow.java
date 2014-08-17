@@ -69,6 +69,9 @@ public class MainWindow extends AbstractControl {
     
     @FXML // fx:id="databaseTitledPane"
     private TitledPane databaseTitledPane; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="statisticsTitledPane"
+    private TitledPane statisticsTitledPane; // Value injected by FXMLLoader
 
     @FXML // fx:id="leftMenuGroup"
     private ToggleGroup leftMenuGroup; // Value injected by FXMLLoader
@@ -146,10 +149,10 @@ public class MainWindow extends AbstractControl {
     }
     
     private void showCalendarView() {
-		appBody.getItems().add(1, calendarPane);
+    	appBody.setDividerPositions(0.0);
+    	appBody.getItems().add(1, calendarPane);
 		SplitPane.setResizableWithParent(leftPane, false);
 		SplitPane.setResizableWithParent(calendarPane, true);
-		appBody.setDividerPositions(0.0);
     }
     
     private void showRoomPlanView() {
@@ -175,17 +178,28 @@ public class MainWindow extends AbstractControl {
 		SplitPane.setResizableWithParent(dbConnectionPane, true);
     }
     
+    /**
+     * Enables all controls that have initially been disabled with the intention
+     * to remain so until a database connection will have been established.
+     */
+    public void enableControls() {
+    	bookingsTitledPane.setDisable(false);
+    	statisticsTitledPane.setDisable(false);
+    	btnStaticData.setDisable(false);
+    }
+    
     public void initData(DataSupervisor dataSupervisor) {
     	this.dataSupervisor = dataSupervisor;
     	
     	// init custom controls
         try {
 	        dbConnectionPane = (DbConPane) AbstractControl.getInstance(DbConPane.class);
-	        dbConnectionPane.initData(this.dataSupervisor);        
+	        dbConnectionPane.initData(this, this.dataSupervisor);        
         	
         	calendarPane = (CalendarPane) AbstractControl.getInstance(CalendarPane.class);
 
 			customerForm = (CustomerForm) AbstractControl.getInstance(CustomerForm.class);
+			customerForm.initData(dataSupervisor);
 			
 			//customerView = new CustomerView();
 			//customerView.load();
@@ -215,6 +229,7 @@ public class MainWindow extends AbstractControl {
         assert btnRoomPlan != null : "fx:id=\"btnRoomPlan\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert bookingsTitledPane != null : "fx:id=\"bookingsTitledPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert databaseTitledPane != null : "fx:id=\"databaseTitledPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
+        assert statisticsTitledPane != null : "fx:id=\"statisticsTitledPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
     }
     
 }

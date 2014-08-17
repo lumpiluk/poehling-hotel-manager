@@ -229,6 +229,29 @@ public class CustomerForm extends AbstractControl {
         getCustomersTable().setPlaceholder(new Text(Messages.getString("Ui.Customers.Table.Placeholder.text")));
     }
     
+    public void initData(DataSupervisor dataSupervisor) {
+    	this.dataSupervisor = dataSupervisor;
+    	
+    	clvCustomerFlags = new CheckListView<String>();
+        clvCustomerFlags.getStyleClass().add("clvCustomerFlags");
+        
+        ccbFlagsFilter = new CheckComboBox<String>();
+        
+        clvCustomerFlags.setItems(dataSupervisor.getFlagsObservable());
+        ccbFlagsFilter = new CheckComboBox<String>(dataSupervisor.getFlagsObservable());
+        
+        // add flags check list view to according titled pane
+        tpFlags.setContent(clvCustomerFlags);
+        // add checked combo box to tool bar
+        customersToolBox.getChildren().add(1, ccbFlagsFilter);
+        
+        initCustomersTable();
+        
+        scrollPane.setFitToWidth(true);        
+        
+        initValidationSupport();
+    }
+    
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
     	assert customersTable != null : "fx:id=\"customersTable\" was not injected: check your FXML file 'CustomerForm.fxml'.";
@@ -263,27 +286,6 @@ public class CustomerForm extends AbstractControl {
         assert btnEditCustomer != null : "fx:id=\"btnEditCustomer\" was not injected: check your FXML file 'CustomerPane.fxml'.";
         assert customersToolBox != null : "fx:id=\"customersToolBox\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert tpFlags != null : "fx:id=\"tpFlags\" was not injected: check your FXML file 'CustomerForm.fxml'.";
-
-        clvCustomerFlags = new CheckListView<String>();
-        clvCustomerFlags.getStyleClass().add("clvCustomerFlags");
-        
-        ccbFlagsFilter = new CheckComboBox<String>();
-        
-        if (dataSupervisor != null) {
-        	clvCustomerFlags.setItems(dataSupervisor.getFlagsObservable());
-        	ccbFlagsFilter = new CheckComboBox<String>(dataSupervisor.getFlagsObservable());
-        } // TODO: else exception?
-        
-        // add flags check list view to according titled pane
-        tpFlags.setContent(clvCustomerFlags);
-        // add checked combo box to tool bar
-        customersToolBox.getChildren().add(1, ccbFlagsFilter);
-        
-        initCustomersTable();
-        
-        scrollPane.setFitToWidth(true);        
-        
-        initValidationSupport();
     }
 	
 }

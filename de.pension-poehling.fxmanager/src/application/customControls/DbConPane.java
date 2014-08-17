@@ -54,7 +54,9 @@ public class DbConPane extends AbstractControl {
 					((DataSupervisor.ObservableConnectionState)o).getStatus();
 			switch (newStatus) {
 			case CONNECTION_ESTABLISHED:
-				
+				// enable controls
+				mainWindow.enableControls();
+				lblStatus.setText(Messages.getString("Ui.DbConnection.Status.ConnectionEstablished.text"));
 				break;
 
 				
@@ -83,6 +85,8 @@ public class DbConPane extends AbstractControl {
     
     private DataSupervisor dataSupervisor;
     
+    private MainWindow mainWindow;
+    
 	/**
 	 * Default constructor, only needed by JavaFX/FXML.
 	 * Please use a constructor with DataSupervisor parameter instead!
@@ -108,7 +112,7 @@ public class DbConPane extends AbstractControl {
     				Messages.ErrorType.DB);
     	}
     	String dbFilePath = System.getProperty("user.home")
-				+ "/.HotelManager/testDb.sqlite";
+				+ "/.HotelManager/testDB.sqlite";
 		File dbFile = new File(dbFilePath);
 		System.out.println("Connecting to " + dbFile.getAbsolutePath());
 		if (!dbFile.exists()) {
@@ -121,7 +125,8 @@ public class DbConPane extends AbstractControl {
 		dataSupervisor.connectToDbConcurrently(dbFile, connectionStateObserver);
     }
 	
-    public void initData(DataSupervisor dataSupervisor) {
+    public void initData(MainWindow main, DataSupervisor dataSupervisor) {
+    	this.mainWindow = main;
     	this.dataSupervisor = dataSupervisor;
     	tryOpenDefaultDb();
     }
