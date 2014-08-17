@@ -33,6 +33,7 @@ import java.util.Observer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import util.Messages;
@@ -47,6 +48,8 @@ import javafx.concurrent.Task;
  */
 public class DataSupervisor {
 
+	private static final long CONNECTION_CLOSE_TIMEOUT = 3;
+	
 	public static enum ConnectionStatus {
 		CONNECTION_ESTABLISHED, DRIVER_NOT_FOUND, SQL_EXCEPTION, SQL_TIMEOUT;
 	}
@@ -129,7 +132,7 @@ public class DataSupervisor {
 	/** 
 	 * Attempts to connect to an offline database.
 	 * @param dbFile the database file.
-	 * @o Observer to be notified about changes in the state of connection.
+	 * @o will be notified about changes in the state of connection.
 	 * May be null.
 	 */
 	public void connectToDb(File dbFile, Observer o) {
@@ -155,15 +158,58 @@ public class DataSupervisor {
 		}
 	}
 	
+	/**
+	 * Concurrently connects to an offline SQLite database.
+	 * Creates a new file in ~/hotelManager.sqlite if necessary.
+	 * @param o will be notified about changes in the connection status.
+	 * May be null.
+	 */
 	public void connectToDbConcurrently(Observer o) {
-		
+		File file = new File(System.getProperty("user.home") + "/hotelManager.sqlite");
+		connectToDbConcurrently(file, o);
 	}
 	
+	/** Convenience method for connectToDbConcurrently(File dbFile, null). */
 	public void connectToDbConcurrently(File dbFile) {
-		
+		connectToDbConcurrently(dbFile, null);
 	}
 	
+	/**
+	 * Concurrently connects to an offline SQLite database.
+	 * @param dbFile the database file
+	 * @param will be notified about changes in the connection status.
+	 * May be null.
+	 */
 	public void connectToDbConcurrently(File dbFile, Observer o) {
+		databaseExecutor.submit(new Task<Void>() {
+
+			@Override protected Void call() throws Exception {
+				connectToDb(dbFile, o);
+				return null;
+			}
+			
+		});
+	}
+	
+	/**
+	 * Attempts to close the database connection.
+	 * @throws SQLException
+	 */
+	public void closeDbConnection() {
+		databaseExecutor.shutdown();
+		try {
+			databaseExecutor.awaitTermination(CONNECTION_CLOSE_TIMEOUT, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			Messages.showError(Messages.getString("DB.ClosingTimeout"),
+					Messages.ErrorType.DB);
+		}
+		if (con != null) {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				Messages.showError(e, Messages.ErrorType.DB);
+			}
+		}
 		
 	}
 	
@@ -199,8 +245,8 @@ public class DataSupervisor {
 		@Override protected Void call() throws Exception {
 			String deleteQuery = "DELETE FROM flags WHERE name = ?";
 			try (PreparedStatement ps = con.prepareStatement(deleteQuery)) {
-				for (String flatToDelete : c.getRemoved()) {
-					ps.setString(1, flatToDelete);
+				for (String flagToDelete : c.getRemoved()) {
+					ps.setString(1, flagToDelete);
 				}
 			}
 			return null;

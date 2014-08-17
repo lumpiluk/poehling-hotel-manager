@@ -2,7 +2,7 @@
  * Sample Skeleton for 'MainWindow.fxml' Controller Class
  */
 
-package application;
+package application.customControls;
 
 import java.io.IOException;
 import java.net.URL;
@@ -26,9 +26,9 @@ import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 
-public class MainController {
+public class MainWindow extends AbstractControl {
 
-    @FXML // ResourceBundle that was given to the FXMLLoader
+	@FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
 
     @FXML // URL location of the FXML file that was given to the FXMLLoader
@@ -111,6 +111,10 @@ public class MainController {
 			
 		}
     };
+    
+    public MainWindow() throws IOException {
+		super();
+	}
 
     // custom controls to be toggled by buttons within the leftMenuGroup
     private CalendarPane calendarPane;
@@ -171,6 +175,31 @@ public class MainController {
 		SplitPane.setResizableWithParent(dbConnectionPane, true);
     }
     
+    public void initData(DataSupervisor dataSupervisor) {
+    	this.dataSupervisor = dataSupervisor;
+    	
+    	// init custom controls
+        try {
+	        dbConnectionPane = (DbConPane) AbstractControl.getInstance(DbConPane.class);
+	        dbConnectionPane.initData(this.dataSupervisor);        
+        	
+        	calendarPane = (CalendarPane) AbstractControl.getInstance(CalendarPane.class);
+
+			customerForm = (CustomerForm) AbstractControl.getInstance(CustomerForm.class);
+			
+			//customerView = new CustomerView();
+			//customerView.load();
+	    } catch (IOException e) {
+			Messages.showError(e, ErrorType.UI);
+		}
+        
+        leftMenuGroup.selectedToggleProperty().addListener(leftMenuGroupListener);
+        showDbConnectionView(); // TODO: load from settings what to show first?
+        //System.out.println(com.sun.javafx.runtime.VersionInfo.getRuntimeVersion());
+        
+        leftMenu.setExpandedPane(databaseTitledPane);
+    }
+    
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() throws IOException {
         assert mainMenu != null : "fx:id=\"mainMenu\" was not injected: check your FXML file 'MainWindow.fxml'.";
@@ -186,33 +215,6 @@ public class MainController {
         assert btnRoomPlan != null : "fx:id=\"btnRoomPlan\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert bookingsTitledPane != null : "fx:id=\"bookingsTitledPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert databaseTitledPane != null : "fx:id=\"databaseTitledPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
-
-        dataSupervisor = new DataSupervisor();
-        
-        // init custom controls
-        try {
-	        dbConnectionPane = (DbConPane) AbstractControl.getInstance(DbConPane.class);
-	        dbConnectionPane.initData(dataSupervisor);
-	        //dbConnectionPane.load();
-	        
-        	
-        	calendarPane = (CalendarPane) AbstractControl.getInstance(CalendarPane.class);
-			//calendarPane.load();
-			
-			customerForm = (CustomerForm) AbstractControl.getInstance(CustomerForm.class);
-			//customerForm.load();
-			
-			//customerView = new CustomerView();
-			//customerView.load();
-	    } catch (IOException e) {
-			Messages.showError(e, ErrorType.UI);
-		}
-        
-        leftMenuGroup.selectedToggleProperty().addListener(leftMenuGroupListener);
-        showDbConnectionView(); // TODO: load from settings what to show first?
-        //System.out.println(com.sun.javafx.runtime.VersionInfo.getRuntimeVersion());
-        
-        leftMenu.setExpandedPane(databaseTitledPane);
-        
     }
+    
 }

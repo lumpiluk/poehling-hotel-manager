@@ -116,6 +116,9 @@ public class DbConPane extends AbstractControl {
 			return;
 		}
 		lblStatus.setText(Messages.getString("Ui.DbConnection.Opening.Status.text"));
+		
+		// connect
+		dataSupervisor.connectToDbConcurrently(dbFile, connectionStateObserver);
     }
 	
     public void initData(DataSupervisor dataSupervisor) {

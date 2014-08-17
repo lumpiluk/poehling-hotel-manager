@@ -8,7 +8,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="506.0" prefWidth="858.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MainController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="506.0" prefWidth="858.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.customControls.MainWindow">
    <children>
       <MenuBar fx:id="mainMenu" prefWidth="600.0">
         <menus>
@@ -40,7 +40,7 @@
                                           <ToggleGroup fx:id="leftMenuGroup" />
                                        </toggleGroup>
                                     </ToggleButton>
-                                    <ToggleButton fx:id="btnStaticData" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="%Ui.LeftMenu.Database.btnStaticData" toggleGroup="$leftMenuGroup" />
+                                    <ToggleButton fx:id="btnStaticData" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="%Ui.LeftMenu.Database.btnStaticData" toggleGroup="$leftMenuGroup" />
                                  </children>
                               </VBox>
                         </content>
