@@ -224,7 +224,7 @@ public class CustomerForm extends AbstractControl {
     	//TableColumn<Address, String> latestBookingCol = new TableColumn<Address, String>(Messages.getString("Ui.Customers.Table.latestBookingCol"));
         
     	getCustomersTable().getColumns().addAll(addresseeCol, addressCol, phoneCol, mobileCol, addedDateCol);
-        customersTableData = FXCollections.observableArrayList();
+        customersTableData = dataSupervisor.getAddressSearchResultObservable();
         getCustomersTable().setItems(customersTableData);
         getCustomersTable().setPlaceholder(new Text(Messages.getString("Ui.Customers.Table.Placeholder.text")));
     }
@@ -238,7 +238,8 @@ public class CustomerForm extends AbstractControl {
         ccbFlagsFilter = new CheckComboBox<String>();
         
         clvCustomerFlags.setItems(dataSupervisor.getFlagsObservable());
-        ccbFlagsFilter = new CheckComboBox<String>(dataSupervisor.getFlagsObservable());
+        ccbFlagsFilter = new CheckComboBox<String>(
+        		this.dataSupervisor.getFlagsObservable());
         
         // add flags check list view to according titled pane
         tpFlags.setContent(clvCustomerFlags);

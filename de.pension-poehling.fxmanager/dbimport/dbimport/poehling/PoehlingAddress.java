@@ -25,10 +25,10 @@ public class PoehlingAddress extends Address {
 	 * @see data.Address#fromDbAtIndex(long)
 	 */
 	@Override
-	public boolean fromDbAtIndex(long id) throws NoSuchElementException,
+	public boolean fromDbAtId(long id) throws NoSuchElementException,
 			SQLException {
 		// TODO Auto-generated method stub
-		return super.fromDbAtIndex(id);
+		return super.fromDbAtId(id);
 	}
 
 	/* (non-Javadoc)

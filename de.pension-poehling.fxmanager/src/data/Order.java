@@ -50,7 +50,7 @@ public class Order extends HotelData {
 	}
 
 	@Override
-	public boolean fromDbAtIndex(long id) throws NoSuchElementException,
+	public boolean fromDbAtId(long id) throws NoSuchElementException,
 			SQLException {
 		// TODO Auto-generated method stub
 		return false;

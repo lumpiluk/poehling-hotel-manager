@@ -38,7 +38,7 @@ public class Person extends HotelData {
 	public static final String SQL_TABLE_NAME = "people";
 
 	private static final String SQL_CREATE = "CREATE TABLE IF NOT EXISTS "
-			+ SQL_TABLE_NAME + " (index INTEGER PRIMARY KEY AUTOINCREMENT, "
+			+ SQL_TABLE_NAME + " (id INTEGER PRIMARY KEY, "
 			+ "address INTEGER, "
 			+ "title TEXT, "
 			+ "first_names TEXT, "
@@ -53,10 +53,10 @@ public class Person extends HotelData {
 	private static final String SQL_UPDATE = "UPDATE " + SQL_TABLE_NAME
 			+ " SET address = ?, title = ?, first_names = ?, surnames = ?, "
 			+ "birthday = ?, food_memo = ? "
-			+ "WHERE index = ?";
+			+ "WHERE id = ?";
 	
 	private static final String SQL_DELETE = "DELETE FROM " + SQL_TABLE_NAME
-			+ " WHERE index = ?";
+			+ " WHERE id = ?";
 	
 	private long id;
 	
@@ -97,7 +97,7 @@ public class Person extends HotelData {
 	public Address getAddress() throws SQLException {
 		Address a = new Address(con);
 		try {
-			a.fromDbAtIndex(addressId);
+			a.fromDbAtId(addressId);
 		} catch (NoSuchElementException e) {
 			return null;
 		}
@@ -199,14 +199,14 @@ public class Person extends HotelData {
 	}
 	
 	/**
-	 * Used in fromDbAtIndex and getBatch.
+	 * Used in fromDbAtId and getBatch.
 	 * @param p The Person the data of which will be prepared.
 	 * @param rs The result set.
 	 * @throws SQLException
 	 */
 	private void prepareDataFromResultSet(final Person p, final ResultSet rs) 
 			throws SQLException {
-		p.setId(rs.getLong("index")); // works although private :)
+		p.setId(rs.getLong("id")); // works although private :)
 		p.setAddressId(rs.getLong("address")); // 0 if SQL NULL
 		p.setBirthday(rs.getDate("birthday"));
 		p.setFirstNames(rs.getString("first_names"));
@@ -219,10 +219,10 @@ public class Person extends HotelData {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean fromDbAtIndex(final long d) throws NoSuchElementException,
+	public boolean fromDbAtId(final long d) throws NoSuchElementException,
 			SQLException {
 		boolean success = false;
-		String query = "SELECT * FROM " + SQL_TABLE_NAME + " WHERE index = ?";
+		String query = "SELECT * FROM " + SQL_TABLE_NAME + " WHERE id = ?";
 		try (PreparedStatement stmt = con.prepareStatement(query)) {
 			stmt.setLong(1, this.getId());
 			try (ResultSet rs = stmt.executeQuery()) {
@@ -247,8 +247,8 @@ public class Person extends HotelData {
 		List<Person> resultList = new LinkedList<Person>();
 		if (!indices.isEmpty()) {
 			StringBuilder sql = new StringBuilder();
-			sql.append("SELECT * FROM " + SQL_TABLE_NAME + " WHERE index IN (");
-			for (@SuppressWarnings("unused") Long index : indices) {
+			sql.append("SELECT * FROM " + SQL_TABLE_NAME + " WHERE id IN (");
+			for (@SuppressWarnings("unused") Long id : indices) {
 				sql.append("?,");
 			}
 			sql.deleteCharAt(sql.length() - 1); // remove last comma
@@ -257,9 +257,9 @@ public class Person extends HotelData {
 			try (PreparedStatement stmt = con.prepareStatement(
 					sql.toString())) {
 				int i = 0;
-				for (Long index : indices) {
+				for (Long id : indices) {
 					i++;
-					stmt.setLong(i, index);
+					stmt.setLong(i, id);
 				}
 				
 				ResultSet rs = stmt.executeQuery();

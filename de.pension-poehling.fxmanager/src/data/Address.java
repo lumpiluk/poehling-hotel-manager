@@ -38,7 +38,7 @@ public class Address extends HotelData {
 	public static final String SQL_TABLE_NAME = "addresses";
 	
 	private static final String SQL_CREATE = "CREATE TABLE IF NOT EXISTS "
-			+ SQL_TABLE_NAME + " (index INTEGER PRIMARY KEY AUTOINCREMENT, "
+			+ SQL_TABLE_NAME + " (id INTEGER PRIMARY KEY, "
 			+ "addressee INTEGER NOT NULL, "
 			+ "addition TEXT, " // TODO: here or Person?
 			+ "street TEXT, "
@@ -63,7 +63,7 @@ public class Address extends HotelData {
 			+ "created TEXT)"; // (date)
 	
 	private static final String SQL_INSERT = "INSERT INTO " + SQL_TABLE_NAME
-			+ " (addressee, addition, street, short_country, zip, town, " // TODO: when importing: with index-col!!!
+			+ " (addressee, addition, street, short_country, zip, town, " // TODO: when importing: with id-col!!!
 			+ "postbox, postbox_zip, postbox_town, state, phone, cellphone, "
 			+ "fax, email, website, memo, debitor, creditor, other, deceased, "
 			+ "children, added, created, private) "
@@ -75,24 +75,24 @@ public class Address extends HotelData {
 			+ "postbox_zip = ?, postbox_town = ?, state = ?, phone = ?, "
 			+ "cellphone = ?, fax = ?, email = ?, website = ?, memo = ?, "
 			+ "debitor = ?, creditor = ?, other = ?, deceased = ?, "
-			+ "private = ?, added = ?, created = ? WHERE index = ?";
+			+ "private = ?, added = ?, created = ? WHERE id = ?";
 	
 	private static final String SQL_DELETE = "DELETE FROM " + SQL_TABLE_NAME
-			+ " WHERE index = ?";
+			+ " WHERE id = ?";
 	
 	private static final String SQL_SELECT_ALL = String.format(
 			"SELECT * FROM %1$s LEFT OUTER JOIN %2$s ON %1$s.addressee = "
 			+ "%2$s.address", SQL_TABLE_NAME, Person.SQL_TABLE_NAME);
 	
 	private static final String SQL_SELECT = String.format(
-			"%1$s WHERE %2$s.index = ?", SQL_SELECT_ALL, SQL_TABLE_NAME
+			"%1$s WHERE %2$s.id = ?", SQL_SELECT_ALL, SQL_TABLE_NAME
 			);
 	
 	
 	private long id;
 	
 	/** 
-	 * The person's index this address belongs to.
+	 * The person's id this address belongs to.
 	 * More people can be assigned to this address by their ADDRESS field
 	 * and obtained by this object's getPeople method (TODO).
 	 */
@@ -442,7 +442,7 @@ public class Address extends HotelData {
 	 * @throws SQLException
 	 */
 	@Override
-	public boolean fromDbAtIndex(long id)
+	public boolean fromDbAtId(long id)
 			throws NoSuchElementException, SQLException {
 		boolean success = false;
 		try (PreparedStatement stmt = con.prepareStatement(SQL_SELECT)){
@@ -451,11 +451,11 @@ public class Address extends HotelData {
 				if (!rs.first()) {
 					throw new NoSuchElementException();
 				}
-				this.id = rs.getLong(SQL_TABLE_NAME + ".index");
+				this.id = rs.getLong(SQL_TABLE_NAME + ".id");
 				
 				Person a = new Person(con);
 				a.setAddress(this);
-				a.setId(rs.getLong(Person.SQL_TABLE_NAME + ".index"));
+				a.setId(rs.getLong(Person.SQL_TABLE_NAME + ".id"));
 				a.setFirstNames(rs.getString(Person.SQL_TABLE_NAME + ".first_names"));
 				a.setSurnames(rs.getString(Person.SQL_TABLE_NAME + ".surnames"));
 				a.setTitle(rs.getString(Person.SQL_TABLE_NAME + ".title"));
@@ -573,7 +573,7 @@ public class Address extends HotelData {
 	 */
 	@Override
 	public void deleteFromDb() throws SQLException {
-		try(PreparedStatement stmt = con.prepareStatement(SQL_DELETE)) {
+		try (PreparedStatement stmt = con.prepareStatement(SQL_DELETE)) {
 			stmt.setLong(1, getId());
 		}
 	}
@@ -584,8 +584,32 @@ public class Address extends HotelData {
 	 */
 	@Override
 	public void createTables() throws SQLException {
-		try(Statement stmt = con.createStatement()) {
+		try (Statement stmt = con.createStatement()) {
 			stmt.executeUpdate(SQL_CREATE);
+		}
+	}
+	
+	/** 
+	 * Creates a virtual SQLite table for full text search using fts4. 
+	 * Has to be called every time a new connection has been opened.
+	 * @throws SQLException
+	 */
+	public void createVirtualFTSTable() throws SQLException { // TODO: update on addresses update!!!
+		try (Statement stmt = con.createStatement()) {
+			String dropQuery = "DROP TABLE IF EXISTS " + SQL_TABLE_NAME + "_fts";
+			String createQuery = "CREATE VIRTUAL TABLE " + SQL_TABLE_NAME
+					+ "_fts USING fts4 (title, first_names, surnames, "
+					+ "street, town, zip, phone, email, cellphone)";
+			String populateQuery = "INSERT INTO " + SQL_TABLE_NAME + "_fts "
+					+ "SELECT people.title, people.first_names, "
+					+ "people.surnames, addresses.street, addresses.town, "
+					+ "addresses.zip, addresses.phone, addresses.email, "
+					+ "addresses.cellphone FROM addresses LEFT OUTER JOIN "
+					+ "people ON addresses.addressee "
+					+ "= people.address";
+			stmt.executeUpdate(dropQuery);
+			stmt.executeUpdate(createQuery);
+			stmt.executeUpdate(populateQuery);
 		}
 	}
 	

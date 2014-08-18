@@ -28,7 +28,6 @@ import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ExecutorService;
@@ -56,6 +55,15 @@ public class DataSupervisor {
 		CONNECTION_ESTABLISHED, DRIVER_NOT_FOUND, SQL_EXCEPTION, SQL_TIMEOUT;
 	}
 	
+	private static final String SQL_ADDRESS_SEARCH = "SELECT * FROM addresses "
+			+ "LEFT OUTER JOIN addresses.addressee ON "
+			+ "addresses.addressee = people.address "
+			+ "WHERE (people.title || people.first_names || people.surnames "
+			+ "|| addresses.street || addresses.town || addresses.zip "
+			+ "|| addresses.phone || addresses.cellphone || addresses.email) "
+			+ " LIKE %%%1s%%s " // "%%" results in %
+			+ "AND addresses.flags LIKE "; // TODO re-do with fts4
+	
 	public class ObservableConnectionState extends Observable {
     	private DataSupervisor.ConnectionStatus status;
     	
@@ -82,6 +90,13 @@ public class DataSupervisor {
 	/** List of possible flags an address can have. Used throughout the application */
 	private final ObservableList<String> flags = FXCollections.observableArrayList();
 	
+	/** Search result from searching in addresses */
+	private final ObservableList<Address> addressesSearchResult = FXCollections.observableArrayList();
+	
+	private String addressSearchString = "";
+	
+	private String[] addressSearchFlags = new String[0];
+	
 	/** true iff connection to the DB has been established and all lists are loaded */
 	private boolean flagsInitialized = false;
 	
@@ -105,8 +120,13 @@ public class DataSupervisor {
 		databaseExecutor = Executors.newFixedThreadPool(1, new DatabaseThreadFactory()); // allows only one thread at a time to work on the db
 	}
 	
+	private void initVirtualTables() throws SQLException {
+		(new Address(con)).createVirtualFTSTable();
+	}
+	
 	private void init() throws SQLException {
 		initFlags();
+		initVirtualTables();
 	}
 	
 	/** 
@@ -119,13 +139,13 @@ public class DataSupervisor {
 	
 	/** 
 	 * Attempts to connect to an offline database.
+	 * May be called by one of the connectToDbConcurrently methods.
 	 * @param dbFile the database file.
 	 * @throws ClassNotFoundException 
 	 * @throws SQLException 
-	 * @o will be notified about changes in the state of connection.
-	 * May be null.
+	 * @param newDb if true, will create all necessary tables
 	 */
-	public void connectToDb(File dbFile, Observer o)
+	public void connectToDb(File dbFile, boolean newDb)
 			throws ClassNotFoundException, SQLException {
 		
 		final String sDriverName = "org.sqlite.JDBC";
@@ -134,6 +154,9 @@ public class DataSupervisor {
 		
 		con = DriverManager.getConnection(String.format(conString,
 				dbFile.getAbsolutePath()));
+		if (newDb) {
+			createTables();
+		}
 		init();
 	}
 	
@@ -145,20 +168,12 @@ public class DataSupervisor {
 	 */
 	public void connectToDbConcurrently(Observer o) {
 		File file = new File(System.getProperty("user.home") + "/hotelManager.sqlite");
-		connectToDbConcurrently(file, o);
+		connectToDbConcurrently(file, true, o);
 	}
 	
 	/** Convenience method for connectToDbConcurrently(File dbFile, null). */
 	public void connectToDbConcurrently(File dbFile) {
-		connectToDbConcurrently(dbFile, null);
-	}
-	
-	private void setConnectionStateLater(ConnectionStatus value) {
-		Platform.runLater(new Runnable() {
-			@Override public void run() {
-				conState.setConnectionState(value);
-			}
-		});
+		connectToDbConcurrently(dbFile, true, null);
 	}
 	
 	/**
@@ -167,7 +182,7 @@ public class DataSupervisor {
 	 * @param will be notified about changes in the connection status.
 	 * May be null.
 	 */
-	public void connectToDbConcurrently(File dbFile, Observer o) {
+	public void connectToDbConcurrently(File dbFile, boolean newDb, Observer o) {
 		if (o != null) {
 			this.conState.addObserver(o);
 		}
@@ -176,16 +191,16 @@ public class DataSupervisor {
 
 			@Override protected Void call() throws Exception {
 				try {
-					connectToDb(dbFile, o);
+					connectToDb(dbFile, newDb);
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
-					setConnectionStateLater(ConnectionStatus.DRIVER_NOT_FOUND);
+					conState.setConnectionState(ConnectionStatus.DRIVER_NOT_FOUND);
 					Messages.showError(e, Messages.ErrorType.DB);
 				} catch (SQLTimeoutException e) {
-					setConnectionStateLater(ConnectionStatus.SQL_TIMEOUT);
+					conState.setConnectionState(ConnectionStatus.SQL_TIMEOUT);
 				} catch (SQLException e) {
 					e.printStackTrace();
-					setConnectionStateLater(ConnectionStatus.SQL_EXCEPTION);
+					conState.setConnectionState(ConnectionStatus.SQL_EXCEPTION);
 				}
 				conState.setConnectionState(ConnectionStatus.CONNECTION_ESTABLISHED);
 				return null;
@@ -305,12 +320,45 @@ public class DataSupervisor {
 		return flags;
 	}
 	
+	private Task<Void> addressSearchTask = new Task<Void>() {
+
+		@Override
+		protected Void call() throws Exception {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+	};
+	
+	/**
+	 * Initiates a new concurrent search in the addresses table of the db.
+	 * Results will be made available via getAddressSearchResultObservable().
+	 * Will stop any currently running search.
+	 * @param userQuery Search string entered by the user.
+	 * @param flags Any address having any of these flags set in its flags
+	 * column will be left out of the search results.
+	 */
+	public void searchAddresses(String userQuery, String... flags) {
+		// TODO
+		if (addressSearchTask.isRunning()) {
+			addressSearchTask.cancel(true); // try to stop search if running
+		}
+		addressSearchString = userQuery;
+		addressSearchFlags = flags;
+		databaseExecutor.submit(addressSearchTask);
+	}
+	
+	/** @return Search result from searching in addresses */
+	public ObservableList<Address> getAddressSearchResultObservable() {
+		return addressesSearchResult;
+	}
+	
 	/**
 	 * Creates all required tables in a new database.
 	 * @see createTablesConcurrently
 	 * @return true if table creation completed successfully
 	 */
-	public boolean createTables() {
+	private boolean createTables() {
 		boolean success = false;
 		try {
 			(new Room(con)).createTables();
@@ -328,10 +376,11 @@ public class DataSupervisor {
 	 * Concurrently creates all required tables in a new database.
 	 * @see createTables
 	 */
-	public void createTablesConcurrently() {
-		databaseExecutor.submit(new Task<Boolean>(){
-			@Override protected Boolean call() {
-				return createTables();				
+	private void createTablesConcurrently() { // TODO: needed?
+		databaseExecutor.submit(new Task<Void>(){
+			@Override protected Void call() {
+				createTables();
+				return null;
 			}
 		});
 		// TODO: bookings/orders, invoices, flags, states, cities(?)...

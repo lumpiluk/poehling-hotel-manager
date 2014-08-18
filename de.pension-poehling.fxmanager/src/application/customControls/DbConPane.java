@@ -26,6 +26,8 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.ResourceBundle;
 
+import org.controlsfx.control.action.Action;
+import org.controlsfx.dialog.Dialog;
 import org.controlsfx.dialog.DialogStyle;
 import org.controlsfx.dialog.Dialogs;
 
@@ -98,7 +100,24 @@ public class DbConPane extends AbstractControl {
 	
 	@FXML
     void btnNewDbClicked(ActionEvent event) {
+		if (!checkForSupervisor())
+    		return;
+    	String dbFilePath = System.getProperty("user.home")
+				+ "/.HotelManager/testDB.sqlite";
+		File dbFile = new File(dbFilePath);
+		if (dbFile.exists()) {
+			Action dlgAction = Dialogs.create()
+				.title(Messages.getString("Ui.DbConnection.FileAlreadyExistsConfirmation.Title"))
+				.message(String.format(Messages.getString("Ui.DbConnection.FileAlreadyExistsConfirmation"),
+						dbFile.getPath()))
+				.style(DialogStyle.NATIVE)
+				.showConfirm();
+			if (dlgAction == Dialog.Actions.YES || dlgAction == Dialog.Actions.OK) {
+				dbFile.delete();
+			}
+		}
 		
+		openDb(dbFile, true);
     }
 
     @FXML
@@ -106,23 +125,36 @@ public class DbConPane extends AbstractControl {
 
     }
     
-    private void tryOpenDefaultDb() {
+    private boolean checkForSupervisor() {
     	if (dataSupervisor == null) {
     		Messages.showError(Messages.getString("Ui.DbConnection.Status.Error.NoDataSupervisor"),
     				Messages.ErrorType.DB);
+    		return false;
     	}
-    	String dbFilePath = System.getProperty("user.home")
-				+ "/.HotelManager/testDB.sqlite";
-		File dbFile = new File(dbFilePath);
-		System.out.println("Connecting to " + dbFile.getAbsolutePath());
-		if (!dbFile.exists()) {
-			lblStatus.setText(Messages.getString("Ui.DbConnection.NoDefaultDbFound.Status.text"));
-			return;
-		}
+    	return true;
+    }
+    
+    private void openDb(File dbFile, boolean newDb) {
+    	System.out.println("Connecting to " + dbFile.getAbsolutePath());
 		lblStatus.setText(Messages.getString("Ui.DbConnection.Opening.Status.text"));
 		
 		// connect
-		dataSupervisor.connectToDbConcurrently(dbFile, connectionStateObserver);
+		dataSupervisor.connectToDbConcurrently(dbFile, newDb, connectionStateObserver);
+    }
+    
+    private void tryOpenDefaultDb() {
+    	if (!checkForSupervisor())
+    		return;
+    	
+    	String dbFilePath = System.getProperty("user.home")
+				+ "/.HotelManager/testDB.sqlite";
+		File dbFile = new File(dbFilePath);
+    	if (!dbFile.exists()) {
+			lblStatus.setText(Messages.getString("Ui.DbConnection.NoDefaultDbFound.Status.text"));
+			return;
+		}
+    	
+		openDb(dbFile, false);
     }
 	
     public void initData(MainWindow main, DataSupervisor dataSupervisor) {
