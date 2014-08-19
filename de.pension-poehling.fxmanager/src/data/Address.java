@@ -68,8 +68,8 @@ public class Address extends HotelData {
 
 	private static final String SQL_INSERT_FTS_SINGLE = "INSERT INTO "
 			+ SQL_TABLE_NAME + "_fts (id, title, first_names, surnames, "
-			+ "street, town, zip, phone, email, cellphone) "
-			+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			+ "street, town, zip, phone, email, cellphone, flags) "
+			+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	
 	private static final String SQL_UPDATE = "UPDATE " + SQL_TABLE_NAME
 			+ " SET addressee = ?, addition = ?, street = ?, "
@@ -81,7 +81,7 @@ public class Address extends HotelData {
 	private static final String SQL_UPDATE_FTS = "UPDATE "
 			+ SQL_TABLE_NAME + "_fts SET title = ?, first_names = ?, "
 			+ "surnames = ?, street = ?, town = ?, zip = ?, phone = ?, "
-			+ "email = ?, cellphone = ? WHERE id = ?";
+			+ "email = ?, cellphone = ?, flags = ? WHERE id = ?";
 	
 	private static final String SQL_DELETE = "DELETE FROM " + SQL_TABLE_NAME
 			+ " WHERE id = ?";
@@ -373,7 +373,8 @@ public class Address extends HotelData {
 				stmt.setString(7, getPhone());
 				stmt.setString(8, getEmail());
 				stmt.setString(9, getMobile());
-				stmt.setLong(10, this.getId());
+				stmt.setString(10, flagsToDbString());
+				stmt.setLong(11, this.getId());
 				
 				stmt.executeUpdate();
 			}
@@ -438,6 +439,7 @@ public class Address extends HotelData {
 				stmt.setString(8, getPhone());
 				stmt.setString(9, getEmail());
 				stmt.setString(10, getMobile());
+				stmt.setString(11, flagsToDbString());
 				
 				stmt.executeUpdate();
 			}
@@ -480,13 +482,13 @@ public class Address extends HotelData {
 			String dropQuery = "DROP TABLE IF EXISTS " + SQL_TABLE_NAME + "_fts";
 			String createQuery = "CREATE VIRTUAL TABLE " + SQL_TABLE_NAME
 					+ "_fts USING fts4 (id, title, first_names, surnames, "
-					+ "street, town, zip, phone, email, cellphone)";
+					+ "street, town, zip, phone, email, cellphone, flags)";
 			String populateQuery = "INSERT INTO " + SQL_TABLE_NAME + "_fts "
 					+ "SELECT addresses.id, people.title, people.first_names, "
 					+ "people.surnames, addresses.street, addresses.town, "
 					+ "addresses.zip, addresses.phone, addresses.email, "
-					+ "addresses.cellphone FROM addresses LEFT OUTER JOIN "
-					+ "people ON addresses.addressee "
+					+ "addresses.cellphone, addresses.flags FROM addresses "
+					+ "LEFT OUTER JOIN people ON addresses.addressee "
 					+ "= people.address";
 			stmt.executeUpdate(dropQuery);
 			stmt.executeUpdate(createQuery);

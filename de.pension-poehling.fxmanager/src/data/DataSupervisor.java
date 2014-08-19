@@ -56,13 +56,11 @@ public class DataSupervisor {
 	}
 	
 	private static final String SQL_ADDRESS_SEARCH = "SELECT * FROM addresses "
-			+ "LEFT OUTER JOIN addresses.addressee ON "
+			+ "LEFT OUTER JOIN people ON "
 			+ "addresses.addressee = people.address "
-			+ "WHERE (people.title || people.first_names || people.surnames "
-			+ "|| addresses.street || addresses.town || addresses.zip "
-			+ "|| addresses.phone || addresses.cellphone || addresses.email) "
-			+ " LIKE %%%1s%%s " // "%%" results in %
-			+ "AND addresses.flags LIKE "; // TODO re-do with fts4
+			+ "LEFT OUTER JOIN addresses_fts ON "
+			+ "addresses.id = addresses_fts.id "
+			+ "WHERE addresses_fts MATCH '%s'"; // %s: flags matching here
 	
 	public class ObservableConnectionState extends Observable {
     	private DataSupervisor.ConnectionStatus status;
@@ -321,11 +319,42 @@ public class DataSupervisor {
 		return flags;
 	}
 	
+	/**
+	 * Queries addresses table using the flags to filter in addressSearchFlags
+	 * and the user query in addressSearchString.
+	 * Result is output in addressesSearchResult.
+	 * @see searchAddresses()
+	 */
 	private Task<Void> addressSearchTask = new Task<Void>() {
 
 		@Override
 		protected Void call() throws Exception {
-			// TODO Auto-generated method stub
+			addressesSearchResult.clear();
+			
+			StringBuilder match = new StringBuilder();
+			match.append("(addresses_fts.title:\"%1s\" OR addresses_fts.first_names:\"%1s\" ");
+			match.append("OR addresses_fts.surnames:\"%1s\" OR addresses_fts.street:\"%1s\" ");
+			match.append("OR addresses_fts.town:\"%1s\" OR addresses_fts.zip:\"%1s\" ");
+			match.append("OR addresses_fts.phone:\"%1s\" OR addresses_fts.email:\"%1s\" ");
+			match.append("OR addresses_fts.cellphone:\"%1s\") ");
+			
+			for (String flag : addressSearchFlags) {
+				match.append("AND NOT addresses_fts.flags:\"");
+				match.append(flag.toLowerCase()); // TODO: ensure lower case on insertion?
+				match.append("\" ");
+			}
+			String query = String.format(SQL_ADDRESS_SEARCH,
+					String.format(match.toString(), addressSearchString));
+			
+			try (Statement stmt = con.createStatement()) {
+				try (ResultSet rs = stmt.executeQuery(query)) {
+					while (rs.next() && !this.isCancelled()) {
+						Address a = new Address(con);
+						a.prepareDataFromResultSet(rs);
+						addressesSearchResult.add(a);
+					}
+				}
+			}
 			return null;
 		}
 		
@@ -335,6 +364,7 @@ public class DataSupervisor {
 	 * Initiates a new concurrent search in the addresses table of the db.
 	 * Results will be made available via getAddressSearchResultObservable().
 	 * Will stop any currently running search.
+	 * The characters "'", "\"" and ":" in the query will be ignored.
 	 * @param userQuery Search string entered by the user.
 	 * @param flags Any address having any of these flags set in its flags
 	 * column will be left out of the search results.
@@ -344,7 +374,7 @@ public class DataSupervisor {
 		if (addressSearchTask.isRunning()) {
 			addressSearchTask.cancel(true); // try to stop search if running
 		}
-		addressSearchString = userQuery;
+		addressSearchString = userQuery.replaceAll("['\":]", "").toLowerCase();
 		addressSearchFlags = flags;
 		databaseExecutor.submit(addressSearchTask);
 	}
