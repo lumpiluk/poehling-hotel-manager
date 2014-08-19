@@ -302,9 +302,10 @@ public class DataSupervisor {
 		flags.addListener(flagsListener);
 	}
 	
-	/** Creates a table in the database with only one column for the flags. */
+	/** Creates a table for flags in the database */
 	private void createFlagsTable() throws SQLException {
-		final String createQuery = "CREATE TABLE flags (name TEXT NOT NULL)";
+		final String createQuery = "CREATE TABLE flags ("
+				+ "name TEXT NOT NULL)";
 		try (Statement stmt = con.createStatement()) {
 			stmt.executeUpdate(createQuery);
 		}

@@ -91,6 +91,7 @@ public class Person extends HotelData {
 	}
 	
 	/**
+	 * Loads the associated address from the database.
 	 * @return the address associated with this Person. May be null.
 	 * @throws SQLException
 	 */
@@ -104,94 +105,47 @@ public class Person extends HotelData {
 		return a;
 	}
 	
-	private long getAddressId() {
-		return addressId;
-	}
+	/** @return the address id */
+	private long getAddressId() { return addressId; }
 	
-	private void setAddressId(long addressId) {
-		this.addressId = addressId;
-	}
+	/** @param addressId the address id to set */
+	private void setAddressId(long addressId) { this.addressId = addressId; }
 	
-	public void setAddress(Address address) {
-		setAddressId(address.getId());
-	}
+	/** @param address the address to set (will only save the id) */
+	public void setAddress(Address address) { setAddressId(address.getId()); }
 
-	/**
-	 * @param id the id to set
-	 */
-	private void setId(int id) {
-		this.id = id;
-	}
+	/** @param id the id to set */
+	private void setId(int id) { this.id = id; }
 
-	/**
-	 * @return the title
-	 */
-	public String getTitle() {
-		return title;
-	}
+	/** @return the title */
+	public String getTitle() { return title; }
 
-	/**
-	 * @param title the title to set
-	 */
-	public void setTitle(String title) {
-		this.title = title;
-	}
+	/** @param title the title to set */
+	public void setTitle(String title) { this.title = title; }
 
-	/**
-	 * @return the firstNames
-	 */
-	public String getFirstNames() {
-		return firstNames;
-	}
+	/** @return the firstNames */
+	public String getFirstNames() { return firstNames; }
 
-	/**
-	 * @param firstNames the firstNames to set
-	 */
-	public void setFirstNames(String firstNames) {
-		this.firstNames = firstNames;
-	}
+	/** @param firstNames the firstNames to set */
+	public void setFirstNames(String firstNames) { this.firstNames = firstNames; }
 
-	/**
-	 * @return the surnames
-	 */
-	public String getSurnames() {
-		return surnames;
-	}
+	/** @return the surnames */
+	public String getSurnames() { return surnames; }
 
-	/**
-	 * @param surnames the surnames to set
-	 */
-	public void setSurnames(String surnames) {
-		this.surnames = surnames;
-	}
+	/** @param surnames the surnames to set */
+	public void setSurnames(String surnames) { this.surnames = surnames; }
 
-	/**
-	 * @return the birthday
-	 */
-	public Date getBirthday() {
-		return birthday;
-	}
+	/** @return the birthday */
+	public Date getBirthday() { return birthday; }
 
-	/**
-	 * @param birthday the birthday to set
-	 */
-	public void setBirthday(Date birthday) {
-		this.birthday = birthday;
-	}
+	/** @param birthday the birthday to set */
+	public void setBirthday(Date birthday) { this.birthday = birthday; }
 
-	/**
-	 * @return the foodMemo
-	 */
-	public String getFoodMemo() {
-		return foodMemo;
-	}
+	/** @return the foodMemo */
+	public String getFoodMemo() { return foodMemo; }
 
-	/**
-	 * @param foodMemo the foodMemo to set
-	 */
-	public void setFoodMemo(String foodMemo) {
-		this.foodMemo = foodMemo;
-	}
+	/** @param foodMemo the foodMemo to set */
+	public void setFoodMemo(String foodMemo) { this.foodMemo = foodMemo; }
 	
 	@Override
 	public String toString() {
@@ -204,7 +158,7 @@ public class Person extends HotelData {
 	 * @param rs The result set.
 	 * @throws SQLException
 	 */
-	private void prepareDataFromResultSet(final Person p, final ResultSet rs) 
+	private static void prepareDataFromResultSet(final Person p, final ResultSet rs) 
 			throws SQLException {
 		p.setId(rs.getLong("id")); // works although private :)
 		p.setAddressId(rs.getLong("address")); // 0 if SQL NULL
