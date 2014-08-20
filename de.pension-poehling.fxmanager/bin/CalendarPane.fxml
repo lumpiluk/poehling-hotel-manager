@@ -8,7 +8,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="365.0" prefWidth="525.0" styleClass="calendar-pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.customControls.CalendarPane">
+<VBox fx:id="layoutBox" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="365.0" prefWidth="525.0" styleClass="calendar-pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.customControls.CalendarPane">
    <children>
       <ToolBar fx:id="tbMonthPicker" maxWidth="1.7976931348623157E308" VBox.vgrow="SOMETIMES">
          <items>
@@ -38,6 +38,6 @@
             <Button fx:id="nextYearBtn" mnemonicParsing="false" onAction="#nextYearBtnAction" scaleX="0.7" scaleY="0.7" text="&gt;" />
          </items>
       </ToolBar>
-      <ScrollPane fx:id="contentPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" pannable="true" VBox.vgrow="ALWAYS" />
+      <ScrollPane fx:id="contentPane" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" pannable="true" vbarPolicy="ALWAYS" VBox.vgrow="ALWAYS" />
    </children>
 </VBox>

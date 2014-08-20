@@ -6,6 +6,8 @@ package application.customControls;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
+import com.sun.javafx.css.StyleManager;
+
 import util.Messages;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
@@ -39,7 +41,8 @@ public abstract class AbstractControl extends Control {
 	 * @throws IOException
 	 */
 	public AbstractControl() throws IOException {
-
+		StyleManager.getInstance().addUserAgentStylesheet(getClass().getResource(String.format(cssPath,
+				this.getClass().getSimpleName())).toExternalForm());
 	}
 	
 	/**
@@ -77,18 +80,18 @@ public abstract class AbstractControl extends Control {
 	 * Return the path to the CSS file so things are set up right
 	 * @see javafx.scene.control.Control#getUserAgentStylesheet()
 	 */
-	@Override
-	protected String getUserAgentStylesheet() {
-		String css;
-		//try {
-			css = getClass().getResource(String.format(cssPath,
-					this.getClass().getSimpleName())).toExternalForm();
-		/*} catch (NullPointerException e) {
-			Messages.showError(e, Messages.ErrorType.UI);
-			css = null;
-		}*/
-		return css;
-	}
+//	@Override // temporarily moved to constructor in order to see whether it makes css warnings go away
+//	protected String getUserAgentStylesheet() {
+//		String css;
+//		//try {
+//			css = getClass().getResource(String.format(cssPath,
+//					this.getClass().getSimpleName())).toExternalForm();
+//		/*} catch (NullPointerException e) {
+//			Messages.showError(e, Messages.ErrorType.UI);
+//			css = null;
+//		}*/
+//		return css;
+//	}
 	
 	/**
 	 * @return the default skin for this custom control. (Required when

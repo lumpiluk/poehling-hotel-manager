@@ -33,22 +33,17 @@
 		<mkdir dir="project" />
 		<copy todir="project">
 			<fileset dir="/media/lumpiluk/Data/MyFiles/git/poehling-hotel-manager/de.pension-poehling.fxmanager">
-				<include name="tests/**" />
-			</fileset>
-		</copy>
-		<copy todir="project">
-			<fileset dir="/media/lumpiluk/Data/MyFiles/git/poehling-hotel-manager/de.pension-poehling.fxmanager">
-				<include name="css/**" />
-			</fileset>
-		</copy>
-		<copy todir="project">
-			<fileset dir="/media/lumpiluk/Data/MyFiles/git/poehling-hotel-manager/de.pension-poehling.fxmanager">
-				<include name="db-import/**" />
-			</fileset>
-		</copy>
-		<copy todir="project">
-			<fileset dir="/media/lumpiluk/Data/MyFiles/git/poehling-hotel-manager/de.pension-poehling.fxmanager">
 				<include name="src/**" />
+			</fileset>
+		</copy>
+		<copy todir="project">
+			<fileset dir="/media/lumpiluk/Data/MyFiles/git/poehling-hotel-manager/de.pension-poehling.fxmanager">
+				<include name="localization/**" />
+			</fileset>
+		</copy>
+		<copy todir="project">
+			<fileset dir="/media/lumpiluk/Data/MyFiles/git/poehling-hotel-manager/de.pension-poehling.fxmanager">
+				<include name="dbimport/**" />
 			</fileset>
 		</copy>
 		<copy todir="project">
@@ -58,7 +53,12 @@
 		</copy>
 		<copy todir="project">
 			<fileset dir="/media/lumpiluk/Data/MyFiles/git/poehling-hotel-manager/de.pension-poehling.fxmanager">
-				<include name="localization/**" />
+				<include name="css/**" />
+			</fileset>
+		</copy>
+		<copy todir="project">
+			<fileset dir="/media/lumpiluk/Data/MyFiles/git/poehling-hotel-manager/de.pension-poehling.fxmanager">
+				<include name="tests/**" />
 			</fileset>
 		</copy>
 		
@@ -107,7 +107,7 @@
 			</fileset>
 		</copy>
 		<copy todir="build/src">
-			<fileset dir="project/db-import">
+			<fileset dir="project/dbimport">
 				<include name="**/*"/>
 			</fileset>
 		</copy>
@@ -137,7 +137,7 @@
 		<fileset dir="project/src">
 			<exclude name="**/*.java"/>
 		</fileset>
-		<fileset dir="project/db-import">
+		<fileset dir="project/dbimport">
 			<exclude name="**/*.java"/>
 		</fileset>
 		</copy>

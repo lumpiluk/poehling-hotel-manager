@@ -36,7 +36,7 @@ public class Room extends HotelData {
 	private static final String SQL_TABLE_NAME = "rooms";
 
 	private static final String SQL_CREATE = "CREATE TABLE IF NOT EXISTS "
-			+ SQL_TABLE_NAME + " (index INTEGER PRIMARY KEY AUTOINCREMENT, "
+			+ SQL_TABLE_NAME + " (id INTEGER PRIMARY KEY, "
 			+ "name TEXT NOT NULL, "
 			+ "type TEXT NOT NULL, "
 			+ "floor INTEGER NOT NULL, "
@@ -53,7 +53,10 @@ public class Room extends HotelData {
 	private static final String SQL_UPDATE = "UPDATE " + SQL_TABLE_NAME
 			+ " SET name = ?, type = ?, floor = ?, lift = ?, balcony = ?, "
 			+ "area = ?, phone = ?, view = ?"
-			+ "WHERE index = ?";
+			+ "WHERE id = ?";
+	
+	private static final String SQL_DELETE = "DELETE FROM " + SQL_TABLE_NAME
+			+ " WHERE id = ?";
 	
 	public static enum Type {
 		SINGLE("E"),
@@ -169,7 +172,7 @@ public class Room extends HotelData {
 	/**
 	 * @return the room's ID in the DB
 	 */
-	public long getID() {
+	public long getId() {
 		return id;
 	}
 	
@@ -294,17 +297,17 @@ public class Room extends HotelData {
 	 * @throws SQLException 
 	 */
 	@Override
-	public boolean fromDbAtIndex(long id)
+	public boolean fromDbAtId(long id)
 			throws NoSuchElementException, SQLException {
 		boolean success = false;
-		String query = "SELECT * FROM " + SQL_TABLE_NAME + " WHERE index = ?";
+		String query = "SELECT * FROM " + SQL_TABLE_NAME + " WHERE id = ?";
 		try (PreparedStatement stmt = con.prepareStatement(query)){
 			stmt.setLong(1, id);
 			try (ResultSet rs = stmt.executeQuery()) {
 				if (!rs.first()) {
 					throw new NoSuchElementException();
 				}
-				this.id = rs.getInt("index");
+				this.id = rs.getInt("id");
 				this.setName(rs.getString("name"));
 				this.setAccessibleByLift(rs.getBoolean("lift"));
 				this.setArea(rs.getDouble("area"));
@@ -333,7 +336,7 @@ public class Room extends HotelData {
 			ps.setDouble(6, getArea());
 			ps.setString(7, getPhone());
 			ps.setString(8, getView());
-			ps.setLong(9, getID());
+			ps.setLong(9, getId());
 			ps.executeUpdate();
 		}
 		
@@ -353,6 +356,13 @@ public class Room extends HotelData {
 			ps.setString(8, getView());
 			ps.executeUpdate();
 			this.setId(ps.getGeneratedKeys().getLong(1));
+		}
+	}
+	
+	@Override
+	public void deleteFromDb() throws SQLException {
+		try(PreparedStatement stmt = con.prepareStatement(SQL_DELETE)) {
+			stmt.setLong(1, getId());
 		}
 	}
 

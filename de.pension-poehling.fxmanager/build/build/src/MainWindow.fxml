@@ -8,7 +8,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="506.0" prefWidth="858.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MainController">
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="506.0" prefWidth="858.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.customControls.MainWindow">
    <children>
       <MenuBar fx:id="mainMenu" prefWidth="600.0">
         <menus>
@@ -25,45 +25,51 @@
           </Menu>
         </menus>
       </MenuBar>
-      <SplitPane fx:id="appBody" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+      <SplitPane fx:id="appBody" VBox.vgrow="ALWAYS">
          <items>
             <SplitPane fx:id="leftPane" dividerPositions="0.5" orientation="VERTICAL" SplitPane.resizableWithParent="false">
                <items>
                   <Accordion fx:id="leftMenu">
                     <panes>
-                      <TitledPane fx:id="bookingsTitledPane" text="%Ui.LeftMenu.Bookings.text">
-                           <content>
-                              <VBox alignment="TOP_CENTER">
+                      <TitledPane fx:id="databaseTitledPane" text="%Ui.LeftMenu.Database.text">
+                        <content>
+                              <VBox layoutX="129.0" layoutY="-11.0" prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <ToggleButton fx:id="btnCalendar" maxWidth="1.7976931348623157E308" mnemonicParsing="false" selected="true" text="%Ui.LeftMenu.Bookings.BtnCalendar.text">
-                                       <VBox.margin>
-                                          <Insets bottom="3.0" />
-                                       </VBox.margin>
+                                    <ToggleButton fx:id="btnDbOpenCreate" maxWidth="1.7976931348623157E308" mnemonicParsing="false" selected="true" text="%Ui.LeftMenu.Database.btnDbOpenCreate">
                                        <toggleGroup>
                                           <ToggleGroup fx:id="leftMenuGroup" />
                                        </toggleGroup>
                                     </ToggleButton>
+                                    <ToggleButton fx:id="btnStaticData" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="%Ui.LeftMenu.Database.btnStaticData" toggleGroup="$leftMenuGroup" />
+                                 </children>
+                              </VBox>
+                        </content>
+                      </TitledPane>
+                      <TitledPane fx:id="bookingsTitledPane" disable="true" text="%Ui.LeftMenu.Bookings.text">
+                           <content>
+                              <VBox alignment="TOP_CENTER">
+                                 <children>
+                                    <ToggleButton fx:id="btnCalendar" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="%Ui.LeftMenu.Bookings.BtnCalendar.text" toggleGroup="$leftMenuGroup">
+                                       <VBox.margin>
+                                          <Insets />
+                                       </VBox.margin>
+                                    </ToggleButton>
                                     <ToggleButton fx:id="btnRoomPlan" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="%Ui.LeftMenu.Bookings.BtnRooms.text" toggleGroup="$leftMenuGroup">
                                        <VBox.margin>
-                                          <Insets bottom="3.0" />
+                                          <Insets />
                                        </VBox.margin>
                                     </ToggleButton>
                                     <ToggleButton fx:id="btnCustomers" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="%Ui.LeftMenu.Bookings.Customers.text" toggleGroup="$leftMenuGroup">
                                        <VBox.margin>
-                                          <Insets bottom="3.0" />
+                                          <Insets />
                                        </VBox.margin>
                                     </ToggleButton>
-                                    <ToggleButton fx:id="btnCalendar3" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="%Ui.LeftMenu.Bookings.Invoices.text" toggleGroup="$leftMenuGroup" />
+                                    <ToggleButton fx:id="btnInvoices" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="%Ui.LeftMenu.Bookings.Invoices.text" toggleGroup="$leftMenuGroup" />
                                  </children>
                               </VBox>
                            </content>
                       </TitledPane>
-                      <TitledPane text="untitled 2">
-                        <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" />
-                        </content>
-                      </TitledPane>
-                      <TitledPane prefHeight="184.0" prefWidth="246.0" text="%Ui.LeftMenu.Statistics.text">
+                      <TitledPane fx:id="statisticsTitledPane" disable="true" prefHeight="184.0" prefWidth="246.0" text="%Ui.LeftMenu.Statistics.text">
                         <content>
                           <AnchorPane minHeight="0.0" minWidth="0.0" />
                         </content>

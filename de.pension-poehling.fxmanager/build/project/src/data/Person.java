@@ -35,10 +35,10 @@ import java.util.NoSuchElementException;
  */
 public class Person extends HotelData {
 
-	private static final String SQL_TABLE_NAME = "people";
+	public static final String SQL_TABLE_NAME = "people";
 
 	private static final String SQL_CREATE = "CREATE TABLE IF NOT EXISTS "
-			+ SQL_TABLE_NAME + " (index INTEGER PRIMARY KEY AUTOINCREMENT, "
+			+ SQL_TABLE_NAME + " (id INTEGER PRIMARY KEY, "
 			+ "address INTEGER, "
 			+ "title TEXT, "
 			+ "first_names TEXT, "
@@ -53,7 +53,10 @@ public class Person extends HotelData {
 	private static final String SQL_UPDATE = "UPDATE " + SQL_TABLE_NAME
 			+ " SET address = ?, title = ?, first_names = ?, surnames = ?, "
 			+ "birthday = ?, food_memo = ? "
-			+ "WHERE index = ?";
+			+ "WHERE id = ?";
+	
+	private static final String SQL_DELETE = "DELETE FROM " + SQL_TABLE_NAME
+			+ " WHERE id = ?";
 	
 	private long id;
 	
@@ -83,122 +86,81 @@ public class Person extends HotelData {
 		return id;
 	}
 	
-	private void setId(long id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 	
 	/**
+	 * Loads the associated address from the database.
 	 * @return the address associated with this Person. May be null.
 	 * @throws SQLException
 	 */
 	public Address getAddress() throws SQLException {
 		Address a = new Address(con);
 		try {
-			a.fromDbAtIndex(addressId);
+			a.fromDbAtId(addressId);
 		} catch (NoSuchElementException e) {
 			return null;
 		}
 		return a;
 	}
 	
-	private long getAddressId() {
-		return addressId;
-	}
+	/** @return the address id */
+	private long getAddressId() { return addressId; }
 	
-	private void setAddressId(long addressId) {
-		this.addressId = addressId;
-	}
+	/** @param addressId the address id to set */
+	private void setAddressId(long addressId) { this.addressId = addressId; }
 	
-	public void setAddress(Address address) {
-		setAddressId(address.getId());
-	}
+	/** @param address the address to set (will only save the id) */
+	public void setAddress(Address address) { setAddressId(address.getId()); }
 
-	/**
-	 * @param id the id to set
-	 */
-	private void setId(int id) {
-		this.id = id;
-	}
+	/** @param id the id to set */
+	private void setId(int id) { this.id = id; }
 
-	/**
-	 * @return the title
-	 */
-	public String getTitle() {
-		return title;
-	}
+	/** @return the title */
+	public String getTitle() { return title; }
 
-	/**
-	 * @param title the title to set
-	 */
-	public void setTitle(String title) {
-		this.title = title;
-	}
+	/** @param title the title to set */
+	public void setTitle(String title) { this.title = title; }
 
-	/**
-	 * @return the firstNames
-	 */
-	public String getFirstNames() {
-		return firstNames;
-	}
+	/** @return the firstNames */
+	public String getFirstNames() { return firstNames; }
 
-	/**
-	 * @param firstNames the firstNames to set
-	 */
-	public void setFirstNames(String firstNames) {
-		this.firstNames = firstNames;
-	}
+	/** @param firstNames the firstNames to set */
+	public void setFirstNames(String firstNames) { this.firstNames = firstNames; }
 
-	/**
-	 * @return the surnames
-	 */
-	public String getSurnames() {
-		return surnames;
-	}
+	/** @return the surnames */
+	public String getSurnames() { return surnames; }
 
-	/**
-	 * @param surnames the surnames to set
-	 */
-	public void setSurnames(String surnames) {
-		this.surnames = surnames;
-	}
+	/** @param surnames the surnames to set */
+	public void setSurnames(String surnames) { this.surnames = surnames; }
 
-	/**
-	 * @return the birthday
-	 */
-	public Date getBirthday() {
-		return birthday;
-	}
+	/** @return the birthday */
+	public Date getBirthday() { return birthday; }
 
-	/**
-	 * @param birthday the birthday to set
-	 */
-	public void setBirthday(Date birthday) {
-		this.birthday = birthday;
-	}
+	/** @param birthday the birthday to set */
+	public void setBirthday(Date birthday) { this.birthday = birthday; }
 
-	/**
-	 * @return the foodMemo
-	 */
-	public String getFoodMemo() {
-		return foodMemo;
-	}
+	/** @return the foodMemo */
+	public String getFoodMemo() { return foodMemo; }
 
-	/**
-	 * @param foodMemo the foodMemo to set
-	 */
-	public void setFoodMemo(String foodMemo) {
-		this.foodMemo = foodMemo;
+	/** @param foodMemo the foodMemo to set */
+	public void setFoodMemo(String foodMemo) { this.foodMemo = foodMemo; }
+	
+	@Override
+	public String toString() {
+		return String.format("%1$s %2$s %3$s", getTitle(), getFirstNames(), getSurnames());
 	}
 	
 	/**
-	 * Used in fromDbAtIndex and getBatch.
+	 * Used in fromDbAtId and getBatch.
 	 * @param p The Person the data of which will be prepared.
 	 * @param rs The result set.
 	 * @throws SQLException
 	 */
-	private void prepareDataFromResultSet(final Person p, final ResultSet rs) 
+	private static void prepareDataFromResultSet(final Person p, final ResultSet rs) 
 			throws SQLException {
-		p.setId(rs.getLong("index")); // works although private :)
+		p.setId(rs.getLong("id")); // works although private :)
 		p.setAddressId(rs.getLong("address")); // 0 if SQL NULL
 		p.setBirthday(rs.getDate("birthday"));
 		p.setFirstNames(rs.getString("first_names"));
@@ -211,10 +173,10 @@ public class Person extends HotelData {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean fromDbAtIndex(final long d) throws NoSuchElementException,
+	public boolean fromDbAtId(final long d) throws NoSuchElementException,
 			SQLException {
 		boolean success = false;
-		String query = "SELECT * FROM " + SQL_TABLE_NAME + " WHERE index = ?";
+		String query = "SELECT * FROM " + SQL_TABLE_NAME + " WHERE id = ?";
 		try (PreparedStatement stmt = con.prepareStatement(query)) {
 			stmt.setLong(1, this.getId());
 			try (ResultSet rs = stmt.executeQuery()) {
@@ -239,8 +201,8 @@ public class Person extends HotelData {
 		List<Person> resultList = new LinkedList<Person>();
 		if (!indices.isEmpty()) {
 			StringBuilder sql = new StringBuilder();
-			sql.append("SELECT * FROM " + SQL_TABLE_NAME + " WHERE index IN (");
-			for (@SuppressWarnings("unused") Long index : indices) {
+			sql.append("SELECT * FROM " + SQL_TABLE_NAME + " WHERE id IN (");
+			for (@SuppressWarnings("unused") Long id : indices) {
 				sql.append("?,");
 			}
 			sql.deleteCharAt(sql.length() - 1); // remove last comma
@@ -249,9 +211,9 @@ public class Person extends HotelData {
 			try (PreparedStatement stmt = con.prepareStatement(
 					sql.toString())) {
 				int i = 0;
-				for (Long index : indices) {
+				for (Long id : indices) {
 					i++;
-					stmt.setLong(i, index);
+					stmt.setLong(i, id);
 				}
 				
 				ResultSet rs = stmt.executeQuery();
@@ -311,6 +273,13 @@ public class Person extends HotelData {
 			this.setId(stmt.getGeneratedKeys().getLong(1)); // get newly assigned id
 		}
 		
+	}
+	
+	@Override
+	public void deleteFromDb() throws SQLException {
+		try(PreparedStatement stmt = con.prepareStatement(SQL_DELETE)) {
+			stmt.setLong(1, getId());
+		}
 	}
 
 	@Override

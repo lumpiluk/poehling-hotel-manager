@@ -13,6 +13,7 @@ import org.controlsfx.control.CheckListView;
 
 import data.Address;
 import data.DataSupervisor;
+import data.Person;
 import util.Messages;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -42,6 +43,34 @@ import javafx.scene.text.Text;
  */
 public class CustomerForm extends AbstractControl {
 
+	/** Items used in people list view of current address. */
+	private class PersonItem {
+		private Person person;
+		private boolean markedAsAddressee;
+		
+		public PersonItem(Person p, boolean addressee) {
+			this.person = p;
+			this.markedAsAddressee = addressee;
+		}
+		
+		public Person getPerson() { return person; }
+		public boolean isMarkedAsAddressee() { return markedAsAddressee; }
+		
+		public void setMarkedAsAddressee(boolean value) { markedAsAddressee = value; }
+		
+		@Override public String toString() {
+			StringBuilder sb = new StringBuilder();
+			if (isMarkedAsAddressee())
+				sb.append("Addressat: ");
+			sb.append(person.getTitle());
+			sb.append(" ");
+			sb.append(person.getFirstNames());
+			sb.append(" ");
+			sb.append(person.getSurnames());
+			return sb.toString();
+		}
+	}
+	
 	private final Pattern emailRegex = Pattern.compile(
 			"^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
 			+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
@@ -167,6 +196,20 @@ public class CustomerForm extends AbstractControl {
     
     ObservableList<Address> customersTableData;
 
+    /*private boolean evaluateForm() {
+    	
+    }
+    
+    private Person getAddresseeFromListItems() {
+    	
+    }
+    
+    private Address addressFromForm() {
+    	Address a = new Address(dataSupervisor.getConnection());
+    	a.setAddressee(addressee);
+    	return a;
+    }*/
+    
     @FXML
     void btnNewAddressClicked(ActionEvent event) {
 
@@ -185,6 +228,14 @@ public class CustomerForm extends AbstractControl {
     @SuppressWarnings("unchecked")
 	private TableView<Address> getCustomersTable() {
     	return (TableView<Address>)customersTable;
+    }
+    
+    /**
+     * Convenience method for explicit conversion of lvPeople.
+     * @return
+     */
+    private ListView<PersonItem> getLvPeople() {
+    	return (ListView<PersonItem>)lvPeople;
     }
     
     /**
@@ -233,7 +284,7 @@ public class CustomerForm extends AbstractControl {
     	this.dataSupervisor = dataSupervisor;
     	
     	clvCustomerFlags = new CheckListView<String>();
-        clvCustomerFlags.getStyleClass().add("clvCustomerFlags");
+        //clvCustomerFlags.getStyleClass().add("clvCustomerFlags");
         
         ccbFlagsFilter = new CheckComboBox<String>();
         

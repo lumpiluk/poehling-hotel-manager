@@ -68,7 +68,14 @@ public class DataSupervisor {
     	public void setConnectionState(DataSupervisor.ConnectionStatus value) {
     		this.status = value;
     		this.setChanged();
-    		this.notifyObservers();
+    		Platform.runLater(new Runnable() {
+
+				@Override
+				public void run() {
+					notifyObservers();					
+				}
+    			
+    		});
     	}
     	
     	public DataSupervisor.ConnectionStatus getStatus() {
@@ -133,6 +140,11 @@ public class DataSupervisor {
 	 */
 	public void setConnection(Connection con) {
 		this.con = con;
+	}
+	
+	/** @return the Connection */
+	public Connection getConnection() {
+		return con;
 	}
 	
 	/** 

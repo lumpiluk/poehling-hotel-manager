@@ -1,24 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
-	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
-		<item value="339" key="DIALOG_WIDTH"/>
-		<item value="258" key="DIALOG_Y_ORIGIN"/>
-		<item value="454" key="DIALOG_HEIGHT"/>
-		<item value="1047" key="DIALOG_X_ORIGIN"/>
-		<item value="1|Liberation Sans|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
-	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
-		<item value="true" key="wrap"/>
 		<item value="false" key="isRegEx"/>
+		<item value="colWidth" key="selection"/>
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
+		<item value="true" key="wrap"/>
 		<item value="false" key="wholeword"/>
-		<item value="Date" key="selection"/>
 		<list key="findhistory">
+			<item value="colWidth"/>
+			<item value="style"/>
+			<item value="css"/>
+			<item value="getUser"/>
+			<item value="get"/>
 			<item value="Time"/>
 		</list>
 		<list key="replacehistory">
 			<item value="Date"/>
 		</list>
+	</section>
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
+		<item value="281" key="DIALOG_WIDTH"/>
+		<item value="1|DejaVu Sans|9.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
+		<item value="412" key="DIALOG_HEIGHT"/>
+		<item value="180" key="DIALOG_Y_ORIGIN"/>
+		<item value="2211" key="DIALOG_X_ORIGIN"/>
 	</section>
 </section>

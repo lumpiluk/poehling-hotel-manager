@@ -1,7 +1,7 @@
 .custom-calendar {
-	-fx-skin: "application.customControls.CustomCalendarSkin"; /* TODO: generalize (own package for custom controls?) */
+	-fx-skin: "application.customControls.CustomCalendarSkin"; /*TODO: generalize (own package for custom controls?) */
 	-fx-background-color: rgba(1.0, 1.0, 1.0, 0.0);
-	-col-width: 2.2em;
+	-col-width: 4.4em;
 }
 
 .custom-calendar .bg {

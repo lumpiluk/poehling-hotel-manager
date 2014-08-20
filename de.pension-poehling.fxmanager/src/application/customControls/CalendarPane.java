@@ -24,18 +24,23 @@ import java.util.GregorianCalendar;
 import java.util.ResourceBundle;
 
 import util.Messages;
+import util.Messages.ErrorType;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToolBar;
+import javafx.scene.layout.VBox;
 
 public class CalendarPane extends AbstractControl {
 
 	private CustomCalendar customCalendar;
 	
 	private Calendar monthToDisplay = new GregorianCalendar();
+	
+	@FXML // fx:id="layoutBox"
+    private VBox layoutBox; // Value injected by FXMLLoader
 	
 	@FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
@@ -128,16 +133,21 @@ public class CalendarPane extends AbstractControl {
         assert yearLbl != null : "fx:id=\"yearLbl\" was not injected: check your FXML file 'CalendarPane.fxml'.";
         assert monthLbl != null : "fx:id=\"monthLbl\" was not injected: check your FXML file 'CalendarPane.fxml'.";
         assert tbMonthPicker != null : "fx:id=\"tbMonthPicker\" was not injected: check your FXML file 'CalendarPane.fxml'.";
+        assert layoutBox != null : "fx:id=\"layoutBox\" was not injected: check your FXML file 'CalendarPane.fxml'.";
         
         //tbMonthPicker.getItems().add(2, element);
         
         updateLabels();
         
         // TODO: make dynamic!
-        String[] testRows = {"1","2","3","4","5","6","7","8","9","10","11","101", "102", "103", "114", "203","FeWo", "Appartement 1", "Appartement 2"};
-		customCalendar = new CustomCalendar(Arrays.asList(testRows));
-        
-		
-        contentPane.setContent(customCalendar);
+        try {
+        	String[] testRows = {"1","2","3","4","5","6","7","8","9","10","11","101", "102", "103", "114", "203","FeWo", "Appartement 1", "Appartement 2"};
+        	customCalendar = (CustomCalendar) AbstractControl.getInstance(CustomCalendar.class);
+        	customCalendar.initData(Arrays.asList(testRows));
+        	
+        	contentPane.setContent(customCalendar);
+        } catch (IOException e) {
+			Messages.showError(e, ErrorType.UI);
+		}
     }
 }

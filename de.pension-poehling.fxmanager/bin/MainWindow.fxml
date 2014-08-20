@@ -25,7 +25,7 @@
           </Menu>
         </menus>
       </MenuBar>
-      <SplitPane fx:id="appBody" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+      <SplitPane fx:id="appBody" VBox.vgrow="ALWAYS">
          <items>
             <SplitPane fx:id="leftPane" dividerPositions="0.5" orientation="VERTICAL" SplitPane.resizableWithParent="false">
                <items>

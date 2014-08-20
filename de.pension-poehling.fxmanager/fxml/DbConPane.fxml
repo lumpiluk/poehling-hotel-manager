@@ -9,8 +9,8 @@
   <items>
       <VBox>
          <children>
-            <Button fx:id="btnNewDb" maxWidth="1.7976931348623157E308" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#btnNewDbClicked" text="Neue Datenbank erstellen..." />
-            <Button fx:id="btnImportDb" maxWidth="1.7976931348623157E308" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#btnImportDbClicked" text="Existierende Datenbank importieren..." />
+            <Button fx:id="btnNewDb" maxWidth="1.7976931348623157E308" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#btnNewDbClicked" text="%Ui.DbConnection.btnNewDb.text" />
+            <Button fx:id="btnImportDb" maxWidth="1.7976931348623157E308" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#btnImportDbClicked" text="%Ui.DbConnection.btnImportDb.text" />
          </children>
       </VBox>
       <Label fx:id="lblStatus" maxWidth="1.7976931348623157E308" text="In Ihrem Benutzerverzeichnis konnte keine bereits vorhandene Datenbank gefunden werden." wrapText="true" />

@@ -45,7 +45,7 @@ public abstract class HotelData {
 	 * @throws SQLException table does not exist or does not provide the
 	 * necessary columns or something else is wrong with the connection.
 	 */
-	public abstract boolean fromDbAtIndex(final long id)
+	public abstract boolean fromDbAtId(final long id)
 			throws NoSuchElementException, SQLException;
 	
 	/**
@@ -59,7 +59,7 @@ public abstract class HotelData {
 	public Iterable<? extends HotelData> getBatch(final List<Long> indices) // TODO: override where possible or needed
 			throws SQLException {
 		List<HotelData> resultList = new LinkedList<HotelData>();
-		for (Long index : indices) {
+		for (Long id : indices) {
 			HotelData d;
 			try {
 				// use this.getClass() to get the child class of the abstract
@@ -67,7 +67,7 @@ public abstract class HotelData {
 				d = (HotelData)(this.getClass().newInstance());
 				
 				d.setConnection(con);
-				d.fromDbAtIndex(index);
+				d.fromDbAtId(id);
 				resultList.add(d);
 			} catch (InstantiationException | IllegalAccessException e) {
 				System.out.println(Messages.getString(
@@ -79,7 +79,7 @@ public abstract class HotelData {
 	}
 	
 	/**
-	 * Updates the DB record at the given index.
+	 * Updates the DB record at the given id.
 	 * Advice: call setAutoCommit(false) on the DB connection,
 	 * especially for batch updates. If you do so, don't forget con.commit();!
 	 * @throws SQLException 
@@ -87,10 +87,17 @@ public abstract class HotelData {
 	public abstract void updateDb() throws SQLException;
 	
 	/**
-	 * Creates a new record in the DB with a new primary key index.
+	 * Creates a new record in the DB with a new primary key id.
 	 * @throws SQLException
 	 */
 	public abstract void insertIntoDb() throws SQLException;
+	
+	/**
+	 * Deletes the current record (usually determined by its id) from the
+	 * database, if it exists.
+	 * @throws SQLException
+	 */
+	public abstract void deleteFromDb() throws SQLException;
 	
 	/**
 	 * Creates the necessary tables for the class in the given DB connection.

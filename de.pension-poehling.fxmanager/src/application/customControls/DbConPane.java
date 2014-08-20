@@ -117,6 +117,7 @@ public class DbConPane extends AbstractControl {
 			}
 		}
 		
+		dbFile.getParentFile().mkdirs(); // e.g. ~/.HotelManager/ out of above String...
 		openDb(dbFile, true);
     }
 

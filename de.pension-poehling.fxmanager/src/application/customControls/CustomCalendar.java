@@ -19,12 +19,15 @@
  */
 package application.customControls;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import util.DateComparator;
 import util.Messages;
@@ -39,12 +42,14 @@ import javafx.css.StyleConverter;
 import javafx.css.Styleable;
 import javafx.css.StyleableDoubleProperty;
 import javafx.css.StyleableProperty;
+import javafx.fxml.FXML;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
-import javafx.scene.control.Skin;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -58,13 +63,20 @@ import javafx.scene.layout.Pane;
  * 
  * @author lumpiluk
  */
-public class CustomCalendar extends Control {
+public class CustomCalendar extends AbstractControl {
 
 	private static final double DEFAULT_COLUMN_WIDTH = 35d;
 	
 	private Calendar monthToDisplay;
 	
-	private final GridPane grid;
+	@FXML // ResourceBundle that was given to the FXMLLoader
+    private ResourceBundle resources;
+
+    @FXML // URL location of the FXML file that was given to the FXMLLoader
+    private URL location;
+
+    @FXML // fx:id="grid"
+    private GridPane grid; // Value injected by FXMLLoader
 	
 	/** List of labels for each row with indices as specified in rows. */
 	private ArrayList<Label> rowLabels = new ArrayList<Label>(30); // TODO: make property (also for headers etc)
@@ -96,21 +108,17 @@ public class CustomCalendar extends Control {
 	public final DoubleProperty columnWidthProperty() {
 		if (colWidth == null) {
 			colWidth = new StyleableDoubleProperty(DEFAULT_COLUMN_WIDTH) {
-				@Override 
-				public String getName() {	return "colWidth"; }
+				@Override public String getName() {	return "colWidth"; }
 				
-				@Override 
-				public Object getBean() {	return CustomCalendar.this;	}
+				@Override public Object getBean() {	return CustomCalendar.this;	}
 				
 				@SuppressWarnings({ "rawtypes", "unchecked" })
-				@Override 
-				public CssMetaData getCssMetaData() { 
+				@Override public CssMetaData getCssMetaData() { 
 					return StyleableProperties.COL_WIDTH_META_DATA;
 				}
 				
-				@Override
-				public void invalidated() {
-					makeDaysHeader();
+				@Override public void invalidated() {
+					makeDaysHeader(); // TODO: necessary?
 				}
 			};
 		}
@@ -307,32 +315,27 @@ public class CustomCalendar extends Control {
 	}
 	
 	/**
-	 * Constructor.
-	 * @param rowItems 
-	 * @throws InterruptedException 
+	 * Default constructor, only needed by JavaFX/FXML.
+	 * Please use a constructor with DataSupervisor parameter instead!
+	 * @throws IOException
 	 */
-	public CustomCalendar(List<String> rowItems) {
+	public CustomCalendar() throws IOException {
 		super();
+		
+	}
+	
+	public void initData(List<String> rowItems) {
 		this.rowItems = rowItems;
-		this.grid = new GridPane();
-		this.getChildren().add(grid);
-		this.getStyleClass().setAll("custom-calendar");
+		this.getStyleClass().add("custom-calendar");
 		setMonth(new GregorianCalendar());
+		
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	protected Skin createDefaultSkin() {
-		return new CustomCalendarSkin(this);
-	}
-	
-	/**
-	 * Return the path to the CSS file so things are set up right
-	 * @see javafx.scene.control.Control#getUserAgentStylesheet()
-	 */
-	@Override
-	protected String getUserAgentStylesheet() {
-		return getClass().getResource("/CustomCalendar.css").toExternalForm();
+	protected void layoutChildren() {
+	    for (Node node : getChildren()) {
+	        layoutInArea(node, 0, 0, getWidth(), getHeight(), 0, HPos.LEFT, VPos.TOP);
+	    }
 	}
 	
 	/**
@@ -533,5 +536,11 @@ public class CustomCalendar extends Control {
 		//}
 		// TODO add markers for current month (threaded loading from db?)
 	}
+	
+	@FXML // This method is called by the FXMLLoader when initialization is complete
+    void initialize() {
+        assert grid != null : "fx:id=\"grid\" was not injected: check your FXML file 'CustomCalendar.fxml'.";
+
+    }
 	
 }

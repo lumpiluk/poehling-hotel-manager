@@ -21,6 +21,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import util.DateComparator;
+import application.customControls.AbstractControl;
 import application.customControls.CustomCalendar;
 import application.customControls.CustomCalendar.CalendarMarker;
 import javafx.application.Application;
@@ -37,7 +38,8 @@ public class CustomCalendarTest extends Application {
 	public void start(Stage primaryStage) throws Exception {
 		String[] rows = {"1","2","3","4","5","6","7","8","9","10","11","101", "102", "103", "114", "203","FeWo", "Appartement 1", "Appartement 2"};
 		
-		CustomCalendar root = new CustomCalendar(Arrays.asList(rows));
+		CustomCalendar root = new CustomCalendar();
+    	root.initData(Arrays.asList(rows));
 		
 		Calendar start = new GregorianCalendar(2014, 7, 4);
 		Calendar end = new GregorianCalendar(2014, 8, 12);

@@ -21,7 +21,6 @@ package data;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 /**
@@ -36,7 +35,7 @@ public class Order extends HotelData {
 		// TODO Auto-generated constructor stub
 	}
 
-	private ArrayList<Invoice> invoices;
+	//private ArrayList<Invoice> invoices; only one invoice per order! Each order and each invoice can have items, though
 
 	@Override
 	public void updateDb() {
@@ -51,10 +50,16 @@ public class Order extends HotelData {
 	}
 
 	@Override
-	public boolean fromDbAtIndex(long id) throws NoSuchElementException,
+	public boolean fromDbAtId(long id) throws NoSuchElementException,
 			SQLException {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public void deleteFromDb() throws SQLException {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
