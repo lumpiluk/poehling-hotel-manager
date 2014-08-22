@@ -26,6 +26,7 @@ import javafx.scene.control.Skin;
  * @author lumpiluk
  *
  */
+@SuppressWarnings("restriction")
 public abstract class AbstractControl extends Control {
 
 	private static final String fxmlPath = "/%s.fxml";
@@ -43,6 +44,7 @@ public abstract class AbstractControl extends Control {
 	public AbstractControl() throws IOException {
 		StyleManager.getInstance().addUserAgentStylesheet(getClass().getResource(String.format(cssPath,
 				this.getClass().getSimpleName())).toExternalForm());
+		// TODO for new JavaFX version: not API; see override of getUserAgentStyleSheet, but no css warnings if done this way...
 	}
 	
 	/**

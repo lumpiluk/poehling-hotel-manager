@@ -201,6 +201,7 @@ public class CustomCalendar extends AbstractControl {
 			this.setPadding(new Insets(3.5, 5.0, 3.5, 5.0));
 			this.setMinWidth(0.0);
 			this.setMaxWidth(Double.MAX_VALUE);
+			this.setMouseTransparent(false); // allow markers to be clicked while the rest of the calendar is mouse transparent to enable panning
 			
 			this.start = new SimpleObjectProperty<Calendar>(start);
 			this.end = new SimpleObjectProperty<Calendar>(end);
@@ -328,7 +329,8 @@ public class CustomCalendar extends AbstractControl {
 		this.rowItems = rowItems;
 		this.getStyleClass().add("custom-calendar");
 		setMonth(new GregorianCalendar());
-		
+		//this.setMouseTransparent(true);
+		//createMarker("test", 5, new GregorianCalendar(2014, 7, 5), new GregorianCalendar(2014, 7, 10));
 	}
 	
 	@Override
@@ -529,7 +531,7 @@ public class CustomCalendar extends AbstractControl {
 	}
 	
 	private void updateView() {
-		// remove obsolete markers
+		// remove obsolete markers // TODO! probably just behind background panes when monthToDisplay changed...
 		//Iterable<Node> children = this.getChildren();
 		//for (Node child : children) {
 			// TODO if child is marker and not some kind of design element then remove...

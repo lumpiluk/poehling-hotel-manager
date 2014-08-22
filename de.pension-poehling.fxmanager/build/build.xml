@@ -21,7 +21,7 @@
 		
 		<copy todir="externalLibs">
 			<fileset dir="/media/lumpiluk/Data/MyFiles/git/poehling-hotel-manager/de.pension-poehling.fxmanager/lib">
-				<filename name="controlsfx-8.0.6.jar"/>	
+				<filename name="controlsfx-8.0.6_20.jar"/>	
 			</fileset>
 		</copy>
 		<copy todir="externalLibs">
@@ -38,7 +38,7 @@
 		</copy>
 		<copy todir="project">
 			<fileset dir="/media/lumpiluk/Data/MyFiles/git/poehling-hotel-manager/de.pension-poehling.fxmanager">
-				<include name="localization/**" />
+				<include name="tests/**" />
 			</fileset>
 		</copy>
 		<copy todir="project">
@@ -53,12 +53,12 @@
 		</copy>
 		<copy todir="project">
 			<fileset dir="/media/lumpiluk/Data/MyFiles/git/poehling-hotel-manager/de.pension-poehling.fxmanager">
-				<include name="css/**" />
+				<include name="localization/**" />
 			</fileset>
 		</copy>
 		<copy todir="project">
 			<fileset dir="/media/lumpiluk/Data/MyFiles/git/poehling-hotel-manager/de.pension-poehling.fxmanager">
-				<include name="tests/**" />
+				<include name="css/**" />
 			</fileset>
 		</copy>
 		
@@ -73,8 +73,8 @@
 		<!-- Copy project-libs references -->
 		<copy todir="build/libs">
 			<fileset dir="externalLibs">
-				<include name="controlsfx-8.0.6.jar"/>
 				<include name="sqlite-jdbc-3.7.15-M1.jar"/>
+				<include name="controlsfx-8.0.6_20.jar"/>
 			</fileset>
 		</copy>
 	

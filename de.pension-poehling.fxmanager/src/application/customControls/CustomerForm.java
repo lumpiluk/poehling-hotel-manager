@@ -4,12 +4,16 @@
 package application.customControls;
 
 import java.io.IOException;
+import java.sql.Date;
+import java.util.Calendar;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 import java.net.URL;
 
 import org.controlsfx.control.CheckComboBox;
 import org.controlsfx.control.CheckListView;
+import org.controlsfx.dialog.DialogStyle;
+import org.controlsfx.dialog.Dialogs;
 
 import data.Address;
 import data.DataSupervisor;
@@ -196,23 +200,69 @@ public class CustomerForm extends AbstractControl {
     
     ObservableList<Address> customersTableData;
 
-    /*private boolean evaluateForm() {
+    private boolean evaluateForm() {
+    	boolean result = true;
     	
+    	if (getAddresseeFromListItems() == null) {
+    		// result &= getAddresseeFromListItems() != null;
+    		result = false;
+    		Dialogs.create()
+    			.title(Messages.getString("Ui.Customer.Validation.DialogTitle"))
+    			.message(Messages.getString("Ui.Customer.Validation.MissingAddressee"))
+    			.style(DialogStyle.NATIVE)
+    			.showWarning();
+    	}
+    	
+    	return result; // TODO finish
     }
     
     private Person getAddresseeFromListItems() {
-    	
+    	for (PersonItem pi : getLvPeople().getItems()) {
+    		if (pi.isMarkedAsAddressee()) {
+    			return pi.getPerson();
+    		}
+    	}
+    	return null;
     }
     
+    /**
+     * Constructs a new Address from data entered into the form by the user
+     * after making sure that said data is valid.
+     * @return the new address
+     */
     private Address addressFromForm() {
+    	if (!evaluateForm()) {
+    		return null;
+    	}
+    	
     	Address a = new Address(dataSupervisor.getConnection());
-    	a.setAddressee(addressee);
+    	a.setAddressee(getAddresseeFromListItems());
+    	//a.setAddition(...)
+    	a.setStreet(this.tfStreet.getText());
+    	a.setShortCountry((String) this.cbCountry.getSelectionModel().getSelectedItem());
+    	a.setZipCode(this.tfZip.getText());
+    	a.setTown(this.tfTown.getText());
+    	a.setPostbox(this.tfPostbox.getText());
+    	a.setPostboxZip(this.tfPostboxZip.getText());
+    	a.setPostboxTown(this.tfPostboxTown.getText());
+    	a.setState(this.cbState.getSelectionModel().getSelectedItem());
+    	a.setPhone(this.tfPhone.getText());
+    	a.setMobile(this.tfMobile.getText());
+    	a.setFax(this.tfFax.getText());
+    	a.setEmail(this.tfEmail.getText());
+    	a.setWebsite(this.tfWebsite.getText());
+    	a.setMemo(this.memoArea.getText());
+    	for (String flag : clvCustomerFlags.getCheckModel().getSelectedItems()) {
+    		a.getFlags().add(flag);
+    	}
+    	a.setAdded(new Date(Calendar.getInstance().getTimeInMillis()));
+
     	return a;
-    }*/
+    }
     
     @FXML
     void btnNewAddressClicked(ActionEvent event) {
-
+    	dataSupervisor.insertConcurrently(this.addressFromForm());
     }
 
     @FXML
@@ -249,7 +299,7 @@ public class CustomerForm extends AbstractControl {
     	// email field
     	/*validationSupport.registerValidator(tfEmail, (Control c, String s) ->
 			ValidationResult.fromErrorIf(tfEmail,
-					Messages.getString("Ui.Customer.emailValidation"),
+					Messages.getString("Ui.Customer.Validation.Email"),
 					s == null || s.trim().equals("") || !emailRegex.matcher(s).matches())
 		);*/
     	

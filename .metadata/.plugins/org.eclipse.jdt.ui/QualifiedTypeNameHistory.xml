@@ -41,4 +41,7 @@
 <fullyQualifiedTypeName name="javafx.scene.layout.VBox"/>
 <fullyQualifiedTypeName name="javafx.scene.control.TableView"/>
 <fullyQualifiedTypeName name="javafx.application.Platform"/>
+<fullyQualifiedTypeName name="com.sun.javafx.css.StyleManager"/>
+<fullyQualifiedTypeName name="javafx.geometry.VPos"/>
+<fullyQualifiedTypeName name="javafx.geometry.HPos"/>
 </qualifiedTypeNameHistroy>

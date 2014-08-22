@@ -38,6 +38,6 @@
             <Button fx:id="nextYearBtn" mnemonicParsing="false" onAction="#nextYearBtnAction" scaleX="0.7" scaleY="0.7" text="&gt;" />
          </items>
       </ToolBar>
-      <ScrollPane fx:id="contentPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" pannable="true" VBox.vgrow="ALWAYS" />
+      <ScrollPane fx:id="contentPane" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" pannable="true" vbarPolicy="ALWAYS" VBox.vgrow="ALWAYS" />
    </children>
 </VBox>

@@ -420,13 +420,49 @@ public class DataSupervisor {
 	 * @see createTables
 	 */
 	private void createTablesConcurrently() { // TODO: needed?
-		databaseExecutor.submit(new Task<Void>(){
+		databaseExecutor.submit(new Task<Void>() {
 			@Override protected Void call() {
 				createTables();
 				return null;
 			}
 		});
 		// TODO: bookings/orders, invoices, flags, states, cities(?)...
+	}
+	
+	/**
+	 * Concurrently inserts the HotelData object o into the database.
+	 * @see HotelData.insertIntoDb();
+	 * @param o the object to call insertIntoDb() on.
+	 */
+	public void insertConcurrently(HotelData o) {
+		databaseExecutor.submit(new Task<Void>() {
+			@Override protected Void call() throws Exception {
+				try {
+					o.insertIntoDb();
+				} catch (SQLException e) {
+					Messages.showError(e, Messages.ErrorType.DB);
+				}
+				return null;
+			}
+		});
+	}
+	
+	/**
+	 * Concurrently updates the HotelData object o within the database.
+	 * @see HotelData.updateDb();
+	 * @param o the object to call updateDb() on.
+	 */
+	public void updateConcurrently(HotelData o) { // XXX is there a lambda expression for this?
+		databaseExecutor.submit(new Task<Void>() {
+			@Override protected Void call() throws Exception {
+				try {
+					o.updateDb();
+				} catch (SQLException e) {
+					Messages.showError(e, Messages.ErrorType.DB);
+				}
+				return null;
+			}
+		});
 	}
 	
 }
