@@ -9218,3 +9218,176 @@ Chain 2:
 
 !ENTRY org.eclipse.jdt.ui 2 0 2014-08-22 18:14:42.277
 !MESSAGE The 'org.eclipse.fx.ide.jdt.ui.id2' proposal computer from the 'org.eclipse.fx.ide.jdt.ui' plug-in did not complete normally. The extension violated the API contract of the 'computeContextInformation()' operation.
+
+!ENTRY org.eclipse.jface 2 0 2014-08-23 01:01:46.040
+!MESSAGE Keybinding conflicts occurred.  They may interfere with normal accelerator operation.
+!SUBENTRY 1 org.eclipse.jface 2 0 2014-08-23 01:01:46.040
+!MESSAGE A conflict occurred for CTRL+SHIFT+P:
+Binding(CTRL+SHIFT+P,
+	ParameterizedCommand(Command(org.eclipse.wst.sse.ui.goto.matching.bracket,Matching Character,
+		Go to Matching Character,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@7598d675,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.wst.sse.ui.structuredTextEditorScope,,,system)
+Binding(CTRL+SHIFT+P,
+	ParameterizedCommand(Command(org.eclipse.xtext.ui.GotToMatchingBracketAction,Go to Matching Bracket,
+		Go to Matching Bracket,
+		Category(org.eclipse.xtext.ui.category.XtextEditor,Editing,Editing Commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@664c9d09,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.xtext.ui.XtextEditorScope,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2014-08-23 01:01:46.040
+!MESSAGE A conflict occurred for CTRL+SHIFT+C:
+Binding(CTRL+SHIFT+C,
+	ParameterizedCommand(Command(org.eclipse.wst.sse.ui.toggle.comment,Toggle Comment,
+		Toggle Comment,
+		Category(org.eclipse.ui.category.edit,Edit,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@2c15034f,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.wst.sse.ui.structuredTextEditorScope,,,system)
+Binding(CTRL+SHIFT+C,
+	ParameterizedCommand(Command(org.eclipse.xtext.ui.ToggleCommentAction,Toggle Comment,
+		Toggle Comment,
+		Category(org.eclipse.xtext.ui.category.XtextEditor,Editing,Editing Commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@42964907,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.xtext.ui.XtextEditorScope,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2014-08-23 01:01:46.040
+!MESSAGE A conflict occurred for ALT+SHIFT+ARROW_RIGHT:
+Binding(ALT+SHIFT+ARROW_RIGHT,
+	ParameterizedCommand(Command(org.eclipse.wst.sse.ui.structure.select.next,Select Next Element,
+		Expand selection to include next sibling,
+		Category(org.eclipse.ui.category.edit,Edit,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@4f525e13,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.wst.sse.ui.structuredTextEditorScope,,,system)
+Binding(ALT+SHIFT+ARROW_RIGHT,
+	ParameterizedCommand(Command(org.eclipse.xtext.ui.editor.select.next,Select Next Element,
+		Expand selection to include next element,
+		Category(org.eclipse.xtext.ui.category.XtextEditor,Editing,Editing Commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@5e27afae,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.xtext.ui.XtextEditorScope,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2014-08-23 01:01:46.040
+!MESSAGE A conflict occurred for CTRL+SHIFT+F:
+Binding(CTRL+SHIFT+F,
+	ParameterizedCommand(Command(org.eclipse.wst.sse.ui.format.document,Format,
+		Format selection,
+		Category(org.eclipse.ui.category.edit,Edit,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@6fbc7853,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.wst.sse.ui.structuredTextEditorScope,,,system)
+Binding(CTRL+SHIFT+F,
+	ParameterizedCommand(Command(org.eclipse.xtext.ui.FormatAction,Format,
+		Format text,
+		Category(org.eclipse.xtext.ui.category.XtextEditor,Editing,Editing Commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@46bc89ef,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.xtext.ui.XtextEditorScope,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2014-08-23 01:01:46.040
+!MESSAGE A conflict occurred for F3:
+Binding(F3,
+	ParameterizedCommand(Command(org.eclipse.jdt.ui.edit.text.java.open.editor,Open Declaration,
+		Open an editor on the selected element,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@441af0e4,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+Binding(F3,
+	ParameterizedCommand(Command(org.eclipse.wst.sse.ui.open.file.from.source,Open Selection,
+		Open an editor on the selected link,
+		Category(org.eclipse.ui.category.edit,Edit,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@34b45711,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.wst.sse.ui.structuredTextEditorScope,,,system)
+Binding(F3,
+	ParameterizedCommand(Command(org.eclipse.xtext.ui.editor.hyperlinking.OpenDeclaration,Open Declaration,
+		Opens the declaration for the currently selected cross reference,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@578dd4f6,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.xtext.ui.XtextEditorScope,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2014-08-23 01:01:46.040
+!MESSAGE A conflict occurred for CTRL+O:
+Binding(CTRL+O,
+	ParameterizedCommand(Command(org.eclipse.wst.sse.ui.quick_outline,Quick Outline,
+		Show the quick outline for the editor input,
+		Category(org.eclipse.ui.category.navigate,Navigate,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@75dcdc19,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.wst.sse.ui.structuredTextEditorScope,,,system)
+Binding(CTRL+O,
+	ParameterizedCommand(Command(org.eclipse.xtext.ui.editor.outline.QuickOutline,Quick Outline,
+		Open the quick outline.,
+		Category(org.eclipse.core.commands.categories.autogenerated,Uncategorized,Commands that were either auto-generated or have no category,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@66d28f96,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.xtext.ui.XtextEditorScope,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2014-08-23 01:01:46.040
+!MESSAGE A conflict occurred for ALT+SHIFT+ARROW_DOWN:
+Binding(ALT+SHIFT+ARROW_DOWN,
+	ParameterizedCommand(Command(org.eclipse.wst.sse.ui.structure.select.last,Restore Last Selection,
+		Restore last selection,
+		Category(org.eclipse.ui.category.edit,Edit,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@615ef20,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.wst.sse.ui.structuredTextEditorScope,,,system)
+Binding(ALT+SHIFT+ARROW_DOWN,
+	ParameterizedCommand(Command(org.eclipse.xtext.ui.editor.select.last,Restore Last Selection,
+		Restore last selection from History,
+		Category(org.eclipse.xtext.ui.category.XtextEditor,Editing,Editing Commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@70485082,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.xtext.ui.XtextEditorScope,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2014-08-23 01:01:46.040
+!MESSAGE A conflict occurred for ALT+SHIFT+ARROW_LEFT:
+Binding(ALT+SHIFT+ARROW_LEFT,
+	ParameterizedCommand(Command(org.eclipse.wst.sse.ui.structure.select.previous,Select Previous Element,
+		Expand selection to include previous sibling,
+		Category(org.eclipse.ui.category.edit,Edit,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@4fa8297b,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.wst.sse.ui.structuredTextEditorScope,,,system)
+Binding(ALT+SHIFT+ARROW_LEFT,
+	ParameterizedCommand(Command(org.eclipse.xtext.ui.editor.select.previous,Select Previous Element,
+		Expand selection to include previous element,
+		Category(org.eclipse.xtext.ui.category.XtextEditor,Editing,Editing Commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@495b0019,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.xtext.ui.XtextEditorScope,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2014-08-23 01:01:46.040
+!MESSAGE A conflict occurred for ALT+SHIFT+ARROW_UP:
+Binding(ALT+SHIFT+ARROW_UP,
+	ParameterizedCommand(Command(org.eclipse.wst.sse.ui.structure.select.enclosing,Select Enclosing Element,
+		Expand selection to include enclosing element,
+		Category(org.eclipse.ui.category.edit,Edit,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@77d95e5a,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.wst.sse.ui.structuredTextEditorScope,,,system)
+Binding(ALT+SHIFT+ARROW_UP,
+	ParameterizedCommand(Command(org.eclipse.xtext.ui.editor.select.enclosing,Select Enclosing Element,
+		Expand selection to include enclosing element,
+		Category(org.eclipse.xtext.ui.category.XtextEditor,Editing,Editing Commands,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@5a74313f,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.xtext.ui.XtextEditorScope,,,system)

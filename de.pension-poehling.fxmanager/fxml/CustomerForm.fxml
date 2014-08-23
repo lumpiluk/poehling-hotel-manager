@@ -40,34 +40,35 @@
                   <Button fx:id="btnNewAddress" mnemonicParsing="false" onAction="#btnNewAddressClicked" text="%Ui.Customer.NewCustomerBtn.text" />
                   <Button fx:id="btnRemoveCustomer" mnemonicParsing="false" onAction="#btnRemoveAddressClicked" text="%Ui.Customer.RemoveCustomerBtn.text" />
                   <Button fx:id="btnEditCustomer" mnemonicParsing="false" onAction="#btnEditAddressClicked" text="%Ui.Customer.EditCustomerBtn.text" />
+                  <Button mnemonicParsing="false" text="Button" />
                </items>
             </ToolBar>
             <ScrollPane fx:id="scrollPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
                <content>
-                  <GridPane fx:id="customerFormGrid" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="0.0">
+                  <GridPane fx:id="customerFormGrid" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="0.0" styleClass="form-grid">
                      <children>
-                        <TextField fx:id="tfStreet" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" />
-                        <TextField fx:id="tfZip" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" />
-                        <Label text="%Ui.Customer.streetLbl" GridPane.rowIndex="4" />
-                        <Label text="%Ui.Customer.zipLbl" GridPane.rowIndex="5" />
-                        <Label text="%Ui.Customer.townLbl" GridPane.rowIndex="6" />
-                        <TextField fx:id="tfTown" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-                        <ComboBox fx:id="cbCountry" editable="true" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="8" />
-                        <Label text="%Ui.Customer.countryLbl" GridPane.rowIndex="8" />
-                        <Label text="%Ui.Customer.stateLbl" GridPane.rowIndex="7" />
-                        <ComboBox fx:id="cbState" editable="true" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="7" />
-                        <Label maxWidth="1.7976931348623157E308" styleClass="form-header" text="%Ui.Customer.contactHeader.text" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="13">
+                        <TextField fx:id="tfStreet" maxWidth="1.7976931348623157E308" styleClass="form-input" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" />
+                        <TextField fx:id="tfZip" maxWidth="1.7976931348623157E308" styleClass="form-input" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="6" />
+                        <Label text="%Ui.Customer.streetLbl" GridPane.rowIndex="5" />
+                        <Label text="%Ui.Customer.zipLbl" GridPane.rowIndex="6" />
+                        <Label text="%Ui.Customer.townLbl" GridPane.rowIndex="7" />
+                        <TextField fx:id="tfTown" maxWidth="1.7976931348623157E308" styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                        <ComboBox fx:id="cbCountry" editable="true" maxWidth="1.7976931348623157E308" styleClass="form-input" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="9" />
+                        <Label text="%Ui.Customer.countryLbl" GridPane.rowIndex="9" />
+                        <Label text="%Ui.Customer.stateLbl" GridPane.rowIndex="8" />
+                        <ComboBox fx:id="cbState" editable="true" maxWidth="1.7976931348623157E308" styleClass="form-input" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="8" />
+                        <Label maxWidth="1.7976931348623157E308" styleClass="form-header" text="%Ui.Customer.contactHeader.text" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="14">
                            <font>
                               <Font name="System Bold" size="13.0" />
                            </font>
                         </Label>
-                        <Label text="%Ui.Customer.phoneLbl" GridPane.rowIndex="14" />
-                        <Label text="%Ui.Customer.mobileLbl" GridPane.rowIndex="16" />
-                        <Label text="%Ui.Customer.faxLbl" GridPane.rowIndex="15" />
-                        <TextField fx:id="tfPhone" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="14" />
-                        <TextField fx:id="tfFax" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="15" />
-                        <TextField fx:id="tfMobile" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="16" />
-                        <Label maxWidth="1.7976931348623157E308" styleClass="form-header" text="%Ui.Customer.addressHeader.text" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3">
+                        <Label text="%Ui.Customer.phoneLbl" GridPane.rowIndex="15" />
+                        <Label text="%Ui.Customer.mobileLbl" GridPane.rowIndex="17" />
+                        <Label text="%Ui.Customer.faxLbl" GridPane.rowIndex="16" />
+                        <TextField fx:id="tfPhone" maxWidth="1.7976931348623157E308" styleClass="form-input" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="15" />
+                        <TextField fx:id="tfFax" maxWidth="1.7976931348623157E308" styleClass="form-input" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="16" />
+                        <TextField fx:id="tfMobile" maxWidth="1.7976931348623157E308" styleClass="form-input" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="17" />
+                        <Label maxWidth="1.7976931348623157E308" styleClass="form-header" text="%Ui.Customer.addressHeader.text" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4">
                            <font>
                               <Font name="System Bold" size="13.0" />
                            </font>
@@ -77,22 +78,22 @@
                               <Font name="System Bold" size="13.0" />
                            </font>
                         </Label>
-                        <Label text="%Ui.Customer.emailLbl" GridPane.rowIndex="17" />
-                        <Label text="%Ui.Customer.websiteLbl" GridPane.rowIndex="18" />
-                        <TextField fx:id="tfEmail" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="17" />
-                        <TextField fx:id="tfWebsite" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="18" />
-                        <Label maxWidth="1.7976931348623157E308" styleClass="form-header" text="%Ui.Customer.postboxHeader.text" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="9">
+                        <Label text="%Ui.Customer.emailLbl" GridPane.rowIndex="18" />
+                        <Label text="%Ui.Customer.websiteLbl" GridPane.rowIndex="19" />
+                        <TextField fx:id="tfEmail" maxWidth="1.7976931348623157E308" styleClass="form-input" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="18" />
+                        <TextField fx:id="tfWebsite" maxWidth="1.7976931348623157E308" styleClass="form-input" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="19" />
+                        <Label maxWidth="1.7976931348623157E308" styleClass="form-header" text="%Ui.Customer.postboxHeader.text" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="10">
                            <font>
                               <Font name="System Bold" size="13.0" />
                            </font>
                         </Label>
-                        <TextField fx:id="tfPostbox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="10" />
-                        <TextField fx:id="tfPostboxZip" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="11" />
-                        <TextField fx:id="tfPostboxTown" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="12" />
-                        <Label text="%Ui.Customer.postboxLbl" GridPane.rowIndex="10" />
-                        <Label text="%Ui.Customer.postboxZipLbl" GridPane.rowIndex="11" />
-                        <Label text="%Ui.Customer.postboxTownLbl" GridPane.rowIndex="12" />
-                        <ToolBar maxWidth="1.7976931348623157E308" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2">
+                        <TextField fx:id="tfPostbox" maxWidth="1.7976931348623157E308" styleClass="form-input" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="11" />
+                        <TextField fx:id="tfPostboxZip" maxWidth="1.7976931348623157E308" styleClass="form-input" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="12" />
+                        <TextField fx:id="tfPostboxTown" maxWidth="1.7976931348623157E308" styleClass="form-input" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="13" />
+                        <Label text="%Ui.Customer.postboxLbl" GridPane.rowIndex="11" />
+                        <Label text="%Ui.Customer.postboxZipLbl" GridPane.rowIndex="12" />
+                        <Label text="%Ui.Customer.postboxTownLbl" GridPane.rowIndex="13" />
+                        <ToolBar fx:id="peopleTools" maxWidth="1.7976931348623157E308" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2">
                            <items>
                               <Button fx:id="btnAddPerson" mnemonicParsing="false" text="%Ui.Customer.People.addBtn.text" />
                               <Button fx:id="btnRemovePerson" mnemonicParsing="false" text="%Ui.Customer.People.removeBtn.text" />
@@ -100,18 +101,18 @@
                               <ToggleButton fx:id="tbSetAddressee" mnemonicParsing="false" text="%Ui.Customer.People.addresseeBtn.text" />
                            </items>
                         </ToolBar>
-                        <Label maxWidth="1.7976931348623157E308" styleClass="form-header" text="%Ui.Customer.generalHeader.text" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="19">
+                        <Label maxWidth="1.7976931348623157E308" styleClass="form-header" text="%Ui.Customer.generalHeader.text" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="20">
                            <font>
                               <Font name="System Bold" size="13.0" />
                            </font>
                         </Label>
                         <ListView fx:id="lvPeople" maxWidth="1.7976931348623157E308" minHeight="50.0" prefHeight="75.0" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" />
-                        <TitledPane expanded="false" maxWidth="1.7976931348623157E308" text="%Ui.Customer.memoLbl" GridPane.columnSpan="2" GridPane.rowIndex="20">
+                        <TitledPane maxWidth="1.7976931348623157E308" text="%Ui.Customer.memoLbl" GridPane.columnSpan="2" GridPane.rowIndex="21">
                            <content>
                               <TextArea fx:id="memoArea" prefHeight="200.0" prefWidth="200.0" />
                            </content>
                         </TitledPane>
-                        <TitledPane fx:id="tpFlags" expanded="false" maxWidth="1.7976931348623157E308" text="%Ui.Customer.flagsLbl" GridPane.columnSpan="2" GridPane.rowIndex="21" />
+                        <TitledPane fx:id="tpFlags" expanded="false" maxWidth="1.7976931348623157E308" text="%Ui.Customer.flagsLbl" GridPane.columnSpan="2" GridPane.rowIndex="22" />
                      </children>
                      <columnConstraints>
                         <ColumnConstraints hgrow="NEVER" maxWidth="1.7976931348623157E308" minWidth="0.0" percentWidth="30.0" />
@@ -119,6 +120,7 @@
                         <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" />
                      </columnConstraints>
                      <rowConstraints>
+                        <RowConstraints vgrow="SOMETIMES" />
                         <RowConstraints vgrow="SOMETIMES" />
                         <RowConstraints vgrow="SOMETIMES" />
                         <RowConstraints vgrow="SOMETIMES" />

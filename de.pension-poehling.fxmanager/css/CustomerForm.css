@@ -1,0 +1,30 @@
+.form-grid {
+	-fx-vgap: .3em;
+	-fx-hgap: .3em;
+}
+
+.form-grid Label {
+	-fx-padding: 0 0 0 .25em;
+}
+
+.form-grid ToolBar {
+	-fx-border-style: hidden solid hidden hidden;
+	-fx-border-color: rgb(200, 200, 200);
+}
+
+.form-header {
+	-fx-border-style: solid solid solid hidden;
+	-fx-border-color: rgb(150, 150, 150);
+	-fx-background-color: rgb(250, 250, 250);
+	-fx-min-height: 2em;
+	-fx-padding: 0 0 0 .5em;
+}
+
+#memoArea {
+	-fx-pref-height: 10em;
+}
+
+.clvCustomerFlags {
+	-fx-pref-height: 10em;
+}
+

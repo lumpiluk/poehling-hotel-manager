@@ -14,11 +14,14 @@ import org.controlsfx.control.CheckComboBox;
 import org.controlsfx.control.CheckListView;
 import org.controlsfx.dialog.DialogStyle;
 import org.controlsfx.dialog.Dialogs;
+import org.controlsfx.validation.ValidationResult;
+import org.controlsfx.validation.ValidationSupport;
 
 import data.Address;
 import data.DataSupervisor;
 import data.Person;
 import util.Messages;
+import util.Messages.ErrorType;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -26,6 +29,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
@@ -36,6 +40,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToolBar;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -78,6 +83,12 @@ public class CustomerForm extends AbstractControl {
 	private final Pattern emailRegex = Pattern.compile(
 			"^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
 			+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
+	
+	/** 
+	 * All controls in this array will be disabled or enabled, respectively,
+	 * when setFormDisable() is called. (Initialized in method initialize())
+	 */
+	private Control[] formDisableControls;
 	
 	private DataSupervisor dataSupervisor;
 	
@@ -192,28 +203,54 @@ public class CustomerForm extends AbstractControl {
     @FXML // fx:id="tpFlags"
     private TitledPane tpFlags; // Value injected by FXMLLoader
     
+    @FXML // fx:id="peopleTools"
+    private ToolBar peopleTools; // Value injected by FXMLLoader
+    
     private CheckComboBox<String> ccbFlagsFilter;
     
     private CheckListView<String> clvCustomerFlags;
     
-    //private final ValidationSupport validationSupport = new ValidationSupport(); // TODO: see initValidationSupport() below
+    private PersonPane personPane;
     
-    ObservableList<Address> customersTableData;
+    private final ValidationSupport validationSupport = new ValidationSupport(); // TODO: see initValidationSupport() below
+    
+    private ObservableList<Address> customersTableData;
 
+    /**
+     * Disable or enable the customer form while still allowing to open or
+     * close titled panes or viewing people in the people list.
+     * @param value Iff true, form will be disabled.
+     */
+    private void setFormDisable(boolean value) {
+    	for (Control c : formDisableControls) {
+    		c.setDisable(value);
+    	}
+    }
+    
     private boolean evaluateForm() {
-    	boolean result = true;
     	
+    	// invalid if ValidationSupport still has any errors
+    	if (!validationSupport.getValidationResult().getErrors().isEmpty()) {
+    		Dialogs.create()
+				.title(Messages.getString("Ui.Customer.Validation.DialogTitle"))
+				.message(Messages.getString("Ui.Customer.Validation.ValidationFailed"))
+				.style(DialogStyle.NATIVE)
+				.showWarning();
+    		System.out.println(validationSupport.getValidationResult().getErrors());
+    		return false;
+    	}
+    	
+    	// person list should contain a person marked as addressee
     	if (getAddresseeFromListItems() == null) {
-    		// result &= getAddresseeFromListItems() != null;
-    		result = false;
     		Dialogs.create()
     			.title(Messages.getString("Ui.Customer.Validation.DialogTitle"))
     			.message(Messages.getString("Ui.Customer.Validation.MissingAddressee"))
     			.style(DialogStyle.NATIVE)
     			.showWarning();
+    		return false;
     	}
     	
-    	return result; // TODO finish
+    	return true;
     }
     
     private Person getAddresseeFromListItems() {
@@ -284,7 +321,8 @@ public class CustomerForm extends AbstractControl {
      * Convenience method for explicit conversion of lvPeople.
      * @return
      */
-    private ListView<PersonItem> getLvPeople() {
+    @SuppressWarnings("unchecked")
+	private ListView<PersonItem> getLvPeople() {
     	return (ListView<PersonItem>)lvPeople;
     }
     
@@ -293,15 +331,17 @@ public class CustomerForm extends AbstractControl {
      * the user will know whether all inputs are correct.
      */
     private void initValidationSupport() {
-    	// TODO: implement this once bug in ControlsFX has been fixed! (supposed to happen in 8.0.7)
+    	// fixed?: implement this once bug in ControlsFX has been fixed! (supposed to happen in 8.0.7)
     	// https://bitbucket.org/controlsfx/controlsfx/issue/285/validator-support-change-resize-behavior
     	
     	// email field
-    	/*validationSupport.registerValidator(tfEmail, (Control c, String s) ->
+    	validationSupport.registerValidator(tfEmail, false, (Control c, String s) ->
 			ValidationResult.fromErrorIf(tfEmail,
 					Messages.getString("Ui.Customer.Validation.Email"),
-					s == null || s.trim().equals("") || !emailRegex.matcher(s).matches())
-		);*/
+					s != null && !s.trim().equals("") && !emailRegex.matcher(s).matches())
+		);
+    	
+    	// TODO: finish
     	
     }
     
@@ -333,14 +373,24 @@ public class CustomerForm extends AbstractControl {
     public void initData(DataSupervisor dataSupervisor) {
     	this.dataSupervisor = dataSupervisor;
     	
+    	// Prepare lists of flags
     	clvCustomerFlags = new CheckListView<String>();
-        //clvCustomerFlags.getStyleClass().add("clvCustomerFlags");
-        
+        clvCustomerFlags.getStyleClass().add("clvCustomerFlags");
+    	clvCustomerFlags.setItems(dataSupervisor.getFlagsObservable());
+    	
         ccbFlagsFilter = new CheckComboBox<String>();
-        
-        clvCustomerFlags.setItems(dataSupervisor.getFlagsObservable());
         ccbFlagsFilter = new CheckComboBox<String>(
         		this.dataSupervisor.getFlagsObservable());
+        
+        // Create new person form
+        try {
+        	personPane = (PersonPane) AbstractControl.getInstance(PersonPane.class);
+        	personPane.initData(dataSupervisor);
+        	customerFormGrid.add(personPane, 0, 3);
+        	GridPane.setColumnSpan(personPane, 2);
+        } catch (IOException e) {
+			Messages.showError(e, ErrorType.UI);
+		}
         
         // add flags check list view to according titled pane
         tpFlags.setContent(clvCustomerFlags);
@@ -388,6 +438,13 @@ public class CustomerForm extends AbstractControl {
         assert btnEditCustomer != null : "fx:id=\"btnEditCustomer\" was not injected: check your FXML file 'CustomerPane.fxml'.";
         assert customersToolBox != null : "fx:id=\"customersToolBox\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert tpFlags != null : "fx:id=\"tpFlags\" was not injected: check your FXML file 'CustomerForm.fxml'.";
+        assert peopleTools != null : "fx:id=\"peopleTools\" was not injected: check your FXML file 'CustomerForm.fxml'.";
+        
+        Control[] c = { peopleTools, tfStreet, tfZip, tfTown, cbState,
+        		cbCountry, tfPostbox, tfPostboxZip, tfPostboxTown, tfPhone,
+        		tfFax, tfMobile, tfEmail, tfWebsite, memoArea,
+        		clvCustomerFlags };
+        formDisableControls = c; // {...} can only be used in initializers, therefore this two-step thing...
     }
 	
 }
