@@ -52,6 +52,12 @@ import javafx.scene.text.Text;
  */
 public class CustomerForm extends AbstractControl {
 
+	private static enum Mode {
+		DISPLAY, // form disabled, just show customers selected in table
+		ADD, // form enabled, after pressing OK new customer will be added
+		EDIT; // form enabled, after pressing OK selected customer will be updated
+	}
+	
 	/** Items used in people list view of current address. */
 	private class PersonItem {
 		private Person person;
@@ -84,13 +90,10 @@ public class CustomerForm extends AbstractControl {
 			"^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
 			+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
 	
-	/** 
-	 * All controls in this array will be disabled or enabled, respectively,
-	 * when setFormDisable() is called. (Initialized in method initialize())
-	 */
-	private Control[] formDisableControls;
-	
 	private DataSupervisor dataSupervisor;
+	
+	/** Address currently shown or edited in the form. */
+	private Address currentAddress; // TODO: update or use value wherever necessary (esp. when personPane is involved)
 	
 	public CustomerForm() throws IOException {
 		super();
@@ -200,11 +203,26 @@ public class CustomerForm extends AbstractControl {
     @FXML // fx:id="customersToolBox"
     private HBox customersToolBox; // Value injected by FXMLLoader
     
+    @FXML // fx:id="customerToolBox"
+    private ToolBar customerToolBox; // Value injected by FXMLLoader
+    
     @FXML // fx:id="tpFlags"
     private TitledPane tpFlags; // Value injected by FXMLLoader
     
     @FXML // fx:id="peopleTools"
     private ToolBar peopleTools; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="btnCustomerOk"
+    private Button btnCustomerOk; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="btnCustomerCancel"
+    private Button btnCustomerCancel; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="tfSearchQuery"
+    private TextField tfSearchQuery; // Value injected by FXMLLoade
+    
+    @FXML // fx:id="btnCustomersSearch"
+    private Button btnCustomersSearch; // Value injected by FXMLLoader
     
     private CheckComboBox<String> ccbFlagsFilter;
     
@@ -212,9 +230,15 @@ public class CustomerForm extends AbstractControl {
     
     private PersonPane personPane;
     
-    private final ValidationSupport validationSupport = new ValidationSupport(); // TODO: see initValidationSupport() below
+    private final ValidationSupport validationSupport = new ValidationSupport();
     
     private ObservableList<Address> customersTableData;
+    
+    /** 
+     * Holds the current state of the control.
+     * @see changeMode 
+     */
+    private Mode currentMode = Mode.DISPLAY;
 
     /**
      * Disable or enable the customer form while still allowing to open or
@@ -222,9 +246,68 @@ public class CustomerForm extends AbstractControl {
      * @param value Iff true, form will be disabled.
      */
     private void setFormDisable(boolean value) {
+    	Control[] formDisableControls = { peopleTools, tfStreet, tfZip, tfTown,
+    			cbState, cbCountry, tfPostbox, tfPostboxZip, tfPostboxTown,
+    			tfPhone, tfFax, tfMobile, tfEmail, tfWebsite, memoArea,
+        		clvCustomerFlags };
     	for (Control c : formDisableControls) {
     		c.setDisable(value);
     	}
+    	personPane.setFormDisable(value);
+    	
+    	customersToolBox.setDisable(!value);
+    	customersTable.setDisable(!value);
+    }
+    
+    /** 
+     * Clears all fields of the customer form.
+     * Used by changeMode() when switching to Mode.ADD.
+     */
+    private void clearForm() {
+    	tfStreet.clear();
+    	tfZip.clear();
+    	tfTown.clear();
+    	cbState.getSelectionModel().clearSelection();
+    	cbCountry.getSelectionModel().clearSelection();
+    	tfPostbox.clear();
+    	tfPostboxZip.clear();
+    	tfPostboxTown.clear();
+    	tfPhone.clear();
+    	tfFax.clear();
+    	tfMobile.clear();
+    	tfEmail.clear();
+    	tfWebsite.clear();
+    	memoArea.clear();
+    	clvCustomerFlags.getCheckModel().clearSelection();
+    }
+    
+    /**
+     * Set the current state of the control.<br />
+     * DISPLAY: form disabled, just show customers selected in table<br />
+	 * ADD: form enabled, after pressing OK new customer will be added<br />
+	 * EDIT: form enabled, after pressing OK selected customer will be updated
+     * @param m the mode to change to
+     */
+    private void changeMode(Mode m) {
+    	customerToolBox.getItems().clear();
+    	switch (m) {
+    	case DISPLAY:
+    		setFormDisable(true);
+    		customerToolBox.getItems().addAll(btnNewAddress, btnRemoveCustomer, btnEditCustomer);
+    		break;
+    	case ADD:
+    		clearForm();
+    		setFormDisable(false);
+    		btnCustomerOk.setText(Messages.getString("Ui.Customer.Ok.New"));
+    		customerToolBox.getItems().addAll(btnCustomerOk, btnCustomerCancel);
+    		break;
+    	case EDIT:
+    		setFormDisable(false);
+    		btnCustomerOk.setText(Messages.getString("Ui.Customer.Ok.Edit"));
+    		customerToolBox.getItems().addAll(btnCustomerOk, btnCustomerCancel);
+    		break;
+    	}
+    	currentMode = m;
     }
     
     private boolean evaluateForm() {
@@ -299,7 +382,7 @@ public class CustomerForm extends AbstractControl {
     
     @FXML
     void btnNewAddressClicked(ActionEvent event) {
-    	dataSupervisor.insertConcurrently(this.addressFromForm());
+    	changeMode(Mode.ADD);
     }
 
     @FXML
@@ -309,7 +392,34 @@ public class CustomerForm extends AbstractControl {
 
     @FXML
     void btnEditAddressClicked(ActionEvent event) {
+    	changeMode(Mode.EDIT);
+    }
+    
+    @FXML
+    void btnCustomerOkClicked(ActionEvent event) {
+    	switch (currentMode) {
+    	case ADD:
+    		dataSupervisor.insertConcurrently(this.addressFromForm());
+    		changeMode(Mode.DISPLAY);
+    		break;
+    	case EDIT:
+    		// TODO: needs id!
+    		dataSupervisor.updateConcurrently(this.addressFromForm());
+    		break;
+    	}
+    	// TODO: reload / update table
+    }
 
+    @FXML
+    void btnCustomerCancelClicked(ActionEvent event) {
+    	changeMode(Mode.DISPLAY); // TODO reload selected customer from table
+    }
+    
+    @FXML
+    void btnCustomersSearch(ActionEvent event) {
+    	String[] selectedFlags = new String[ccbFlagsFilter.getCheckModel().getSelectedItems().size()];
+    	ccbFlagsFilter.getCheckModel().getSelectedItems().toArray(selectedFlags);
+    	dataSupervisor.searchAddresses(tfSearchQuery.getText(), selectedFlags);
     }
     
     @SuppressWarnings("unchecked")
@@ -399,9 +509,11 @@ public class CustomerForm extends AbstractControl {
         
         initCustomersTable();
         
-        scrollPane.setFitToWidth(true);        
+        scrollPane.setFitToWidth(true);
         
         initValidationSupport();
+        
+        changeMode(Mode.DISPLAY);
     }
     
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -437,14 +549,13 @@ public class CustomerForm extends AbstractControl {
         assert btnRemoveCustomer != null : "fx:id=\"btnRemoveCustomer\" was not injected: check your FXML file 'CustomerPane.fxml'.";
         assert btnEditCustomer != null : "fx:id=\"btnEditCustomer\" was not injected: check your FXML file 'CustomerPane.fxml'.";
         assert customersToolBox != null : "fx:id=\"customersToolBox\" was not injected: check your FXML file 'CustomerForm.fxml'.";
+        assert customerToolBox != null : "fx:id=\"customerToolBox\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert tpFlags != null : "fx:id=\"tpFlags\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert peopleTools != null : "fx:id=\"peopleTools\" was not injected: check your FXML file 'CustomerForm.fxml'.";
-        
-        Control[] c = { peopleTools, tfStreet, tfZip, tfTown, cbState,
-        		cbCountry, tfPostbox, tfPostboxZip, tfPostboxTown, tfPhone,
-        		tfFax, tfMobile, tfEmail, tfWebsite, memoArea,
-        		clvCustomerFlags };
-        formDisableControls = c; // {...} can only be used in initializers, therefore this two-step thing...
+        assert btnCustomerOk != null : "fx:id=\"btnCustomerOk\" was not injected: check your FXML file 'CustomerForm.fxml'.";
+        assert btnCustomerCancel != null : "fx:id=\"btnCustomerCancel\" was not injected: check your FXML file 'CustomerForm.fxml'.";
+        assert tfSearchQuery != null : "fx:id=\"tfSearchQuery\" was not injected: check your FXML file 'CustomerForm.fxml'.";
+        assert btnCustomersSearch != null : "fx:id=\"btnCustomersSearch\" was not injected: check your FXML file 'CustomerForm.fxml'.";
     }
 	
 }

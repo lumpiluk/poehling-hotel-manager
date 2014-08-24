@@ -13,8 +13,8 @@
             <HBox fx:id="customersToolBox" maxWidth="1.7976931348623157E308" minWidth="0.0" spacing="5.0">
                <children>
                   <Label maxHeight="1.7976931348623157E308" text="%Ui.Customers.FilterFlagsLbl.text" />
-                  <TextField maxWidth="1.7976931348623157E308" promptText="%Ui.Customers.SearchBox.prompt" HBox.hgrow="ALWAYS" />
-                  <Button mnemonicParsing="false" text="%Ui.Customers.SearchBtn.text" />
+                  <TextField fx:id="tfSearchQuery" maxWidth="1.7976931348623157E308" promptText="%Ui.Customers.SearchBox.prompt" HBox.hgrow="ALWAYS" />
+                  <Button fx:id="btnCustomersSearch" mnemonicParsing="false" onAction="#btnCustomersSearch" text="%Ui.Customers.SearchBtn.text" />
                </children>
                <opaqueInsets>
                   <Insets />
@@ -35,12 +35,13 @@
       </VBox>
       <VBox>
          <children>
-            <ToolBar>
+            <ToolBar fx:id="customerToolBox">
                <items>
                   <Button fx:id="btnNewAddress" mnemonicParsing="false" onAction="#btnNewAddressClicked" text="%Ui.Customer.NewCustomerBtn.text" />
                   <Button fx:id="btnRemoveCustomer" mnemonicParsing="false" onAction="#btnRemoveAddressClicked" text="%Ui.Customer.RemoveCustomerBtn.text" />
                   <Button fx:id="btnEditCustomer" mnemonicParsing="false" onAction="#btnEditAddressClicked" text="%Ui.Customer.EditCustomerBtn.text" />
-                  <Button mnemonicParsing="false" text="Button" />
+                  <Button fx:id="btnCustomerOk" mnemonicParsing="false" onAction="#btnCustomerOkClicked" text="%Ui.Customer.Ok" />
+                  <Button fx:id="btnCustomerCancel" mnemonicParsing="false" onAction="#btnCustomerCancelClicked" text="%Ui.Customer.Cancel" />
                </items>
             </ToolBar>
             <ScrollPane fx:id="scrollPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
@@ -107,7 +108,7 @@
                            </font>
                         </Label>
                         <ListView fx:id="lvPeople" maxWidth="1.7976931348623157E308" minHeight="50.0" prefHeight="75.0" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" />
-                        <TitledPane maxWidth="1.7976931348623157E308" text="%Ui.Customer.memoLbl" GridPane.columnSpan="2" GridPane.rowIndex="21">
+                        <TitledPane expanded="false" maxWidth="1.7976931348623157E308" text="%Ui.Customer.memoLbl" GridPane.columnSpan="2" GridPane.rowIndex="21">
                            <content>
                               <TextArea fx:id="memoArea" prefHeight="200.0" prefWidth="200.0" />
                            </content>

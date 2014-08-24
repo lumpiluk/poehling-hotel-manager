@@ -93,8 +93,16 @@ public class PersonPane extends AbstractControl {
 	 */
 	public void initData(DataSupervisor dataSupervisor) {
 		this.dataSupervisor = dataSupervisor;
-		
+
 		initInvalidationSupport();
+	}
+	
+	public void setFormDisable(boolean value) {
+		titleCb.setDisable(value);
+		surnamesTb.setDisable(value);
+		firstNamesTb.setDisable(value);
+		birthdayPicker.setDisable(value);
+		foodMemoArea.setDisable(value);
 	}
 	
 	/** @param value the address this person will be assigned to in the database. */
