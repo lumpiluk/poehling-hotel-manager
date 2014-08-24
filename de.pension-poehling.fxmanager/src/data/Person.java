@@ -60,7 +60,7 @@ public class Person extends HotelData {
 	
 	private long id;
 	
-	private long addressId;
+	//private long addressId;
 	
 	private String title;
 	
@@ -71,12 +71,14 @@ public class Person extends HotelData {
 	private Date birthday;
 	
 	private String foodMemo;
+
+	private Address address;
 	
 	
 	public Person(final Connection con) {
 		super(con);
 		this.setId(0);
-		this.setAddressId(0);
+		//this.setAddressId(0);
 	}
 	
 	/**
@@ -86,8 +88,23 @@ public class Person extends HotelData {
 		return id;
 	}
 	
-	public void setId(long id) {
+	/**
+	 * @param id the new ID
+	 * @throws IllegalArgumentException if id is less than or equal to 0
+	 */
+	public void setId(long id) throws IllegalArgumentException {
+		if (id <= 0)
+			throw new IllegalArgumentException();
 		this.id = id;
+	}
+	
+	/** 
+	 * Check whether id has been initialized.<br />
+	 * Used in updateInsert().
+	 * @return false iff the id has not been set yet.
+	 */
+	public boolean isIdSet() { // TODO: do actually use this!
+		return id == 0;
 	}
 	
 	/**
@@ -96,23 +113,33 @@ public class Person extends HotelData {
 	 * @throws SQLException
 	 */
 	public Address getAddress() throws SQLException {
-		Address a = new Address(con);
+		/*Address a = new Address(con);
 		try {
 			a.fromDbAtId(addressId);
 		} catch (NoSuchElementException e) {
 			return null;
-		}
-		return a;
+		}*/
+		return this.address;
 	}
 	
 	/** @return the address id */
-	private long getAddressId() { return addressId; }
+	private long getAddressId() { return this.address.getId(); }
 	
-	/** @param addressId the address id to set */
-	private void setAddressId(long addressId) { this.addressId = addressId; }
+	/** 
+	 * Will create an empty address for this person object with only the id set.
+	 * @param addressId the address id to set
+	 */
+	private void setAddressId(long addressId) {
+		//this.addressId = addressId;
+		Address a = new Address(con);
+		a.setId(addressId);
+	}
 	
 	/** @param address the address to set (will only save the id) */
-	public void setAddress(Address address) { setAddressId(address.getId()); }
+	public void setAddress(Address address) { 
+		//setAddressId(address.getId());
+		this.address = address;
+	}
 
 	/** @param id the id to set */
 	private void setId(int id) { this.id = id; }
@@ -236,8 +263,7 @@ public class Person extends HotelData {
 	 * reinserted.
 	 * @throws SQLException 
 	 */
-	@Override
-	public void updateDb() throws SQLException {
+	@Override public void updateDb() throws SQLException {
 		try (PreparedStatement stmt = con.prepareStatement(SQL_UPDATE)) {
 			if (getAddressId() == 0) {
 				stmt.setNull(1, java.sql.Types.INTEGER);
@@ -254,8 +280,7 @@ public class Person extends HotelData {
 		}
 	}
 
-	@Override
-	public void insertIntoDb() throws SQLException {
+	@Override public void insertIntoDb() throws SQLException {
 		try (PreparedStatement stmt = con.prepareStatement(SQL_INSERT,
 				Statement.RETURN_GENERATED_KEYS)) {
 			stmt.setLong(1, getId());
@@ -275,15 +300,26 @@ public class Person extends HotelData {
 		
 	}
 	
-	@Override
-	public void deleteFromDb() throws SQLException {
+	/**
+	 * If isIdSet() returns true, this person will be updated, otherwise it
+	 * will be inserted as a new person into the database.
+	 * @throws SQLException
+	 */
+	public void updateInsert() throws SQLException {
+		if (isIdSet()) {
+			updateDb();
+		} else {
+			insertIntoDb();
+		}
+	}
+	
+	@Override public void deleteFromDb() throws SQLException {
 		try(PreparedStatement stmt = con.prepareStatement(SQL_DELETE)) {
 			stmt.setLong(1, getId());
 		}
 	}
 
-	@Override
-	public void createTables() throws SQLException {
+	@Override public void createTables() throws SQLException {
 		try(Statement stmt = con.createStatement()) {
 			stmt.executeUpdate(SQL_CREATE);
 		}

@@ -6,6 +6,7 @@ package application.customControls;
 import java.io.IOException;
 import java.sql.Date;
 import java.util.Calendar;
+import java.util.Observable;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 import java.net.URL;
@@ -22,6 +23,12 @@ import data.DataSupervisor;
 import data.Person;
 import util.Messages;
 import util.Messages.ErrorType;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -30,6 +37,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
@@ -45,44 +53,52 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
+import javafx.util.Callback;
 
 /**
  * @author lumpiluk
  *
  */
-public class CustomerForm extends AbstractControl {
+public class CustomerForm extends AbstractForm {
 
-	private static enum Mode {
-		DISPLAY, // form disabled, just show customers selected in table
-		ADD, // form enabled, after pressing OK new customer will be added
-		EDIT; // form enabled, after pressing OK selected customer will be updated
-	}
-	
 	/** Items used in people list view of current address. */
-	private class PersonItem {
+	public class PersonItem {
 		private Person person;
-		private boolean markedAsAddressee;
+		private BooleanProperty marked = new SimpleBooleanProperty(false);
+		private ReadOnlyStringWrapper name = new ReadOnlyStringWrapper();
 		
 		public PersonItem(Person p, boolean addressee) {
 			this.person = p;
-			this.markedAsAddressee = addressee;
+			marked.addListener((event) -> {
+				if (marked.get()) {
+					// ensure only one person in the table is marked as listener
+					for (PersonItem pi : getPeopleTable().getItems()) {
+						if (pi != this && pi.markedProperty().get()) {
+							pi.markedProperty().set(false);
+						}
+					}
+				}
+			});
+			updateText();
 		}
+
+		public Person getPerson() { return person; }	
 		
-		public Person getPerson() { return person; }
-		public boolean isMarkedAsAddressee() { return markedAsAddressee; }
+		// used by PropertyValueFactory for peopleTable		
+		public BooleanProperty markedProperty() { return marked; }
 		
-		public void setMarkedAsAddressee(boolean value) { markedAsAddressee = value; }
+		public StringProperty nameProperty() { return name; }
 		
-		@Override public String toString() {
+		private void updateText() {
 			StringBuilder sb = new StringBuilder();
-			if (isMarkedAsAddressee())
+			if (marked.get())
 				sb.append("Addressat: ");
 			sb.append(person.getTitle());
 			sb.append(" ");
 			sb.append(person.getFirstNames());
 			sb.append(" ");
 			sb.append(person.getSurnames());
-			return sb.toString();
+			name.set(sb.toString());
 		}
 	}
 	
@@ -97,11 +113,6 @@ public class CustomerForm extends AbstractControl {
 	
 	public CustomerForm() throws IOException {
 		super();
-	}
-	
-	public CustomerForm(DataSupervisor ds) throws IOException {
-		this();
-		this.dataSupervisor = ds;
 	}
 	
 	@FXML // ResourceBundle that was given to the FXMLLoader
@@ -143,8 +154,14 @@ public class CustomerForm extends AbstractControl {
     @FXML // fx:id="tfFax"
     private TextField tfFax; // Value injected by FXMLLoader
 
-    @FXML // fx:id="lvPeople"
-    private ListView<?> lvPeople; // Value injected by FXMLLoader
+    @FXML // fx:id="peopleTable"
+    private TableView<?> peopleTable; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="btnPersonOk"
+    private Button btnPersonOk; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="btnPersonCancel"
+    private Button btnPersonCancel; // Value injected by FXMLLoader
 
     @FXML // fx:id="tfZip"
     private TextField tfZip; // Value injected by FXMLLoader
@@ -181,9 +198,6 @@ public class CustomerForm extends AbstractControl {
 
     @FXML // fx:id="tabExistingPerson"
     private Tab tabExistingPerson; // Value injected by FXMLLoader
-
-    @FXML // fx:id="tpPerson"
-    private TabPane tpPerson; // Value injected by FXMLLoader
     
     @FXML // fx:id="tpPerson"
     private ScrollPane scrollPane; // Value injected by FXMLLoader
@@ -253,7 +267,6 @@ public class CustomerForm extends AbstractControl {
     	for (Control c : formDisableControls) {
     		c.setDisable(value);
     	}
-    	personPane.setFormDisable(value);
     	
     	customersToolBox.setDisable(!value);
     	customersTable.setDisable(!value);
@@ -294,6 +307,7 @@ public class CustomerForm extends AbstractControl {
     	case DISPLAY:
     		setFormDisable(true);
     		customerToolBox.getItems().addAll(btnNewAddress, btnRemoveCustomer, btnEditCustomer);
+    		changePersonMode(Mode.DISPLAY);
     		break;
     	case ADD:
     		clearForm();
@@ -308,6 +322,24 @@ public class CustomerForm extends AbstractControl {
     		break;
     	}
     	currentMode = m;
+    }
+    
+    private void changePersonMode(Mode m) {
+    	peopleTools.getItems().clear();
+    	switch (m) {
+    	case DISPLAY:
+    		peopleTools.getItems().addAll(btnAddPerson, btnRemovePerson, btnEditPerson);
+    		break;
+    	case ADD:
+    		btnPersonOk.setText(Messages.getString("Ui.Customer.People.Ok.New"));
+    		peopleTools.getItems().addAll(btnPersonOk, btnPersonCancel);
+    		break;
+    	case EDIT:
+    		btnPersonOk.setText(Messages.getString("Ui.Customer.People.Ok.Edit"));
+    		peopleTools.getItems().addAll(btnPersonOk, btnPersonCancel);
+    		break;
+    	}
+    	personPane.setCurrentMode(m);
     }
     
     private boolean evaluateForm() {
@@ -337,8 +369,8 @@ public class CustomerForm extends AbstractControl {
     }
     
     private Person getAddresseeFromListItems() {
-    	for (PersonItem pi : getLvPeople().getItems()) {
-    		if (pi.isMarkedAsAddressee()) {
+    	for (PersonItem pi : getPeopleTable().getItems()) {
+    		if (pi.markedProperty().get()) {
     			return pi.getPerson();
     		}
     	}
@@ -422,18 +454,59 @@ public class CustomerForm extends AbstractControl {
     	dataSupervisor.searchAddresses(tfSearchQuery.getText(), selectedFlags);
     }
     
-    @SuppressWarnings("unchecked")
-	private TableView<Address> getCustomersTable() {
-    	return (TableView<Address>)customersTable;
+    @FXML
+    void btnAddPersonClicked(ActionEvent event) {
+    	changePersonMode(Mode.ADD);
+    }
+
+    @FXML
+    void btnRemovePersonClicked(ActionEvent event) {
+    	// TODO!
+    }
+
+    @FXML
+    void btnEditPersonClicked(ActionEvent event) {
+    	changePersonMode(Mode.EDIT);
+    }
+
+    @FXML
+    void tbSetAddresseeToggled(ActionEvent event) {
+    	PersonItem selection = getPeopleTable().getSelectionModel().getSelectedItem();
+    	if (selection != null) {
+    		selection.markedProperty().set(!selection.markedProperty().get());
+    	}
+    }
+
+    @FXML
+    void btnPersonOkClicked(ActionEvent event) {
+    	switch (personPane.getCurrentMode()) {
+    	case ADD:
+    		Person p = personPane.personFromForm();
+    		PersonItem pi = new PersonItem(p, getPeopleTable().getItems().isEmpty()); // automagically mark as addressee if this is the first item
+    		getPeopleTable().getItems().add(pi);
+    		break;
+    	case EDIT:
+    		personPane.updatePerson(getPeopleTable().getSelectionModel()
+    				.getSelectedItem().getPerson());
+    		break;
+		default:
+			break;
+    	}
+    	changePersonMode(Mode.DISPLAY);
+    }
+
+    @FXML
+    void btnPersonCancelClicked(ActionEvent event) {
+    	changePersonMode(Mode.DISPLAY);
     }
     
-    /**
-     * Convenience method for explicit conversion of lvPeople.
-     * @return
-     */
     @SuppressWarnings("unchecked")
-	private ListView<PersonItem> getLvPeople() {
-    	return (ListView<PersonItem>)lvPeople;
+	private TableView<Address> getCustomersTable() {
+    	return (TableView<Address>) customersTable;
+    }
+    
+    private TableView<PersonItem> getPeopleTable() {
+    	return (TableView<PersonItem>) peopleTable;
     }
     
     /**
@@ -453,6 +526,20 @@ public class CustomerForm extends AbstractControl {
     	
     	// TODO: finish
     	
+    }
+    
+    @SuppressWarnings("unchecked")
+	private void initPeopleTable() {
+    	TableColumn<PersonItem, Boolean> markerCol = new TableColumn<PersonItem, Boolean>(
+    			Messages.getString("Ui.Customers.People.Table.markerCol"));
+    	markerCol.setCellValueFactory(new PropertyValueFactory<PersonItem, Boolean>("marked"));
+    	
+    	TableColumn<PersonItem, String> nameCol = new TableColumn<PersonItem, String>(
+    			Messages.getString("Ui.Customers.People.Table.nameCol"));
+    	nameCol.setCellValueFactory(new PropertyValueFactory<PersonItem, String>("name"));
+    	
+    	getPeopleTable().getColumns().clear();
+    	getPeopleTable().getColumns().addAll(markerCol, nameCol);
     }
     
     @SuppressWarnings("unchecked")
@@ -501,6 +588,7 @@ public class CustomerForm extends AbstractControl {
         } catch (IOException e) {
 			Messages.showError(e, ErrorType.UI);
 		}
+        initPeopleTable();
         
         // add flags check list view to according titled pane
         tpFlags.setContent(clvCustomerFlags);
@@ -513,6 +601,7 @@ public class CustomerForm extends AbstractControl {
         
         initValidationSupport();
         
+        changePersonMode(Mode.DISPLAY);
         changeMode(Mode.DISPLAY);
     }
     
@@ -530,7 +619,7 @@ public class CustomerForm extends AbstractControl {
         assert memoArea != null : "fx:id=\"memoArea\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert cbDeceased != null : "fx:id=\"cbDeceased\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert tfFax != null : "fx:id=\"tfFax\" was not injected: check your FXML file 'CustomerForm.fxml'.";
-        assert lvPeople != null : "fx:id=\"lvPeople\" was not injected: check your FXML file 'CustomerForm.fxml'.";
+        assert peopleTable != null : "fx:id=\"peopleTable\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert tfZip != null : "fx:id=\"tfZip\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert btnAddPerson != null : "fx:id=\"btnAddPerson\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert tfPhone != null : "fx:id=\"tfPhone\" was not injected: check your FXML file 'CustomerForm.fxml'.";
@@ -543,7 +632,6 @@ public class CustomerForm extends AbstractControl {
         assert tfPostbox != null : "fx:id=\"tfPostbox\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert cbState != null : "fx:id=\"cbState\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert tabExistingPerson != null : "fx:id=\"tabExistingPerson\" was not injected: check your FXML file 'CustomerForm.fxml'.";
-        assert tpPerson != null : "fx:id=\"tpPerson\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert scrollPane != null : "fx:id=\"scrollPane\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert btnNewAddress != null : "fx:id=\"btnNewAddress\" was not injected: check your FXML file 'CustomerPane.fxml'.";
         assert btnRemoveCustomer != null : "fx:id=\"btnRemoveCustomer\" was not injected: check your FXML file 'CustomerPane.fxml'.";
@@ -556,6 +644,8 @@ public class CustomerForm extends AbstractControl {
         assert btnCustomerCancel != null : "fx:id=\"btnCustomerCancel\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert tfSearchQuery != null : "fx:id=\"tfSearchQuery\" was not injected: check your FXML file 'CustomerForm.fxml'.";
         assert btnCustomersSearch != null : "fx:id=\"btnCustomersSearch\" was not injected: check your FXML file 'CustomerForm.fxml'.";
+        assert btnPersonCancel != null : "fx:id=\"btnPersonCancel\" was not injected: check your FXML file 'CustomerForm.fxml'.";
+        assert btnPersonOk != null : "fx:id=\"btnPersonOk\" was not injected: check your FXML file 'CustomerForm.fxml'.";
     }
 	
 }

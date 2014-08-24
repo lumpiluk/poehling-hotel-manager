@@ -44,11 +44,7 @@ import javafx.scene.control.TextField;
  * @author lumpiluk
  *
  */
-public class PersonPane extends AbstractControl {
-
-	public static enum Mode {
-		NEW, EDIT;
-	}
+public class PersonPane extends AbstractForm {
 	
 	@FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
@@ -80,11 +76,32 @@ public class PersonPane extends AbstractControl {
     
     private ValidationSupport validationSupport = new ValidationSupport();
     
+    private Mode currentMode = Mode.DISPLAY;
+    
 	/**
 	 * @throws IOException
 	 */
 	public PersonPane() throws IOException {
 		
+	}
+	
+	public Mode getCurrentMode() {
+		return currentMode;
+	}
+	
+	public void setCurrentMode(Mode value) {
+		switch (value) {
+		case DISPLAY:
+			setFormDisable(true);
+			break;
+		case ADD:
+			setFormDisable(false);
+			break;
+		case EDIT:
+			setFormDisable(false);
+			break;
+		}
+		currentMode = value;
 	}
 	
 	/**
@@ -125,20 +142,24 @@ public class PersonPane extends AbstractControl {
 		return true;
 	}
 	
-	private Person personFromForm() {
+	public Person personFromForm() {
 		if (!evaluateForm()) {
 			return null;
 		}
 		
 		Person p = new Person(dataSupervisor.getConnection());
-		p.setAddress(address);
+		updatePerson(p);		
+		return p;		
+	}
+	
+	public void updatePerson(Person p) {
+		p.setAddress(address); // TODO: what if not yet existent?
 		p.setTitle((String) titleCb.getSelectionModel().getSelectedItem());
 		p.setSurnames(surnamesTb.getText());
 		p.setFirstNames(firstNamesTb.getText());
-		p.setBirthday(Date.valueOf(birthdayPicker.getValue()));
+		if (birthdayPicker.getValue() != null)
+			p.setBirthday(Date.valueOf(birthdayPicker.getValue()));
 		p.setFoodMemo(foodMemoArea.getText());
-		
-		return p;		
 	}
 	
 	private void initInvalidationSupport() {
