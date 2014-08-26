@@ -36,7 +36,7 @@ public class Room extends HotelData {
 	private static final String SQL_TABLE_NAME = "rooms";
 
 	private static final String SQL_CREATE = "CREATE TABLE IF NOT EXISTS "
-			+ SQL_TABLE_NAME + " (id INTEGER PRIMARY KEY, "
+			+ SQL_TABLE_NAME + " (room_id INTEGER PRIMARY KEY, "
 			+ "name TEXT NOT NULL, "
 			+ "type TEXT NOT NULL, "
 			+ "floor INTEGER NOT NULL, "
@@ -53,10 +53,10 @@ public class Room extends HotelData {
 	private static final String SQL_UPDATE = "UPDATE " + SQL_TABLE_NAME
 			+ " SET name = ?, type = ?, floor = ?, lift = ?, balcony = ?, "
 			+ "area = ?, phone = ?, view = ?"
-			+ "WHERE id = ?";
+			+ "WHERE room_id = ?";
 	
 	private static final String SQL_DELETE = "DELETE FROM " + SQL_TABLE_NAME
-			+ " WHERE id = ?";
+			+ " WHERE room_id = ?";
 	
 	public static enum Type {
 		SINGLE("E"),
@@ -307,7 +307,7 @@ public class Room extends HotelData {
 				if (!rs.first()) {
 					throw new NoSuchElementException();
 				}
-				this.id = rs.getInt("id");
+				this.id = rs.getInt("room_id");
 				this.setName(rs.getString("name"));
 				this.setAccessibleByLift(rs.getBoolean("lift"));
 				this.setArea(rs.getDouble("area"));

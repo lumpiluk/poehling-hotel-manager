@@ -22,6 +22,8 @@ package application.customControls;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
 import org.controlsfx.dialog.DialogStyle;
@@ -39,6 +41,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.util.StringConverter;
 
 /**
  * @author lumpiluk
@@ -177,6 +180,31 @@ public class PersonPane extends AbstractForm {
         assert foodMemoLbl != null : "fx:id=\"foodMemoLbl\" was not injected: check your FXML file 'PersonPane.fxml'.";
         assert firstNamesTb != null : "fx:id=\"firstNamesTb\" was not injected: check your FXML file 'PersonPane.fxml'.";
 
+        // use ISO date format for birthday picker
+        birthdayPicker.setConverter(new StringConverter<LocalDate>() {
+        	private final String PATTERN = "yyyy-MM-dd";
+        	DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(PATTERN);
+
+            { // why does this work? Suggested by Javadoc of setConverter()...
+                birthdayPicker.setPromptText(PATTERN.toLowerCase());
+            }
+
+            @Override public String toString(LocalDate date) {
+                if (date != null) {
+                    return dateFormatter.format(date);
+                } else {
+                    return "";
+                }
+            }
+
+            @Override public LocalDate fromString(String string) {
+                if (string != null && !string.isEmpty()) {
+                    return LocalDate.parse(string, dateFormatter);
+                } else {
+                    return null;
+                }
+            }
+        });
     }
 
 }

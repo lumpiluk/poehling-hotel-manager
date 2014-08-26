@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.IllegalFormatException;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ExecutorService;
@@ -59,8 +60,7 @@ public class DataSupervisor {
 			+ "LEFT OUTER JOIN people ON "
 			+ "addresses.addressee = people.address "
 			+ "LEFT OUTER JOIN addresses_fts ON "
-			+ "addresses.id = addresses_fts.id "
-			+ "WHERE addresses_fts MATCH '%s'"; // %s: flags matching here
+			+ "addresses.address_id = addresses_fts.address_fts_id";
 	
 	public class ObservableConnectionState extends Observable {
     	private DataSupervisor.ConnectionStatus status;
@@ -337,40 +337,62 @@ public class DataSupervisor {
 	 * Result is output in addressesSearchResult.
 	 * @see searchAddresses()
 	 */
-	private Task<Void> addressSearchTask = new Task<Void>() {
+	private class AddressSearchTask extends Task<Void> {
 
 		@Override
 		protected Void call() throws Exception {
 			addressesSearchResult.clear();
 			
-			StringBuilder match = new StringBuilder();
-			match.append("(addresses_fts.title:\"%1s\" OR addresses_fts.first_names:\"%1s\" ");
-			match.append("OR addresses_fts.surnames:\"%1s\" OR addresses_fts.street:\"%1s\" ");
-			match.append("OR addresses_fts.town:\"%1s\" OR addresses_fts.zip:\"%1s\" ");
-			match.append("OR addresses_fts.phone:\"%1s\" OR addresses_fts.email:\"%1s\" ");
-			match.append("OR addresses_fts.cellphone:\"%1s\") ");
+			StringBuilder match = new StringBuilder(); // will be inserted at the end of SQL_ADDRESS_SEARCH
 			
-			for (String flag : addressSearchFlags) {
-				match.append("AND NOT addresses_fts.flags:\"");
-				match.append(flag.toLowerCase()); // TODO: ensure lower case on insertion?
-				match.append("\" ");
+			// only use "WHERE" clause if there actually are any search parameters
+			if (addressSearchString != null && !addressSearchString.equals("")
+					&& addressSearchFlags.length > 0) {
+				match.append(" WHERE addresses_fts MATCH '");
+
+				match.append("(addresses_fts.title:%1$s OR addresses_fts.first_names:%1$s ");
+				match.append("OR addresses_fts.surnames:%1$s OR addresses_fts.street:%1$s ");
+				match.append("OR addresses_fts.town:%1$s OR addresses_fts.zip:%1$s ");
+				match.append("OR addresses_fts.phone:%1$s OR addresses_fts.email:%1$s ");
+				match.append("OR addresses_fts.cellphone:%1$s) ");
+				
+				for (String flag : addressSearchFlags) {
+					match.append("AND NOT addresses_fts.flags:");
+					match.append(flag.toLowerCase()); // TODO: ensure lower case on insertion?
+					match.append(" ");
+				}
 			}
-			String query = String.format(SQL_ADDRESS_SEARCH,
-					String.format(match.toString(), addressSearchString));
+			
+			String query = SQL_ADDRESS_SEARCH;
+			try {
+				query = String.format(query,
+						String.format(match.toString(), addressSearchString));
+			} catch (IllegalFormatException e) {
+				// intentionally left empty
+				// may occur if content of previous if-statement wasn't executed
+			}
+			
+			System.out.println("Searching: " + query); // TODO: remove debugging output once this works
 			
 			try (Statement stmt = con.createStatement()) {
 				try (ResultSet rs = stmt.executeQuery(query)) {
 					while (rs.next() && !this.isCancelled()) {
 						Address a = new Address(con);
 						a.prepareDataFromResultSet(rs);
+						System.out.println(a.getStreet());
 						addressesSearchResult.add(a);
 					}
 				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
+			System.out.println("done");
 			return null;
 		}
 		
 	};
+	
+	private AddressSearchTask runningAddressSearch;
 	
 	/**
 	 * Initiates a new concurrent search in the addresses table of the db.
@@ -383,12 +405,13 @@ public class DataSupervisor {
 	 */
 	public void searchAddresses(String userQuery, String... flags) {
 		// TODO
-		if (addressSearchTask.isRunning()) {
-			addressSearchTask.cancel(true); // try to stop search if running
+		if (runningAddressSearch != null && runningAddressSearch.isRunning()) {
+			runningAddressSearch.cancel(true); // try to stop search if running
 		}
 		addressSearchString = userQuery.replaceAll("['\":]", "").toLowerCase();
 		addressSearchFlags = flags;
-		databaseExecutor.submit(addressSearchTask);
+		runningAddressSearch = new AddressSearchTask();
+		databaseExecutor.submit(runningAddressSearch);
 	}
 	
 	/** @return Search result from searching in addresses */

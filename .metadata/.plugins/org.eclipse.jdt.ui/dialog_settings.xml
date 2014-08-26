@@ -25,9 +25,9 @@
 		<item value="true" key="ShowStatusLine"/>
 		<item value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#x0A;&lt;History/&gt;" key="History"/>
 		<section name="DialogBoundsSettings">
-			<item value="600" key="DIALOG_WIDTH"/>
-			<item value="1|Liberation Sans|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
-			<item value="500" key="DIALOG_HEIGHT"/>
+			<item value="277" key="DIALOG_WIDTH"/>
+			<item value="1|DejaVu Sans|9.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
+			<item value="547" key="DIALOG_HEIGHT"/>
 			<item value="59" key="DIALOG_Y_ORIGIN"/>
 			<item value="67" key="DIALOG_X_ORIGIN"/>
 		</section>
@@ -47,7 +47,7 @@
 		<item value="584" key="DIALOG_X_ORIGIN"/>
 	</section>
 	<section name="NewClassWizardPage">
-		<item value="false" key="create_constructor"/>
+		<item value="true" key="create_constructor"/>
 		<item value="true" key="create_unimplemented"/>
 	</section>
 	<section name="OptionalMessageDialog.hide.">
@@ -60,9 +60,9 @@
 		<item value="false" key="FinalModifier"/>
 	</section>
 	<section name="DialogBounds_OverrideMethodDialog">
-		<item value="768" key="DIALOG_WIDTH"/>
-		<item value="1|Liberation Sans|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
-		<item value="615" key="DIALOG_HEIGHT"/>
+		<item value="588" key="DIALOG_WIDTH"/>
+		<item value="1|DejaVu Sans|9.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
+		<item value="462" key="DIALOG_HEIGHT"/>
 		<item value="229" key="DIALOG_Y_ORIGIN"/>
 		<item value="1097" key="DIALOG_X_ORIGIN"/>
 	</section>

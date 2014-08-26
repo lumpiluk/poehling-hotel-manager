@@ -6,7 +6,6 @@ package application.customControls;
 import java.io.IOException;
 import java.sql.Date;
 import java.util.Calendar;
-import java.util.Observable;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 import java.net.URL;
@@ -27,9 +26,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -37,11 +33,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
@@ -53,7 +46,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
-import javafx.util.Callback;
 
 /**
  * @author lumpiluk
@@ -69,6 +61,7 @@ public class CustomerForm extends AbstractForm {
 		
 		public PersonItem(Person p, boolean addressee) {
 			this.person = p;
+			marked.set(addressee);
 			marked.addListener((event) -> {
 				if (marked.get()) {
 					// ensure only one person in the table is marked as listener
@@ -87,16 +80,18 @@ public class CustomerForm extends AbstractForm {
 		// used by PropertyValueFactory for peopleTable		
 		public BooleanProperty markedProperty() { return marked; }
 		
-		public StringProperty nameProperty() { return name; }
+		public ReadOnlyStringProperty nameProperty() { return name; }
 		
 		private void updateText() {
 			StringBuilder sb = new StringBuilder();
-			if (marked.get())
-				sb.append("Addressat: ");
-			sb.append(person.getTitle());
-			sb.append(" ");
-			sb.append(person.getFirstNames());
-			sb.append(" ");
+			if (person.getTitle() != null) {
+				sb.append(person.getTitle());
+				sb.append(" ");
+			}
+			if (person.getFirstNames() != null) {
+				sb.append(person.getFirstNames());
+				sb.append(" ");
+			}
 			sb.append(person.getSurnames());
 			name.set(sb.toString());
 		}
@@ -328,7 +323,8 @@ public class CustomerForm extends AbstractForm {
     	peopleTools.getItems().clear();
     	switch (m) {
     	case DISPLAY:
-    		peopleTools.getItems().addAll(btnAddPerson, btnRemovePerson, btnEditPerson);
+    		peopleTools.getItems().addAll(btnAddPerson, btnRemovePerson,
+    				btnEditPerson, tbSetAddressee);
     		break;
     	case ADD:
     		btnPersonOk.setText(Messages.getString("Ui.Customer.People.Ok.New"));
@@ -407,7 +403,7 @@ public class CustomerForm extends AbstractForm {
     	for (String flag : clvCustomerFlags.getCheckModel().getSelectedItems()) {
     		a.getFlags().add(flag);
     	}
-    	a.setAdded(new Date(Calendar.getInstance().getTimeInMillis()));
+    	a.setCreated(new Date(Calendar.getInstance().getTimeInMillis()));
 
     	return a;
     }
@@ -438,6 +434,8 @@ public class CustomerForm extends AbstractForm {
     		// TODO: needs id!
     		dataSupervisor.updateConcurrently(this.addressFromForm());
     		break;
+		default:
+			break;
     	}
     	// TODO: reload / update table
     }
@@ -548,16 +546,23 @@ public class CustomerForm extends AbstractForm {
     	addresseeCol.setCellValueFactory(new PropertyValueFactory<Address, String>("addresseeString"));
     	
     	TableColumn<Address, String> addressCol = new TableColumn<Address, String>(Messages.getString("Ui.Customers.Table.addressCol"));
-    	addressCol.setCellValueFactory(new PropertyValueFactory<Address, String>("fullAddressString"));
+    	TableColumn<Address, String> streetCol = new TableColumn<Address, String>(Messages.getString("Ui.Customers.Table.streetCol"));
+    	streetCol.setCellValueFactory(new PropertyValueFactory<Address, String>("street"));
+    	TableColumn<Address, String> zipCodeCol = new TableColumn<Address, String>(Messages.getString("Ui.Customers.Table.zipCol"));
+    	zipCodeCol.setCellValueFactory(new PropertyValueFactory<Address, String>("zipCode"));
+    	TableColumn<Address, String> townCol = new TableColumn<Address, String>(Messages.getString("Ui.Customers.Table.townCol"));
+    	townCol.setCellValueFactory(new PropertyValueFactory<Address, String>("town"));
+    	//addressCol.setCellValueFactory(new PropertyValueFactory<Address, String>("fullAddressString"));
+    	addressCol.getColumns().addAll(streetCol, zipCodeCol, townCol);
     	
     	TableColumn<Address, String> phoneCol = new TableColumn<Address, String>(Messages.getString("Ui.Customers.Table.phoneCol"));
     	phoneCol.setCellValueFactory(new PropertyValueFactory<Address, String>("phone"));
     	
     	TableColumn<Address, String> mobileCol = new TableColumn<Address, String>(Messages.getString("Ui.Customers.Table.mobileCol"));
-    	phoneCol.setCellValueFactory(new PropertyValueFactory<Address, String>("cellphone"));
+    	mobileCol.setCellValueFactory(new PropertyValueFactory<Address, String>("mobile"));
     	
     	TableColumn<Address, String> addedDateCol = new TableColumn<Address, String>(Messages.getString("Ui.Customers.Table.addedDateCol"));
-    	addressCol.setCellValueFactory(new PropertyValueFactory<Address, String>("addedString"));
+    	addedDateCol.setCellValueFactory(new PropertyValueFactory<Address, String>("createdString"));
     	
     	//TableColumn<Address, String> latestBookingCol = new TableColumn<Address, String>(Messages.getString("Ui.Customers.Table.latestBookingCol"));
         

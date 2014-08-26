@@ -38,7 +38,7 @@ public class Person extends HotelData {
 	public static final String SQL_TABLE_NAME = "people";
 
 	private static final String SQL_CREATE = "CREATE TABLE IF NOT EXISTS "
-			+ SQL_TABLE_NAME + " (id INTEGER PRIMARY KEY, "
+			+ SQL_TABLE_NAME + " (person_id INTEGER PRIMARY KEY, "
 			+ "address INTEGER, "
 			+ "title TEXT, "
 			+ "first_names TEXT, "
@@ -53,10 +53,13 @@ public class Person extends HotelData {
 	private static final String SQL_UPDATE = "UPDATE " + SQL_TABLE_NAME
 			+ " SET address = ?, title = ?, first_names = ?, surnames = ?, "
 			+ "birthday = ?, food_memo = ? "
-			+ "WHERE id = ?";
+			+ "WHERE person_id = ?";
 	
 	private static final String SQL_DELETE = "DELETE FROM " + SQL_TABLE_NAME
-			+ " WHERE id = ?";
+			+ " WHERE person_id = ?";
+	
+	private static final String SQL_SELECT = "SELECT * FROM " + SQL_TABLE_NAME
+			+ " WHERE person_id = ?";
 	
 	private long id;
 	
@@ -126,7 +129,7 @@ public class Person extends HotelData {
 	private long getAddressId() { return this.address.getId(); }
 	
 	/** 
-	 * Will create an empty address for this person object with only the id set.
+	 * Will create an empty address for this person object with only the id set. // TODO: right choice?
 	 * @param addressId the address id to set
 	 */
 	private void setAddressId(long addressId) {
@@ -187,7 +190,7 @@ public class Person extends HotelData {
 	 */
 	private static void prepareDataFromResultSet(final Person p, final ResultSet rs) 
 			throws SQLException {
-		p.setId(rs.getLong("id")); // works although private :)
+		p.setId(rs.getLong("person_id")); // works although private :)
 		p.setAddressId(rs.getLong("address")); // 0 if SQL NULL
 		p.setBirthday(rs.getDate("birthday"));
 		p.setFirstNames(rs.getString("first_names"));
@@ -203,8 +206,7 @@ public class Person extends HotelData {
 	public boolean fromDbAtId(final long d) throws NoSuchElementException,
 			SQLException {
 		boolean success = false;
-		String query = "SELECT * FROM " + SQL_TABLE_NAME + " WHERE id = ?";
-		try (PreparedStatement stmt = con.prepareStatement(query)) {
+		try (PreparedStatement stmt = con.prepareStatement(SQL_SELECT)) {
 			stmt.setLong(1, this.getId());
 			try (ResultSet rs = stmt.executeQuery()) {
 				if (!rs.first()) {
@@ -228,7 +230,7 @@ public class Person extends HotelData {
 		List<Person> resultList = new LinkedList<Person>();
 		if (!indices.isEmpty()) {
 			StringBuilder sql = new StringBuilder();
-			sql.append("SELECT * FROM " + SQL_TABLE_NAME + " WHERE id IN (");
+			sql.append("SELECT * FROM " + SQL_TABLE_NAME + " WHERE person_id IN (");
 			for (@SuppressWarnings("unused") Long id : indices) {
 				sql.append("?,");
 			}

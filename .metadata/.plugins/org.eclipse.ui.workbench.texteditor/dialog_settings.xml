@@ -2,22 +2,23 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="false" key="isRegEx"/>
-		<item value="Mouse" key="selection"/>
+		<item value="personPane.setCurrentMode" key="selection"/>
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="true" key="wrap"/>
 		<item value="false" key="wholeword"/>
 		<list key="findhistory">
+			<item value="personPane.setCurrentMode"/>
+			<item value="personPane.setCu"/>
+			<item value="personPane"/>
+			<item value="setAddress"/>
+			<item value="selection"/>
 			<item value="mouse"/>
 			<item value="getstyle"/>
 			<item value="style"/>
-			<item value="getStyle"/>
-			<item value="colWidth"/>
-			<item value="css"/>
-			<item value="getUser"/>
-			<item value="get"/>
 		</list>
 		<list key="replacehistory">
+			<item value="changePersonMode"/>
 			<item value="Date"/>
 		</list>
 	</section>

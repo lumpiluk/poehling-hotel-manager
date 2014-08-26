@@ -26,10 +26,18 @@ import java.sql.SQLException;
 import java.sql.Date;
 import java.sql.Statement;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 /**
  * @author lumpiluk
@@ -40,7 +48,7 @@ public class Address extends HotelData {
 	public static final String SQL_TABLE_NAME = "addresses";
 	
 	private static final String SQL_CREATE = "CREATE TABLE IF NOT EXISTS "
-			+ SQL_TABLE_NAME + " (id INTEGER PRIMARY KEY, "
+			+ SQL_TABLE_NAME + " (address_id INTEGER PRIMARY KEY, "
 			+ "addressee INTEGER NOT NULL, "
 			+ "addition TEXT, " // TODO: here or Person?
 			+ "street TEXT, "
@@ -67,7 +75,7 @@ public class Address extends HotelData {
 			+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
 	private static final String SQL_INSERT_FTS_SINGLE = "INSERT INTO "
-			+ SQL_TABLE_NAME + "_fts (id, title, first_names, surnames, "
+			+ SQL_TABLE_NAME + "_fts (address_fts_id, title, first_names, surnames, "
 			+ "street, town, zip, phone, email, cellphone, flags) "
 			+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	
@@ -84,21 +92,23 @@ public class Address extends HotelData {
 			+ "email = ?, cellphone = ?, flags = ? WHERE id = ?";
 	
 	private static final String SQL_DELETE = "DELETE FROM " + SQL_TABLE_NAME
-			+ " WHERE id = ?";
+			+ " WHERE address_id = ?"; // TODO: delete people, invoices, etc.?
 	
 	private static final String SQL_DELETE_FTS = "DELETE FROM " + SQL_TABLE_NAME
-			+ "_fts WHERE id = ?";
+			+ "_fts WHERE address_fts_id = ?";
 	
 	private static final String SQL_SELECT_ALL = String.format(
 			"SELECT * FROM %1$s LEFT OUTER JOIN %2$s ON %1$s.addressee = "
 			+ "%2$s.address", SQL_TABLE_NAME, Person.SQL_TABLE_NAME);
 	
 	private static final String SQL_SELECT = String.format(
-			"%1$s WHERE %2$s.id = ?", SQL_SELECT_ALL, SQL_TABLE_NAME
+			"%1$s WHERE %2$s.address_id = ?", SQL_SELECT_ALL, SQL_TABLE_NAME
 			);
 	
+	DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 	
-	private long id;
+	
+	private LongProperty id = new SimpleLongProperty();
 	
 	/** 
 	 * The person's id this address belongs to.
@@ -109,21 +119,35 @@ public class Address extends HotelData {
 	
 	private String addition;
 	
-	private String street;
+	//private String street;
+	private StringProperty street = new SimpleStringProperty();
 	
-	private String shortCountry;
+	//private String shortCountry;
+	private StringProperty shortCountry = new SimpleStringProperty();
 	
-	private String zipCode;
+	//private String zipCode;
+	private StringProperty zipCode = new SimpleStringProperty();
 	
-	private String town;
+	//private String town;
+	private StringProperty town = new SimpleStringProperty();
 	
-	private String memo;
+	//private String memo;
+	private StringProperty memo = new SimpleStringProperty();
 	
-	private String state;
+	//private String state;
+	private StringProperty state = new SimpleStringProperty();
 	
-	private String postbox, postboxZip, postboxTown;
+	//private String postbox, postboxZip, postboxTown;
+	private StringProperty postbox = new SimpleStringProperty(),
+			postboxZip = new SimpleStringProperty(),
+			postboxTown = new SimpleStringProperty();
 	
-	private String phone, fax, email, website, cellphone;
+	//private String phone, fax, email, website, cellphone;
+	private StringProperty phone = new SimpleStringProperty(),
+			fax = new SimpleStringProperty(),
+			email = new SimpleStringProperty(),
+			website = new SimpleStringProperty(),
+			mobile = new SimpleStringProperty();
 	
 	private Set<String> flags;
 	
@@ -131,30 +155,32 @@ public class Address extends HotelData {
 	
 	//private int people, children; // TODO: replace local variables with DB queries?
 	
-	private Date created, added;
+	private Date created;
 
 	/**
 	 * @param con Database connection for this object
 	 */
 	public Address(final Connection con) {
 		super(con);
-		this.id = 0;
 		this.created = new java.sql.Date(0);
-		this.added = new java.sql.Date(0);
 		this.flags = new HashSet<String>();
 	}
 	
 	/** @return the id */
-	public long getId() { return id; }
+	public long getId() { return id.get(); }
 
 	/** @param id the id to set */
-	public void setId(long id) { this.id = id; }
+	public void setId(long id) { this.id.set(id); }
+	
+	public LongProperty idProperty() { return id; }
 
 	/** @return the addressee Person object associated with this address */
 	public Person getAddressee() { return addressee; }
 	
 	/** @return the toString() value of the addressee Person object. */
-	public String getAddresseeString() { return addressee.toString(); }
+	public String getAddresseeString() {
+		return addressee == null ? "" : addressee.toString();
+	}
 
 	/** @param addressee the addressee to set */
 	public void setAddressee(Person addressee) { this.addressee = addressee; }
@@ -166,90 +192,139 @@ public class Address extends HotelData {
 	public void setAddition(String addition) { this.addition = addition; }
 
 	/** @return the street */
-	public String getStreet() { return street; }
+	public String getStreet() { return street.get(); }
 
 	/** @param street the street to set */
-	public void setStreet(String street) { this.street = street; }
+	public void setStreet(String street) { this.street.set(street); }
+	
+	public StringProperty streetProperty() { return street; }
 
 	/** @return the shortCountry */
-	public String getShortCountry() { return shortCountry; }
+	public String getShortCountry() { return shortCountry.get(); }
 
 	/** @param shortCountry the shortCountry to set */
-	public void setShortCountry(String shortCountry) { this.shortCountry = shortCountry; }
+	public void setShortCountry(String shortCountry) { this.shortCountry.set(shortCountry); }
+	
+	public StringProperty shortCountryProperty() { return shortCountry; }
 
 	/** @return the zipCode */
-	public String getZipCode() { return zipCode; }
+	public String getZipCode() { return zipCode.get(); }
 
 	/** @param zipCode the zipCode to set */
-	public void setZipCode(String zipCode) { this.zipCode = zipCode; }
+	public void setZipCode(String zipCode) { this.zipCode.set(zipCode); }
+	
+	public StringProperty zipCodeProperty() { return zipCode; }
 
 	/** @return the town */
-	public String getTown() { return town; }
+	public String getTown() { return town.get(); }
 
 	/** @param town the town to set */
-	public void setTown(String town) { this.town = town; }
+	public void setTown(String town) { this.town.set(town); }
+	
+	public StringProperty townProperty() { return town; }
 
 	/** @return the state */
-	public String getState() { return state; }
+	public String getState() { return state.get(); }
 
 	/** @param state the state to set */
-	public void setState(String state) { this.state = state; }
+	public void setState(String state) { this.state.set(state); }
+	
+	public StringProperty stateProperty() { return state; }
+	
+	/*public String getFullAddressString() {
+		StringBuilder sb = new StringBuilder();
+		if (getStreet() != null) {
+			sb.append(getStreet());
+			if (getZipCode() != null || getTown() != null || getState() != null || getShortCountry() != null)
+				sb.append(", ");
+		}
+		if (getZipCode() != null || getTown() != null) {
+			sb.append(getZipCode());
+			sb.append(getTown());
+			if (getState() != null || getShortCountry() != null)
+				sb.append(", ");
+		}
+		if (getState() != null) {
+			sb.append(getState());
+			if (getShortCountry() != null)
+				sb.append(", ");
+		}
+		if (getShortCountry() != null)
+			sb.append(getShortCountry());		
+		return sb.toString();
+	}*/
 
 	/** @return the postbox */
-	public String getPostbox() { return postbox; }
+	public String getPostbox() { return postbox.get(); }
 
 	/** @param postbox the postbox to set */
-	public void setPostbox(String postbox) { this.postbox = postbox; }
+	public void setPostbox(String postbox) { this.postbox.set(postbox); }
+	
+	public StringProperty postboxProperty() { return postbox; }
 
 	/** @return the postboxZip */
-	public String getPostboxZip() { return postboxZip; }
+	public String getPostboxZip() { return postboxZip.get(); }
 
 	/** @param postboxZip the postboxZip to set */
-	public void setPostboxZip(String postboxZip) { this.postboxZip = postboxZip; }
+	public void setPostboxZip(String postboxZip) { this.postboxZip.set(postboxZip); }
+	
+	public StringProperty postboxZipProperty() { return postboxZip; }
 
 	/** @return the postboxTown */
-	public String getPostboxTown() { return postboxTown; }
+	public String getPostboxTown() { return postboxTown.get(); }
 
 	/** @param postboxTown the postboxTown to set */
-	public void setPostboxTown(String postboxTown) { this.postboxTown = postboxTown; }
+	public void setPostboxTown(String postboxTown) { this.postboxTown.set(postboxTown); }
+	
+	public StringProperty postboxTownProperty() { return postboxTown; }
 
 	/** @return the phone */
-	public String getPhone() { return phone; }
+	public String getPhone() { return phone.get(); }
 
 	/** @param phone the phone to set */
-	public void setPhone(String phone) {
-		this.phone = phone;
-	}
+	public void setPhone(String phone) { this.phone.set(phone);	}
+	
+	public StringProperty phoneProperty() { return phone; }
 
 	/** @return the fax */
-	public String getFax() { return fax; }
+	public String getFax() { return fax.get(); }
 
 	/** @param fax the fax to set */
-	public void setFax(String fax) { this.fax = fax; }
+	public void setFax(String fax) { this.fax.set(fax); }
+	
+	public StringProperty faxProperty() { return fax; }
 
 	/** @return the email */
-	public String getEmail() { return email; }
+	public String getEmail() { return email.get(); }
 
 	/** @param email the email to set */
-	public void setEmail(String email) { this.email = email; }
+	public void setEmail(String email) { this.email.set(email); }
+	
+	public StringProperty emailProperty() { return email; }
 
 	/** @return the website */
-	public String getWebsite() { return website; }
+	public String getWebsite() { return website.get(); }
 
 	/** @param website the website to set */
-	public void setWebsite(String website) { this.website = website; }
+	public void setWebsite(String website) { this.website.set(website); }
+	
+	public StringProperty websiteProperty() { return website; }
 
 	/** @return the mobile number */
-	public String getMobile() { return cellphone; }
+	public String getMobile() { return mobile.get(); }
 
 	/** @param cellphone mobile number */
-	public void setMobile(String mobile) { this.cellphone = mobile; }
+	public void setMobile(String mobile) { this.mobile.set(mobile); }
+	
+	public StringProperty mobileProperty() { return mobile; }
 
 	/** @return the memo */
-	public String getMemo() { return memo; }
+	public String getMemo() { return memo.get(); }
 
 	/** @param memo the memo to set */
-	public void setMemo(String memo) { this.memo = memo; }
+	public void setMemo(String memo) { this.memo.set(memo); }
+	
+	public StringProperty memoProperty() { return memo; }
 
 	/** @return the set of flags set for this address. */
 	public Set<String> getFlags() { return flags; }
@@ -259,52 +334,54 @@ public class Address extends HotelData {
 
 	/** @param created the created to set */
 	public void setCreated(Date created) { this.created = created; }
-
-	/** @return the date this address was added */
-	public Date getAdded() { return added; }
 	
-	public String getAddedString() {
-		DateFormat format = new SimpleDateFormat("yyyy-MM-dd"); // TODO: settings specific?
-		return format.format(added);
+	public void setCreated(String isoDateCreated) throws ParseException {
+		this.created = new Date(DATE_FORMAT.parse(isoDateCreated).getTime());
 	}
-
-	/**
-	 * @param added the added to set
-	 */
-	public void setAdded(Date added) {
-		this.added = added;
+	
+	public String getCreatedString() {
+		return DATE_FORMAT.format(created);
 	}
 
 	public void prepareDataFromResultSet(final ResultSet rs) throws SQLException {
-		this.id = rs.getLong(SQL_TABLE_NAME + ".id");
+		this.setId(rs.getLong("address_id"));
 		
-		Person a = new Person(con);
-		a.setAddress(this);
-		a.setId(rs.getLong(Person.SQL_TABLE_NAME + ".id"));
-		a.setFirstNames(rs.getString(Person.SQL_TABLE_NAME + ".first_names"));
-		a.setSurnames(rs.getString(Person.SQL_TABLE_NAME + ".surnames"));
-		a.setTitle(rs.getString(Person.SQL_TABLE_NAME + ".title"));
-		a.setBirthday(rs.getDate(Person.SQL_TABLE_NAME + ".birthday"));
-		a.setFoodMemo(rs.getString(Person.SQL_TABLE_NAME + ".food_memo"));
-		this.setAddressee(a);
+		try {
+			Person a = new Person(con);
+			a.setAddress(this);
+			a.setId(rs.getLong("person_id"));
+			a.setFirstNames(rs.getString("first_names"));
+			a.setSurnames(rs.getString("surnames"));
+			a.setTitle(rs.getString("title"));
+			a.setBirthday(rs.getDate("birthday"));
+			a.setFoodMemo(rs.getString("food_memo"));
+			this.setAddressee(a);
+		} catch (IllegalArgumentException e) {
+			// may be thrown by Person#setId
+			// just don't set an addressee then...
+		}
 		
-		this.setAddition(rs.getString(SQL_TABLE_NAME + ".addition"));
-		this.setStreet(rs.getString(SQL_TABLE_NAME + ".street"));
-		this.setShortCountry(rs.getString(SQL_TABLE_NAME + ".short_country"));
-		this.setZipCode(rs.getString(SQL_TABLE_NAME + ".zip"));
-		this.setTown(rs.getString(SQL_TABLE_NAME + ".town"));
-		this.setState(rs.getString(SQL_TABLE_NAME + ".state"));
-		this.setPostbox(rs.getString(SQL_TABLE_NAME + ".postbox"));
-		this.setPostboxZip(rs.getString(SQL_TABLE_NAME + ".postbox_zip"));
-		this.setPostboxTown(rs.getString(SQL_TABLE_NAME + ".postbox_town"));
-		this.setPhone(rs.getString(SQL_TABLE_NAME + ".phone"));
-		this.setFax(rs.getString(SQL_TABLE_NAME + ".fax"));
-		this.setEmail(rs.getString(SQL_TABLE_NAME + ".email"));
-		this.setWebsite(rs.getString(SQL_TABLE_NAME + ".website"));
-		this.setMobile(rs.getString(SQL_TABLE_NAME + ".cellphone"));
-		this.setMemo(rs.getString(SQL_TABLE_NAME + ".memo"));
-		this.flagsFromDbString(rs.getString(SQL_TABLE_NAME + ".flags"));
-		this.setCreated(rs.getDate(SQL_TABLE_NAME + ".created"));
+		this.setAddition(rs.getString("addition"));
+		this.setStreet(rs.getString("street"));
+		this.setShortCountry(rs.getString("short_country"));
+		this.setZipCode(rs.getString("zip"));
+		this.setTown(rs.getString("town"));
+		this.setState(rs.getString("state"));
+		this.setPostbox(rs.getString("postbox"));
+		this.setPostboxZip(rs.getString("postbox_zip"));
+		this.setPostboxTown(rs.getString("postbox_town"));
+		this.setPhone(rs.getString("phone"));
+		this.setFax(rs.getString("fax"));
+		this.setEmail(rs.getString("email"));
+		this.setWebsite(rs.getString("website"));
+		this.setMobile(rs.getString("cellphone"));
+		this.setMemo(rs.getString("memo"));
+		this.flagsFromDbString(rs.getString("flags"));
+		try {
+			this.setCreated(rs.getString("created")); // TODO: create strings only once statically!
+		} catch (ParseException e) {
+			this.setCreated(new Date((new GregorianCalendar()).getTimeInMillis()));
+		}
 	}
 	
 	/**
@@ -356,7 +433,8 @@ public class Address extends HotelData {
 			stmt.setString(15, getWebsite());
 			stmt.setString(16, getMemo());
 			stmt.setString(17, flagsToDbString());
-			stmt.setDate(23, getCreated());
+			//stmt.setDate(23, getCreated());
+			stmt.setString(23, getCreatedString());
 			stmt.setLong(24, getId());
 			
 			stmt.executeUpdate();
@@ -422,7 +500,8 @@ public class Address extends HotelData {
 			stmt.setString(15, getWebsite());
 			stmt.setString(16, getMemo());
 			stmt.setString(17, flagsToDbString());
-			stmt.setDate(18, getCreated());
+			//stmt.setDate(18, getCreated());
+			stmt.setString(18, getCreatedString());
 			
 			stmt.executeUpdate();
 			this.setId(stmt.getGeneratedKeys().getLong(1));
@@ -481,10 +560,10 @@ public class Address extends HotelData {
 		try (Statement stmt = con.createStatement()) {
 			String dropQuery = "DROP TABLE IF EXISTS " + SQL_TABLE_NAME + "_fts";
 			String createQuery = "CREATE VIRTUAL TABLE " + SQL_TABLE_NAME
-					+ "_fts USING fts4 (id, title, first_names, surnames, "
-					+ "street, town, zip, phone, email, cellphone, flags)";
+					+ "_fts USING fts4 (address_fts_id, fts_title, fts_first_names, fts_surnames, "
+					+ "fts_street, fts_town, fts_zip, fts_phone, fts_email, fts_cellphone, fts_flags)";
 			String populateQuery = "INSERT INTO " + SQL_TABLE_NAME + "_fts "
-					+ "SELECT addresses.id, people.title, people.first_names, "
+					+ "SELECT address_id, people.title, people.first_names, "
 					+ "people.surnames, addresses.street, addresses.town, "
 					+ "addresses.zip, addresses.phone, addresses.email, "
 					+ "addresses.cellphone, addresses.flags FROM addresses "
