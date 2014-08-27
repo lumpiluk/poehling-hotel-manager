@@ -58,9 +58,7 @@ public class DataSupervisor {
 	
 	private static final String SQL_ADDRESS_SEARCH = "SELECT * FROM addresses "
 			+ "LEFT OUTER JOIN people ON "
-			+ "addresses.addressee = people.address "
-			+ "LEFT OUTER JOIN addresses_fts ON "
-			+ "addresses.address_id = addresses_fts.address_fts_id";
+			+ "addresses.addressee = people.address";
 	
 	public class ObservableConnectionState extends Observable {
     	private DataSupervisor.ConnectionStatus status;
@@ -346,24 +344,30 @@ public class DataSupervisor {
 			StringBuilder match = new StringBuilder(); // will be inserted at the end of SQL_ADDRESS_SEARCH
 			
 			// only use "WHERE" clause if there actually are any search parameters
-			if (addressSearchString != null && !addressSearchString.equals("")
-					&& addressSearchFlags.length > 0) {
-				match.append(" WHERE addresses_fts MATCH '");
+			if ((addressSearchString != null && !addressSearchString.equals(""))
+					|| addressSearchFlags.length > 0) {
+				match.append(" WHERE addresses.address_id IN (");
+				match.append("SELECT address_fts_id FROM addresses_fts WHERE ");
+				match.append("addresses_fts MATCH '");
 
-				match.append("(addresses_fts.title:%1$s OR addresses_fts.first_names:%1$s ");
-				match.append("OR addresses_fts.surnames:%1$s OR addresses_fts.street:%1$s ");
-				match.append("OR addresses_fts.town:%1$s OR addresses_fts.zip:%1$s ");
-				match.append("OR addresses_fts.phone:%1$s OR addresses_fts.email:%1$s ");
-				match.append("OR addresses_fts.cellphone:%1$s) ");
+				if (addressSearchString != null && !addressSearchString.equals("")) {
+					match.append("(fts_title:%1$s OR fts_first_names:%1$s ");
+					match.append("OR fts_surnames:%1$s OR fts_street:%1$s ");
+					match.append("OR fts_town:%1$s OR fts_zip:%1$s ");
+					match.append("OR fts_phone:%1$s OR fts_email:%1$s ");
+					match.append("OR fts_cellphone:%1$s) ");
+				}
 				
 				for (String flag : addressSearchFlags) {
-					match.append("AND NOT addresses_fts.flags:");
+					match.append("AND NOT fts_flags:");
 					match.append(flag.toLowerCase()); // TODO: ensure lower case on insertion?
 					match.append(" ");
 				}
+				match.delete(match.length() - 1, match.length());
+				match.append("')");
 			}
 			
-			String query = SQL_ADDRESS_SEARCH;
+			String query = SQL_ADDRESS_SEARCH + " %s";
 			try {
 				query = String.format(query,
 						String.format(match.toString(), addressSearchString));
