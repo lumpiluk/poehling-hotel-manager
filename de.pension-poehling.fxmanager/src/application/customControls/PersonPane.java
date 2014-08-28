@@ -35,12 +35,24 @@ import util.Messages;
 import data.Address;
 import data.DataSupervisor;
 import data.Person;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToolBar;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.GridPane;
 import javafx.util.StringConverter;
 
 /**
@@ -49,12 +61,83 @@ import javafx.util.StringConverter;
  */
 public class PersonPane extends AbstractForm {
 	
+	/** Items used in people list view of current address. */
+	public class PersonItem {
+		private Person person;
+		private BooleanProperty marked = new SimpleBooleanProperty(false);
+		private ReadOnlyStringWrapper name = new ReadOnlyStringWrapper();
+		
+		public PersonItem(Person p, boolean addressee) {
+			this.person = p;
+			marked.set(addressee);
+			marked.addListener((event) -> {
+				if (marked.get()) {
+					// ensure only one person in the table is marked as listener
+					for (PersonItem pi : getPeopleTable().getItems()) {
+						if (pi != this && pi.markedProperty().get()) {
+							pi.markedProperty().set(false);
+						}
+					}
+				}
+			});
+			updateText();
+		}
+
+		public Person getPerson() { return person; }	
+		
+		// used by PropertyValueFactory for peopleTable		
+		public BooleanProperty markedProperty() { return marked; }
+		
+		public ReadOnlyStringProperty nameProperty() { return name; }
+		
+		private void updateText() {
+			StringBuilder sb = new StringBuilder();
+			if (person.getTitle() != null) {
+				sb.append(person.getTitle());
+				sb.append(" ");
+			}
+			if (person.getFirstNames() != null) {
+				sb.append(person.getFirstNames());
+				sb.append(" ");
+			}
+			sb.append(person.getSurnames());
+			name.set(sb.toString());
+		}
+	}
+	
 	@FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
 
     @FXML // URL location of the FXML file that was given to the FXMLLoader
     private URL location;
+    
+    @FXML // fx:id="grid"
+    private GridPane grid; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="peopleTable"
+    private TableView<?> peopleTable; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="peopleTools"
+    private ToolBar peopleTools; // Value injected by FXMLLoader
 
+    @FXML // fx:id="btnAddPerson"
+    private Button btnAddPerson; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="btnEditPerson"
+    private Button btnEditPerson; // Value injected by FXMLLoader
+
+    @FXML // fx:id="btnPersonOk"
+    private Button btnPersonOk; // Value injected by FXMLLoader
+
+    @FXML // fx:id="btnRemovePerson"
+    private Button btnRemovePerson; // Value injected by FXMLLoader
+
+    @FXML // fx:id="tbSetAddressee"
+    private ToggleButton tbSetAddressee; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="btnPersonCancel"
+    private Button btnPersonCancel; // Value injected by FXMLLoader
+    
     @FXML // fx:id="titleCb"
     private ComboBox<?> titleCb; // Value injected by FXMLLoader
 
@@ -88,19 +171,31 @@ public class PersonPane extends AbstractForm {
 		
 	}
 	
+	@SuppressWarnings("unchecked")
+	private TableView<PersonItem> getPeopleTable() {
+    	return (TableView<PersonItem>) peopleTable;
+    }
+	
 	public Mode getCurrentMode() {
 		return currentMode;
 	}
 	
 	public void setCurrentMode(Mode value) {
+		peopleTools.getItems().clear();
 		switch (value) {
 		case DISPLAY:
+			peopleTools.getItems().addAll(btnAddPerson, btnRemovePerson,
+    				btnEditPerson, tbSetAddressee);
 			setFormDisable(true);
 			break;
 		case ADD:
+			btnPersonOk.setText(Messages.getString("Ui.Customer.People.Ok.New"));
+    		peopleTools.getItems().addAll(btnPersonOk, btnPersonCancel);
 			setFormDisable(false);
 			break;
 		case EDIT:
+			btnPersonOk.setText(Messages.getString("Ui.Customer.People.Ok.Edit"));
+    		peopleTools.getItems().addAll(btnPersonOk, btnPersonCancel);
 			setFormDisable(false);
 			break;
 		}
@@ -114,7 +209,9 @@ public class PersonPane extends AbstractForm {
 	public void initData(DataSupervisor dataSupervisor) {
 		this.dataSupervisor = dataSupervisor;
 
+		initPeopleTable();
 		initInvalidationSupport();
+		setCurrentMode(Mode.DISPLAY);
 	}
 	
 	public void setFormDisable(boolean value) {
@@ -171,9 +268,79 @@ public class PersonPane extends AbstractForm {
 				Validator.createEmptyValidator(Messages.getString("Ui.Customer.Person.Validation.MissingSurname")));
 	}
 	
+	public Person getAddresseeFromListItems() {
+    	for (PersonItem pi : getPeopleTable().getItems()) {
+    		if (pi.markedProperty().get()) {
+    			return pi.getPerson();
+    		}
+    	}
+    	return null;
+    }
+	
+	@FXML
+    void btnAddPersonClicked(ActionEvent event) {
+		setCurrentMode(Mode.ADD);
+    }
+
+    @FXML
+    void btnRemovePersonClicked(ActionEvent event) {
+
+    }
+
+    @FXML
+    void btnEditPersonClicked(ActionEvent event) {
+    	setCurrentMode(Mode.EDIT);
+    }
+
+    @FXML
+    void tbSetAddresseeToggled(ActionEvent event) {
+    	PersonItem selection = getPeopleTable().getSelectionModel().getSelectedItem();
+    	if (selection != null) {
+    		selection.markedProperty().set(!selection.markedProperty().get());
+    	}
+    }
+
+    @FXML
+    void btnPersonOkClicked(ActionEvent event) {
+    	switch (getCurrentMode()) {
+    	case ADD:
+    		Person p = personFromForm();
+    		PersonItem pi = new PersonItem(p, getPeopleTable().getItems().isEmpty()); // automagically mark as addressee if this is the first item
+    		getPeopleTable().getItems().add(pi);
+    		break;
+    	case EDIT:
+    		updatePerson(getPeopleTable().getSelectionModel()
+    				.getSelectedItem().getPerson());
+    		break;
+		default:
+			break;
+    	}
+    	setCurrentMode(Mode.DISPLAY);
+    }
+
+    @FXML
+    void btnPersonCancelClicked(ActionEvent event) {
+    	setCurrentMode(Mode.DISPLAY);
+    }
+    
+    @SuppressWarnings("unchecked")
+	private void initPeopleTable() {
+    	TableColumn<PersonItem, Boolean> markerCol = new TableColumn<PersonItem, Boolean>(
+    			Messages.getString("Ui.Customers.People.Table.markerCol"));
+    	markerCol.setCellValueFactory(new PropertyValueFactory<PersonItem, Boolean>("marked"));
+    	
+    	TableColumn<PersonItem, String> nameCol = new TableColumn<PersonItem, String>(
+    			Messages.getString("Ui.Customers.People.Table.nameCol"));
+    	nameCol.setCellValueFactory(new PropertyValueFactory<PersonItem, String>("name"));
+    	
+    	getPeopleTable().getColumns().clear();
+    	getPeopleTable().getColumns().addAll(markerCol, nameCol);
+    }
+	
 	@FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
-        assert titleCb != null : "fx:id=\"titleCb\" was not injected: check your FXML file 'PersonPane.fxml'.";
+		assert grid != null : "fx:id=\"grid\" was not injected: check your FXML file 'PersonPane.fxml'.";
+		assert titleCb != null : "fx:id=\"titleCb\" was not injected: check your FXML file 'PersonPane.fxml'.";
         assert foodMemoArea != null : "fx:id=\"foodMemoArea\" was not injected: check your FXML file 'PersonPane.fxml'.";
         assert birthdayPicker != null : "fx:id=\"birthdayPicker\" was not injected: check your FXML file 'PersonPane.fxml'.";
         assert surnamesTb != null : "fx:id=\"surnamesTb\" was not injected: check your FXML file 'PersonPane.fxml'.";

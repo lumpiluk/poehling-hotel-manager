@@ -7,11 +7,6 @@
 	-fx-padding: 0 0 0 .25em;
 }
 
-.form-grid ToolBar {
-	-fx-border-style: hidden solid hidden hidden;
-	-fx-border-color: rgb(200, 200, 200);
-}
-
 .form-header {
 	-fx-border-style: solid solid solid hidden;
 	-fx-border-color: rgb(150, 150, 150);

@@ -1,0 +1,17 @@
+#grid {
+	-fx-border-style: hidden solid solid solid;
+	-fx-border-color: rgb(200, 200, 200);
+}
+
+#peopleTable {
+	-fx-pref-height: 10em;
+}
+
+#contentBox {
+	-fx-padding: 0 0 0 .25em;
+}
+
+#peopleTools {
+	-fx-border-style: hidden solid hidden solid;
+	-fx-border-color: rgb(200, 200, 200);
+}
