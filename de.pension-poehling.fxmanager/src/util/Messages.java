@@ -15,7 +15,7 @@ import org.controlsfx.dialog.Dialogs;
 public class Messages {
 	
 	public static enum ErrorType {
-		UI("Ui"), DB("DB");
+		UI("Ui"), DB("DB"), UNKNOWN("Unknown");
 		
 		private String s;
 		

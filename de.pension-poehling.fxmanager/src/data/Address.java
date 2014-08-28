@@ -75,8 +75,8 @@ public class Address extends HotelData {
 			+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
 	private static final String SQL_INSERT_FTS_SINGLE = "INSERT INTO "
-			+ SQL_TABLE_NAME + "_fts (address_fts_id, title, first_names, surnames, "
-			+ "street, town, zip, phone, email, cellphone, flags) "
+			+ SQL_TABLE_NAME + "_fts (address_fts_id, fts_title, fts_first_names, fts_surnames, "
+			+ "fts_street, fts_town, fts_zip, fts_phone, fts_email, fts_cellphone, fts_flags) "
 			+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	
 	private static final String SQL_UPDATE = "UPDATE " + SQL_TABLE_NAME
@@ -87,9 +87,9 @@ public class Address extends HotelData {
 			+ "flags = ?, created = ? WHERE id = ?";
 	
 	private static final String SQL_UPDATE_FTS = "UPDATE "
-			+ SQL_TABLE_NAME + "_fts SET title = ?, first_names = ?, "
-			+ "surnames = ?, street = ?, town = ?, zip = ?, phone = ?, "
-			+ "email = ?, cellphone = ?, flags = ? WHERE id = ?";
+			+ SQL_TABLE_NAME + "_fts SET fts_title = ?, fts_first_names = ?, "
+			+ "fts_surnames = ?, fts_street = ?, fts_town = ?, fts_zip = ?, fts_phone = ?, "
+			+ "fts_email = ?, fts_cellphone = ?, fts_flags = ? WHERE address_fts_id = ?";
 	
 	private static final String SQL_DELETE = "DELETE FROM " + SQL_TABLE_NAME
 			+ " WHERE address_id = ?"; // TODO: delete people, invoices, etc.?
@@ -151,7 +151,7 @@ public class Address extends HotelData {
 	
 	private Set<String> flags;
 	
-	private boolean fullTextSearchTableCreated = false;
+	private static boolean fullTextSearchTableCreated = false;
 	
 	//private int people, children; // TODO: replace local variables with DB queries?
 	
@@ -505,22 +505,24 @@ public class Address extends HotelData {
 			
 			stmt.executeUpdate();
 			this.setId(stmt.getGeneratedKeys().getLong(1));
-		}
-		if (fullTextSearchTableCreated) {
-			try (PreparedStatement stmt = con.prepareStatement(SQL_INSERT_FTS_SINGLE)) {
-				stmt.setLong(1, this.getId());
-				stmt.setString(2, getAddressee().getTitle());
-				stmt.setString(3, getAddressee().getFirstNames());
-				stmt.setString(4, getAddressee().getSurnames());
-				stmt.setString(5, getStreet());
-				stmt.setString(6, getTown());
-				stmt.setString(7, getZipCode());
-				stmt.setString(8, getPhone());
-				stmt.setString(9, getEmail());
-				stmt.setString(10, getMobile());
-				stmt.setString(11, flagsToDbString());
-				
-				stmt.executeUpdate();
+			
+			if (fullTextSearchTableCreated) {
+				System.out.println("updating fts table");
+				try (PreparedStatement ftsStmt = con.prepareStatement(SQL_INSERT_FTS_SINGLE)) {
+					ftsStmt.setLong(1, this.getId());
+					ftsStmt.setString(2, getAddressee().getTitle());
+					ftsStmt.setString(3, getAddressee().getFirstNames());
+					ftsStmt.setString(4, getAddressee().getSurnames());
+					ftsStmt.setString(5, getStreet());
+					ftsStmt.setString(6, getTown());
+					ftsStmt.setString(7, getZipCode());
+					ftsStmt.setString(8, getPhone());
+					ftsStmt.setString(9, getEmail());
+					ftsStmt.setString(10, getMobile());
+					ftsStmt.setString(11, flagsToDbString());
+					
+					ftsStmt.executeUpdate();
+				}
 			}
 		}
 	}
@@ -572,6 +574,7 @@ public class Address extends HotelData {
 			stmt.executeUpdate(dropQuery);
 			stmt.executeUpdate(createQuery);
 			stmt.executeUpdate(populateQuery);
+			fullTextSearchTableCreated = true;
 		}
 	}
 	

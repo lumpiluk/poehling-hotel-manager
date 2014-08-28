@@ -383,14 +383,12 @@ public class DataSupervisor {
 					while (rs.next() && !this.isCancelled()) {
 						Address a = new Address(con);
 						a.prepareDataFromResultSet(rs);
-						System.out.println(a.getStreet());
 						addressesSearchResult.add(a);
 					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			System.out.println("done");
 			return null;
 		}
 		
@@ -468,6 +466,8 @@ public class DataSupervisor {
 					o.insertIntoDb();
 				} catch (SQLException e) {
 					Messages.showError(e, Messages.ErrorType.DB);
+				} catch (Exception e) {
+					Messages.showError(e, Messages.ErrorType.UNKNOWN);
 				}
 				return null;
 			}
