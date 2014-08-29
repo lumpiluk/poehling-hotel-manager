@@ -56,9 +56,6 @@ public abstract class AbstractControl extends Control {
 	 */
 	public static AbstractControl getInstance(Class<? extends AbstractControl> c)
 			throws IOException {
-		System.out.println("Loading " + c.getResource(String.format(
-    			fxmlPath, c.getSimpleName())));
-		
 		FXMLLoader loader = new FXMLLoader();
 		
 		loader.setLocation(c.getResource(String.format(

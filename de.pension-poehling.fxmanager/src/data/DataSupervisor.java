@@ -36,8 +36,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import util.Messages;
+import util.Messages.ErrorType;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -455,21 +457,43 @@ public class DataSupervisor {
 	}
 	
 	/**
+	 * Do any operation on a HotelData object, as specified by the Consumer
+	 * parameter, concurrently.
+	 * @see insertConcurrently(), updateConcurrently() etc.
+	 * @param h HotelData instance the operation should be performed on.
+	 * @param c The action to be performed, usually in a lambda expression.
+	 */
+	private void consumeHotelDataConcurrently(HotelData h, Consumer<HotelData> c) {
+		databaseExecutor.submit(() -> {
+			try {
+				c.accept(h);
+			} catch (Exception e) { // c should handle SQLExceptions by itself
+				Platform.runLater(() ->	Messages.showError(e, ErrorType.UNKNOWN));
+			}
+		});
+	}
+	
+	private void consumeConnectionConcurrently(Consumer<Connection> c) {
+		databaseExecutor.submit(() -> {
+			try {
+				c.accept(con);
+			} catch (Exception e) { // c should handle SQLExceptions by itself
+				Platform.runLater(() ->	Messages.showError(e, ErrorType.UNKNOWN));
+			}
+		});
+	}
+	
+	/**
 	 * Concurrently inserts the HotelData object o into the database.
 	 * @see HotelData.insertIntoDb();
 	 * @param o the object to call insertIntoDb() on.
 	 */
 	public void insertConcurrently(HotelData o) {
-		databaseExecutor.submit(new Task<Void>() {
-			@Override protected Void call() throws Exception {
-				try {
-					o.insertIntoDb();
-				} catch (SQLException e) {
-					Messages.showError(e, Messages.ErrorType.DB);
-				} catch (Exception e) {
-					Messages.showError(e, Messages.ErrorType.UNKNOWN);
-				}
-				return null;
+		consumeHotelDataConcurrently(o, hotelDatum -> {
+			try {
+				hotelDatum.insertIntoDb();
+			} catch (SQLException e) {
+				Platform.runLater(() ->	Messages.showError(e, ErrorType.DB));
 			}
 		});
 	}
@@ -479,15 +503,48 @@ public class DataSupervisor {
 	 * @see HotelData.updateDb();
 	 * @param o the object to call updateDb() on.
 	 */
-	public void updateConcurrently(HotelData o) { // XXX is there a lambda expression for this?
-		databaseExecutor.submit(new Task<Void>() {
-			@Override protected Void call() throws Exception {
-				try {
-					o.updateDb();
-				} catch (SQLException e) {
-					Messages.showError(e, Messages.ErrorType.DB);
-				}
-				return null;
+	public void updateConcurrently(HotelData o) {
+		consumeHotelDataConcurrently(o, hotelDatum -> {
+			try {
+				hotelDatum.updateDb();
+			} catch (SQLException e) {
+				Platform.runLater(() ->	Messages.showError(e, ErrorType.DB));
+			}
+		});
+	}
+	
+	/**
+	 * Concurrently deletes a HotelData's database record, usually identified
+	 * by its id, from the database.
+	 * @see HotelData.deleteFromDb();
+	 * @param o the object to call deleteFromDb() on.
+	 */
+	public void deleteConcurrently(HotelData o) {
+		consumeHotelDataConcurrently(o, hotelDatum -> {
+			try {
+				hotelDatum.deleteFromDb();
+			} catch (SQLException e) {
+				Platform.runLater(() ->	Messages.showError(e, ErrorType.DB));
+			}
+		});
+	}
+
+	public void commitConcurrently() {
+		consumeConnectionConcurrently(connection -> {
+			try {
+				connection.commit();
+			} catch (SQLException e) {
+				Platform.runLater(() ->	Messages.showError(e, ErrorType.DB));
+			}
+		});
+	}
+	
+	public void rollbackConcurrently() {
+		consumeConnectionConcurrently(connection -> {
+			try {
+				connection.rollback();
+			} catch (SQLException e) {
+				Platform.runLater(() ->	Messages.showError(e, ErrorType.DB));
 			}
 		});
 	}

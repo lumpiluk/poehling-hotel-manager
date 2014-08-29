@@ -25,15 +25,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
+
+import util.DateComparator;
 
 /**
  * @author lumpiluk
  *
  */
-public class Person extends HotelData {
+public class Person extends HotelData implements Cloneable {
 
 	public static final String SQL_TABLE_NAME = "people";
 
@@ -45,10 +48,10 @@ public class Person extends HotelData {
 			+ "surnames TEXT NOT NULL, "
 			+ "birthday TEXT, "
 			+ "food_memo TEXT)";
-	
+
 	private static final String SQL_INSERT = "INSERT INTO " + SQL_TABLE_NAME
 			+  " (address, title, first_names, surnames, birthday, food_memo) "
-			+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+			+ "VALUES (?, ?, ?, ?, ?, ?)";
 	
 	private static final String SQL_UPDATE = "UPDATE " + SQL_TABLE_NAME
 			+ " SET address = ?, title = ?, first_names = ?, surnames = ?, "
@@ -125,8 +128,13 @@ public class Person extends HotelData {
 		return this.address;
 	}
 	
-	/** @return the address id */
-	private long getAddressId() { return this.address.getId(); }
+	/** @return the address id, 0 if not set */
+	private long getAddressId() {
+		if (this.address == null) {
+			return 0;
+		}
+		return this.address.getId();
+	}
 	
 	/** 
 	 * Will create an empty address for this person object with only the id set. // TODO: right choice?
@@ -170,6 +178,10 @@ public class Person extends HotelData {
 
 	/** @param birthday the birthday to set */
 	public void setBirthday(Date birthday) { this.birthday = birthday; }
+	
+	public void setBirthday(String isoDateCreated) throws ParseException {
+		this.birthday = new Date(DateComparator.getDateFormat().parse(isoDateCreated).getTime());
+	}
 
 	/** @return the foodMemo */
 	public String getFoodMemo() { return foodMemo; }
@@ -182,6 +194,18 @@ public class Person extends HotelData {
 		return String.format("%1$s %2$s %3$s", getTitle(), getFirstNames(), getSurnames());
 	}
 	
+	@Override protected Object clone() throws CloneNotSupportedException {
+		Person p = new Person(con);
+		p.setAddress(this.address);
+		p.setBirthday((Date) this.birthday.clone());
+		p.setFirstNames(this.firstNames);
+		p.setSurnames(this.surnames);
+		p.setFoodMemo(this.foodMemo);
+		p.setId(this.id);
+		p.setTitle(this.title);
+		return p;
+	}
+	
 	/**
 	 * Used in fromDbAtId and getBatch.
 	 * @param p The Person the data of which will be prepared.
@@ -192,7 +216,11 @@ public class Person extends HotelData {
 			throws SQLException {
 		p.setId(rs.getLong("person_id")); // works although private :)
 		p.setAddressId(rs.getLong("address")); // 0 if SQL NULL
-		p.setBirthday(rs.getDate("birthday"));
+		try {
+			p.setBirthday(rs.getString("birthday"));
+		} catch (ParseException e) {
+			Date tmp = null; p.setBirthday(tmp);
+		}
 		p.setFirstNames(rs.getString("first_names"));
 		p.setFoodMemo(rs.getString("food_memo"));
 		p.setSurnames(rs.getString("surnames"));
@@ -275,7 +303,11 @@ public class Person extends HotelData {
 			stmt.setString(2, getTitle());
 			stmt.setString(3, getFirstNames());
 			stmt.setString(4, getSurnames());
-			stmt.setDate(5, getBirthday());
+			if (getBirthday() != null) {
+				stmt.setString(5, DateComparator.getDateFormat().format(getBirthday()));
+			} else {
+				stmt.setNull(5, java.sql.Types.NULL);
+			}
 			stmt.setString(6, getFoodMemo());
 			stmt.setLong(7, getId());
 			stmt.executeUpdate();
@@ -285,17 +317,20 @@ public class Person extends HotelData {
 	@Override public void insertIntoDb() throws SQLException {
 		try (PreparedStatement stmt = con.prepareStatement(SQL_INSERT,
 				Statement.RETURN_GENERATED_KEYS)) {
-			stmt.setLong(1, getId());
 			if (getAddressId() == 0) {
-				stmt.setNull(2, java.sql.Types.INTEGER);
+				stmt.setNull(1, java.sql.Types.INTEGER);
 			} else {
-				stmt.setLong(2, getAddressId());
+				stmt.setLong(1, getAddressId());
 			}
-			stmt.setString(3, getTitle());
-			stmt.setString(4, getFirstNames());
-			stmt.setString(5, getSurnames());
-			stmt.setDate(6, getBirthday());
-			stmt.setString(7, getFoodMemo());
+			stmt.setString(2, getTitle());
+			stmt.setString(3, getFirstNames());
+			stmt.setString(4, getSurnames());
+			if (getBirthday() != null) {
+				stmt.setString(5, DateComparator.getDateFormat().format(getBirthday()));
+			} else {
+				stmt.setNull(5, java.sql.Types.NULL);
+			}
+			stmt.setString(6, getFoodMemo());
 			stmt.executeUpdate();
 			this.setId(stmt.getGeneratedKeys().getLong(1)); // get newly assigned id
 		}

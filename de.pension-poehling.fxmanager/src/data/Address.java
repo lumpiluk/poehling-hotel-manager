@@ -25,15 +25,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Date;
 import java.sql.Statement;
+import java.sql.Types;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import util.DateComparator;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -49,7 +50,7 @@ public class Address extends HotelData {
 	
 	private static final String SQL_CREATE = "CREATE TABLE IF NOT EXISTS "
 			+ SQL_TABLE_NAME + " (address_id INTEGER PRIMARY KEY, "
-			+ "addressee INTEGER NOT NULL, "
+			+ "addressee INTEGER, "
 			+ "addition TEXT, " // TODO: here or Person?
 			+ "street TEXT, "
 			+ "short_country TEXT, "
@@ -84,7 +85,7 @@ public class Address extends HotelData {
 			+ "short_country = ?, zip = ?, town = ?, postbox = ?, "
 			+ "postbox_zip = ?, postbox_town = ?, state = ?, phone = ?, "
 			+ "cellphone = ?, fax = ?, email = ?, website = ?, memo = ?, "
-			+ "flags = ?, created = ? WHERE id = ?";
+			+ "flags = ?, created = ? WHERE address_id = ?";
 	
 	private static final String SQL_UPDATE_FTS = "UPDATE "
 			+ SQL_TABLE_NAME + "_fts SET fts_title = ?, fts_first_names = ?, "
@@ -103,10 +104,7 @@ public class Address extends HotelData {
 	
 	private static final String SQL_SELECT = String.format(
 			"%1$s WHERE %2$s.address_id = ?", SQL_SELECT_ALL, SQL_TABLE_NAME
-			);
-	
-	DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-	
+			);	
 	
 	private LongProperty id = new SimpleLongProperty();
 	
@@ -166,8 +164,8 @@ public class Address extends HotelData {
 		this.flags = new HashSet<String>();
 	}
 	
-	/** @return the id */
-	public long getId() { return id.get(); }
+	/** @return the id of this address, 0 if not set */
+	public long getId() { return id.getValue() != null ? id.get() : 0; }
 
 	/** @param id the id to set */
 	public void setId(long id) { this.id.set(id); }
@@ -336,11 +334,11 @@ public class Address extends HotelData {
 	public void setCreated(Date created) { this.created = created; }
 	
 	public void setCreated(String isoDateCreated) throws ParseException {
-		this.created = new Date(DATE_FORMAT.parse(isoDateCreated).getTime());
+		this.created = new Date(DateComparator.getDateFormat().parse(isoDateCreated).getTime());
 	}
 	
 	public String getCreatedString() {
-		return DATE_FORMAT.format(created);
+		return DateComparator.getDateFormat().format(created);
 	}
 
 	public void prepareDataFromResultSet(final ResultSet rs) throws SQLException {
@@ -353,7 +351,11 @@ public class Address extends HotelData {
 			a.setFirstNames(rs.getString("first_names"));
 			a.setSurnames(rs.getString("surnames"));
 			a.setTitle(rs.getString("title"));
-			a.setBirthday(rs.getDate("birthday"));
+			try {
+				a.setBirthday(rs.getString("birthday"));
+			} catch (ParseException e) {
+				Date tmp = null; a.setBirthday(tmp);
+			}
 			a.setFoodMemo(rs.getString("food_memo"));
 			this.setAddressee(a);
 		} catch (IllegalArgumentException e) {
@@ -434,8 +436,8 @@ public class Address extends HotelData {
 			stmt.setString(16, getMemo());
 			stmt.setString(17, flagsToDbString());
 			//stmt.setDate(23, getCreated());
-			stmt.setString(23, getCreatedString());
-			stmt.setLong(24, getId());
+			stmt.setString(18, getCreatedString());
+			stmt.setLong(19, getId());
 			
 			stmt.executeUpdate();
 		}
@@ -483,7 +485,11 @@ public class Address extends HotelData {
 	@Override public void insertIntoDb() throws SQLException {
 		try (PreparedStatement stmt = con.prepareStatement(SQL_INSERT,
 				Statement.RETURN_GENERATED_KEYS)) {
-			stmt.setLong(1, getAddressee().getId());
+			if (getAddressee() == null || getAddressee().getId() == 0) {
+				stmt.setNull(1, java.sql.Types.INTEGER);
+			} else {
+				stmt.setLong(1, getAddressee().getId());
+			}
 			stmt.setString(2, getAddition());
 			stmt.setString(3, getStreet());
 			stmt.setString(4, getShortCountry());
@@ -510,9 +516,15 @@ public class Address extends HotelData {
 				System.out.println("updating fts table");
 				try (PreparedStatement ftsStmt = con.prepareStatement(SQL_INSERT_FTS_SINGLE)) {
 					ftsStmt.setLong(1, this.getId());
-					ftsStmt.setString(2, getAddressee().getTitle());
-					ftsStmt.setString(3, getAddressee().getFirstNames());
-					ftsStmt.setString(4, getAddressee().getSurnames());
+					if (getAddressee() != null) {
+						ftsStmt.setString(2, getAddressee().getTitle());
+						ftsStmt.setString(3, getAddressee().getFirstNames());
+						ftsStmt.setString(4, getAddressee().getSurnames());
+					} else {
+						ftsStmt.setNull(2, Types.NULL);
+						ftsStmt.setNull(3, Types.NULL);
+						ftsStmt.setNull(4, Types.NULL);
+					}
 					ftsStmt.setString(5, getStreet());
 					ftsStmt.setString(6, getTown());
 					ftsStmt.setString(7, getZipCode());

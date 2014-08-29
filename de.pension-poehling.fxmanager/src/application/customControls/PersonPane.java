@@ -56,6 +56,9 @@ import javafx.scene.layout.GridPane;
 import javafx.util.StringConverter;
 
 /**
+ * Please note: Any changes to the database made in this custom control are
+ * expected to be committed later using commitConcurrently().
+ * @see CustomerForm
  * @author lumpiluk
  *
  */
@@ -187,16 +190,19 @@ public class PersonPane extends AbstractForm {
 			peopleTools.getItems().addAll(btnAddPerson, btnRemovePerson,
     				btnEditPerson, tbSetAddressee);
 			setFormDisable(true);
+			peopleTable.setDisable(false);
 			break;
 		case ADD:
 			btnPersonOk.setText(Messages.getString("Ui.Customer.People.Ok.New"));
     		peopleTools.getItems().addAll(btnPersonOk, btnPersonCancel);
 			setFormDisable(false);
+			peopleTable.setDisable(true);
 			break;
 		case EDIT:
 			btnPersonOk.setText(Messages.getString("Ui.Customer.People.Ok.Edit"));
     		peopleTools.getItems().addAll(btnPersonOk, btnPersonCancel);
 			setFormDisable(false);
+			peopleTable.setDisable(true);
 			break;
 		}
 		currentMode = value;
@@ -220,6 +226,7 @@ public class PersonPane extends AbstractForm {
 		firstNamesTb.setDisable(value);
 		birthdayPicker.setDisable(value);
 		foodMemoArea.setDisable(value);
+		//peopleTools.setDisable(value);
 	}
 	
 	/** @param value the address this person will be assigned to in the database. */
@@ -260,6 +267,8 @@ public class PersonPane extends AbstractForm {
 		if (birthdayPicker.getValue() != null)
 			p.setBirthday(Date.valueOf(birthdayPicker.getValue()));
 		p.setFoodMemo(foodMemoArea.getText());
+		
+		dataSupervisor.updateConcurrently(p);
 	}
 	
 	private void initInvalidationSupport() {
@@ -284,11 +293,24 @@ public class PersonPane extends AbstractForm {
 
     @FXML
     void btnRemovePersonClicked(ActionEvent event) {
-
+    	if (getPeopleTable().getSelectionModel().isEmpty()) {
+    		return;
+    	}
+    	
+    	// delete from database
+    	dataSupervisor.deleteConcurrently(
+    			getPeopleTable().getSelectionModel()
+    			.getSelectedItem().getPerson()); // TODO: delete all at when inserting or updating address, then insert only the ones in the table
+    	// delete from TableView
+    	getPeopleTable().getItems().remove(
+    			getPeopleTable().getSelectionModel().getSelectedItem());
     }
 
     @FXML
     void btnEditPersonClicked(ActionEvent event) {
+    	if (getPeopleTable().getSelectionModel().isEmpty()) {
+    		return;
+    	}
     	setCurrentMode(Mode.EDIT);
     }
 
@@ -305,6 +327,7 @@ public class PersonPane extends AbstractForm {
     	switch (getCurrentMode()) {
     	case ADD:
     		Person p = personFromForm();
+    		dataSupervisor.insertConcurrently(p);
     		PersonItem pi = new PersonItem(p, getPeopleTable().getItems().isEmpty()); // automagically mark as addressee if this is the first item
     		getPeopleTable().getItems().add(pi);
     		break;

@@ -5,6 +5,7 @@ package application.customControls;
 
 import java.io.IOException;
 import java.sql.Date;
+import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
@@ -119,7 +120,7 @@ public class CustomerForm extends AbstractForm {
     private TextField tfPostbox; // Value injected by FXMLLoader
 
     @FXML // fx:id="cbState"
-    private ComboBox<String> cbState; // Value injected by FXMLLoader
+    private ComboBox<?> cbState; // Value injected by FXMLLoader
 
     @FXML // fx:id="tabExistingPerson"
     private Tab tabExistingPerson; // Value injected by FXMLLoader
@@ -185,12 +186,12 @@ public class CustomerForm extends AbstractForm {
     	Control[] formDisableControls = { tfStreet, tfZip, tfTown,
     			cbState, cbCountry, tfPostbox, tfPostboxZip, tfPostboxTown,
     			tfPhone, tfFax, tfMobile, tfEmail, tfWebsite, memoArea,
-        		clvCustomerFlags };
+        		clvCustomerFlags, personPane };
     	for (Control c : formDisableControls) {
     		c.setDisable(value);
     	}
     	
-    	personPane.setFormDisable(value);
+    	//personPane.setFormDisable(value);
     	customersToolBox.setDisable(!value);
     	customersTable.setDisable(!value);
     }
@@ -218,6 +219,42 @@ public class CustomerForm extends AbstractForm {
     }
     
     /**
+     * Will create and insert a new, empty address into the database,
+     * assuming auto commit is set to false on the db connection.
+     * When editing of the address is finished, changes will either be
+     * committed or rolled back, depending on whether the user clicks OK
+     * or Cancel.
+     * @see changeMode()
+     */
+    private void createTemporaryAddress() {
+    	this.currentAddress = new Address(dataSupervisor.getConnection());
+    	dataSupervisor.insertConcurrently(this.currentAddress);
+    }
+    
+    public void loadAddressIntoForm(Address a) {
+    	this.currentAddress = a;
+    	tfStreet.setText(a.getStreet());
+    	tfZip.setText(a.getZipCode());
+    	tfTown.setText(a.getTown());
+    	getCbState().getSelectionModel().select(a.getState());
+    	getCbCountry().getSelectionModel().select(a.getShortCountry());
+    	tfPostbox.setText(a.getPostbox());
+    	tfPostboxZip.setText(a.getPostboxZip());
+    	tfPostboxTown.setText(a.getPostboxTown());
+    	tfPhone.setText(a.getPhone());
+    	tfFax.setText(a.getFax());
+    	tfMobile.setText(a.getMobile());
+    	tfEmail.setText(a.getEmail());
+    	tfWebsite.setText(a.getWebsite());
+    	memoArea.setText(a.getMemo());
+    	
+    	clvCustomerFlags.getCheckModel().clearSelection();
+    	for (String flag : a.getFlags()) {
+    		clvCustomerFlags.getCheckModel().select(flag); // should work because Strings are immutable
+    	}
+    }
+    
+    /**
      * Set the current state of the control.<br />
      * DISPLAY: form disabled, just show customers selected in table<br />
 	 * ADD: form enabled, after pressing OK new customer will be added<br />
@@ -226,25 +263,33 @@ public class CustomerForm extends AbstractForm {
      */
     private void changeMode(Mode m) {
     	customerToolBox.getItems().clear();
-    	switch (m) {
-    	case DISPLAY:
-    		setFormDisable(true);
-    		customerToolBox.getItems().addAll(btnNewAddress, btnRemoveCustomer, btnEditCustomer);
-    		personPane.setCurrentMode(Mode.DISPLAY);
-    		break;
-    	case ADD:
-    		clearForm();
-    		setFormDisable(false);
-    		btnCustomerOk.setText(Messages.getString("Ui.Customer.Ok.New"));
-    		customerToolBox.getItems().addAll(btnCustomerOk, btnCustomerCancel);
-    		break;
-    	case EDIT:
-    		setFormDisable(false);
-    		btnCustomerOk.setText(Messages.getString("Ui.Customer.Ok.Edit"));
-    		customerToolBox.getItems().addAll(btnCustomerOk, btnCustomerCancel);
-    		break;
+    	try {
+	    	switch (m) {
+	    	case DISPLAY:
+	    		dataSupervisor.getConnection().setAutoCommit(true); // default
+	    		setFormDisable(true);
+	    		customerToolBox.getItems().addAll(btnNewAddress, btnRemoveCustomer, btnEditCustomer);
+	    		personPane.setCurrentMode(Mode.DISPLAY);
+	    		break;
+	    	case ADD:
+	    		dataSupervisor.getConnection().setAutoCommit(false); // leave open the option to roll back if user clicks Cancel after editing people
+	    		createTemporaryAddress();
+	    		clearForm();
+	    		setFormDisable(false);
+	    		btnCustomerOk.setText(Messages.getString("Ui.Customer.Ok.New"));
+	    		customerToolBox.getItems().addAll(btnCustomerOk, btnCustomerCancel);
+	    		break;
+	    	case EDIT:
+	    		dataSupervisor.getConnection().setAutoCommit(false); // see above
+	    		setFormDisable(false);
+	    		btnCustomerOk.setText(Messages.getString("Ui.Customer.Ok.Edit"));
+	    		customerToolBox.getItems().addAll(btnCustomerOk, btnCustomerCancel);
+	    		break;
+	    	}
+	    	currentMode = m;
+    	} catch (SQLException e) {
+    		
     	}
-    	currentMode = m;
     }
     
     private boolean evaluateForm() {
@@ -274,26 +319,20 @@ public class CustomerForm extends AbstractForm {
     }
     
     /**
-     * Constructs a new Address from data entered into the form by the user
-     * after making sure that said data is valid.
-     * @return the new address
+     * Sets the properties of an address using the data in the form.
+     * @param a address to be updated
      */
-    private Address addressFromForm() {
-    	if (!evaluateForm()) {
-    		return null;
-    	}
-    	
-    	Address a = new Address(dataSupervisor.getConnection());
+    private void updateAddressFromForm(Address a) {
     	a.setAddressee(personPane.getAddresseeFromListItems());
     	//a.setAddition(...)
     	a.setStreet(this.tfStreet.getText());
-    	a.setShortCountry((String) this.cbCountry.getSelectionModel().getSelectedItem());
+    	a.setShortCountry(this.getCbCountry().getSelectionModel().getSelectedItem());
     	a.setZipCode(this.tfZip.getText());
     	a.setTown(this.tfTown.getText());
     	a.setPostbox(this.tfPostbox.getText());
     	a.setPostboxZip(this.tfPostboxZip.getText());
     	a.setPostboxTown(this.tfPostboxTown.getText());
-    	a.setState(this.cbState.getSelectionModel().getSelectedItem());
+    	a.setState(this.getCbState().getSelectionModel().getSelectedItem());
     	a.setPhone(this.tfPhone.getText());
     	a.setMobile(this.tfMobile.getText());
     	a.setFax(this.tfFax.getText());
@@ -304,8 +343,6 @@ public class CustomerForm extends AbstractForm {
     		a.getFlags().add(flag);
     	}
     	a.setCreated(new Date(Calendar.getInstance().getTimeInMillis()));
-
-    	return a;
     }
     
     @FXML
@@ -326,19 +363,16 @@ public class CustomerForm extends AbstractForm {
     
     @FXML
     void btnCustomerOkClicked(ActionEvent event) {
-    	switch (currentMode) {
-    	case ADD:
-    		dataSupervisor.insertConcurrently(this.addressFromForm());
-    		changeMode(Mode.DISPLAY);
-    		break;
-    	case EDIT:
-    		// TODO: needs id!
-    		dataSupervisor.updateConcurrently(this.addressFromForm());
-    		break;
-		default:
-			break;
+    	if (!evaluateForm()) {	
+    		return;
     	}
+    	updateAddressFromForm(this.currentAddress);
+    	dataSupervisor.updateConcurrently(currentAddress);
+    	dataSupervisor.commitConcurrently();
+		changeMode(Mode.DISPLAY);
+		
     	// TODO: reload / update table
+    	getCustomersTable().getItems().clear();
     }
 
     @FXML
@@ -371,6 +405,16 @@ public class CustomerForm extends AbstractForm {
     @SuppressWarnings("unchecked")
 	private TableView<Address> getCustomersTable() {
     	return (TableView<Address>) customersTable;
+    }
+    
+    @SuppressWarnings("unchecked")
+    private ComboBox<String> getCbState() {
+    	return (ComboBox<String>) cbState;
+    }
+    
+    @SuppressWarnings("unchecked")
+    private ComboBox<String> getCbCountry() {
+    	return (ComboBox<String>) cbCountry;
     }
     
     /**

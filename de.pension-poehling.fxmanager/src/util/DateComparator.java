@@ -1,10 +1,18 @@
 package util;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 public class DateComparator {
 
+	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+	
+	public static final DateFormat getDateFormat() {
+		return DATE_FORMAT;
+	}
+	
 	/**
 	 * @param a date to compare to
 	 * @param b date to compare
