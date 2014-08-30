@@ -180,7 +180,12 @@ public class Person extends HotelData implements Cloneable {
 	public void setBirthday(Date birthday) { this.birthday = birthday; }
 	
 	public void setBirthday(String isoDateCreated) throws ParseException {
-		this.birthday = new Date(DateComparator.getDateFormat().parse(isoDateCreated).getTime());
+		if (isoDateCreated != null && !isoDateCreated.trim().equals("")) {
+			this.birthday = new Date(DateComparator.getDateFormat()
+					.parse(isoDateCreated).getTime());
+		} else {
+			this.birthday = null;
+		}
 	}
 
 	/** @return the foodMemo */
@@ -227,6 +232,17 @@ public class Person extends HotelData implements Cloneable {
 		p.setTitle(rs.getString("title"));
 	}
 	
+	public void prepareDataFromResultSet(final ResultSet rs) throws SQLException {
+		Person.prepareDataFromResultSet(this, rs);
+	}
+	
+	/** {@inheritDoc} */
+	@Override public boolean equals(Object obj) {
+		// ignore properties other than id, might've already changed as user edited the person
+		return obj != null && obj instanceof Person &&
+				((Person) obj).getId() == this.getId();
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

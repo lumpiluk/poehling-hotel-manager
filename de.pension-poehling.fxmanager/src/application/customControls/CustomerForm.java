@@ -20,18 +20,13 @@ import org.controlsfx.validation.ValidationSupport;
 
 import data.Address;
 import data.DataSupervisor;
-import data.Person;
 import util.Messages;
 import util.Messages.ErrorType;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ReadOnlyStringProperty;
-import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.ScrollPane;
@@ -41,7 +36,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
@@ -177,6 +171,10 @@ public class CustomerForm extends AbstractForm {
      */
     private Mode currentMode = Mode.DISPLAY;
 
+    public Mode getCurrentMode() {
+    	return currentMode;
+    }
+    
     /**
      * Disable or enable the customer form while still allowing to open or
      * close titled panes or viewing people in the people list.
@@ -216,6 +214,7 @@ public class CustomerForm extends AbstractForm {
     	tfWebsite.clear();
     	memoArea.clear();
     	clvCustomerFlags.getCheckModel().clearSelection();
+    	personPane.clearForm(true);
     }
     
     /**
@@ -229,10 +228,14 @@ public class CustomerForm extends AbstractForm {
     private void createTemporaryAddress() {
     	this.currentAddress = new Address(dataSupervisor.getConnection());
     	dataSupervisor.insertConcurrently(this.currentAddress);
+    	personPane.setAddress(this.currentAddress); // TODO: only enable personPane after concurrent insert has finished successfully!!!
     }
     
     public void loadAddressIntoForm(Address a) {
     	this.currentAddress = a;
+    	
+    	personPane.setAddress(a, true);
+    	
     	tfStreet.setText(a.getStreet());
     	tfZip.setText(a.getZipCode());
     	tfTown.setText(a.getTown());
@@ -273,8 +276,8 @@ public class CustomerForm extends AbstractForm {
 	    		break;
 	    	case ADD:
 	    		dataSupervisor.getConnection().setAutoCommit(false); // leave open the option to roll back if user clicks Cancel after editing people
-	    		createTemporaryAddress();
 	    		clearForm();
+	    		createTemporaryAddress(); // must happen after clearForm!
 	    		setFormDisable(false);
 	    		btnCustomerOk.setText(Messages.getString("Ui.Customer.Ok.New"));
 	    		customerToolBox.getItems().addAll(btnCustomerOk, btnCustomerCancel);
@@ -288,7 +291,7 @@ public class CustomerForm extends AbstractForm {
 	    	}
 	    	currentMode = m;
     	} catch (SQLException e) {
-    		
+    		Messages.showError(e, ErrorType.DB);
     	}
     }
     
@@ -369,6 +372,7 @@ public class CustomerForm extends AbstractForm {
     	updateAddressFromForm(this.currentAddress);
     	dataSupervisor.updateConcurrently(currentAddress);
     	dataSupervisor.commitConcurrently();
+    	clearForm();
 		changeMode(Mode.DISPLAY);
 		
     	// TODO: reload / update table
@@ -438,9 +442,25 @@ public class CustomerForm extends AbstractForm {
     
     @SuppressWarnings("unchecked")
 	private void initCustomersTable() {
+    	// addressee column with sub-columns
     	TableColumn<Address, String> addresseeCol = new TableColumn<Address, String>(Messages.getString("Ui.Customers.Table.addresseeCol"));
-    	addresseeCol.setCellValueFactory(new PropertyValueFactory<Address, String>("addresseeString"));
+    	TableColumn<Address, String> firstNamesCol = new TableColumn<Address, String>(Messages.getString("Ui.Customers.Table.firstNamesCol"));
+    	firstNamesCol.setCellValueFactory((TableColumn.CellDataFeatures<Address, String> f) -> {
+    		if (f.getValue().getAddressee() != null)
+    			return new SimpleStringProperty(f.getValue().getAddressee().getFirstNames());
+    		else
+    			return new SimpleStringProperty();
+    	});
+    	TableColumn<Address, String> surnamesCol = new TableColumn<Address, String>(Messages.getString("Ui.Customers.Table.surnamesCol"));
+    	surnamesCol.setCellValueFactory((TableColumn.CellDataFeatures<Address, String> f) -> {
+    		if (f.getValue().getAddressee() != null)
+    			return new SimpleStringProperty(f.getValue().getAddressee().getSurnames());
+    		else
+    			return new SimpleStringProperty();
+    	});
+    	addresseeCol.getColumns().addAll(firstNamesCol, surnamesCol);
     	
+    	// address column with sub-columns
     	TableColumn<Address, String> addressCol = new TableColumn<Address, String>(Messages.getString("Ui.Customers.Table.addressCol"));
     	TableColumn<Address, String> streetCol = new TableColumn<Address, String>(Messages.getString("Ui.Customers.Table.streetCol"));
     	streetCol.setCellValueFactory(new PropertyValueFactory<Address, String>("street"));
@@ -448,7 +468,6 @@ public class CustomerForm extends AbstractForm {
     	zipCodeCol.setCellValueFactory(new PropertyValueFactory<Address, String>("zipCode"));
     	TableColumn<Address, String> townCol = new TableColumn<Address, String>(Messages.getString("Ui.Customers.Table.townCol"));
     	townCol.setCellValueFactory(new PropertyValueFactory<Address, String>("town"));
-    	//addressCol.setCellValueFactory(new PropertyValueFactory<Address, String>("fullAddressString"));
     	addressCol.getColumns().addAll(streetCol, zipCodeCol, townCol);
     	
     	TableColumn<Address, String> phoneCol = new TableColumn<Address, String>(Messages.getString("Ui.Customers.Table.phoneCol"));
@@ -466,6 +485,11 @@ public class CustomerForm extends AbstractForm {
         customersTableData = dataSupervisor.getAddressSearchResultObservable();
         getCustomersTable().setItems(customersTableData);
         getCustomersTable().setPlaceholder(new Text(Messages.getString("Ui.Customers.Table.Placeholder.text")));
+        getCustomersTable().getSelectionModel()
+	        .selectedItemProperty().addListener((observable, oldVal, newVal) -> {
+	        	if (newVal != null)
+	        		this.loadAddressIntoForm(newVal);
+	        });
     }
     
     public void initData(DataSupervisor dataSupervisor) {

@@ -26,11 +26,11 @@ import java.sql.SQLException;
 import java.sql.Date;
 import java.sql.Statement;
 import java.sql.Types;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -100,11 +100,14 @@ public class Address extends HotelData {
 	
 	private static final String SQL_SELECT_ALL = String.format(
 			"SELECT * FROM %1$s LEFT OUTER JOIN %2$s ON %1$s.addressee = "
-			+ "%2$s.address", SQL_TABLE_NAME, Person.SQL_TABLE_NAME);
+			+ "%2$s.person_id", SQL_TABLE_NAME, Person.SQL_TABLE_NAME);
 	
 	private static final String SQL_SELECT = String.format(
 			"%1$s WHERE %2$s.address_id = ?", SQL_SELECT_ALL, SQL_TABLE_NAME
 			);	
+	
+	private static final String SQL_SELECT_PEOPLE = "SELECT * FROM "
+			+ Person.SQL_TABLE_NAME + " WHERE address = ?";
 	
 	private LongProperty id = new SimpleLongProperty();
 	
@@ -387,6 +390,25 @@ public class Address extends HotelData {
 	}
 	
 	/**
+	 * Loads the people associated with this address from the database.
+	 * @return an iterable object containing the people found in the database
+	 */
+	public Iterable<Person> getPeople() throws SQLException {
+		List<Person> people = new LinkedList<Person>();
+		try (PreparedStatement stmt = con.prepareStatement(SQL_SELECT_PEOPLE)) {
+			stmt.setLong(1, this.getId());
+			try (ResultSet rs = stmt.executeQuery()) {
+				while (rs.next()) {
+					Person p = new Person(con);
+					p.prepareDataFromResultSet(rs);					
+					people.add(p);
+				}
+			}
+		}
+		return people;
+	}
+	
+	/**
 	 * {@inheritDoc}
 	 * @throws SQLException
 	 */
@@ -394,7 +416,7 @@ public class Address extends HotelData {
 	public boolean fromDbAtId(long id)
 			throws NoSuchElementException, SQLException {
 		boolean success = false;
-		try (PreparedStatement stmt = con.prepareStatement(SQL_SELECT)){
+		try (PreparedStatement stmt = con.prepareStatement(SQL_SELECT)) {
 			stmt.setLong(1, id);
 			try (ResultSet rs = stmt.executeQuery()) {
 				if (!rs.first()) {
@@ -582,7 +604,7 @@ public class Address extends HotelData {
 					+ "addresses.zip, addresses.phone, addresses.email, "
 					+ "addresses.cellphone, addresses.flags FROM addresses "
 					+ "LEFT OUTER JOIN people ON addresses.addressee "
-					+ "= people.address";
+					+ "= people.person_id";
 			stmt.executeUpdate(dropQuery);
 			stmt.executeUpdate(createQuery);
 			stmt.executeUpdate(populateQuery);

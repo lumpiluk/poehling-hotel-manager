@@ -39,6 +39,8 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -229,6 +231,20 @@ public class PersonPane extends AbstractForm {
 		//peopleTools.setDisable(value);
 	}
 	
+	/**
+	 * 
+	 * @param value address to set
+	 * @param loadPeople if true, people table will be loaded as well
+	 */
+	public void setAddress(Address value, boolean loadPeople) {
+		this.address = value;
+		if (loadPeople) {
+			getPeopleTable().setItems(
+					dataSupervisor.getPersonItemsFromAddress(value, this));
+			clearForm(false);
+		}
+	}
+	
 	/** @param value the address this person will be assigned to in the database. */
 	public void setAddress(Address value) {
 		this.address = value;
@@ -255,11 +271,12 @@ public class PersonPane extends AbstractForm {
 		}
 		
 		Person p = new Person(dataSupervisor.getConnection());
-		updatePerson(p);		
+		updatePerson(p, false); // will be inserted (see next line), not updated in db
+		dataSupervisor.insertConcurrently(p);
 		return p;		
 	}
 	
-	public void updatePerson(Person p) {
+	public void updatePerson(Person p, boolean updateInDb) {
 		p.setAddress(address); // TODO: what if not yet existent?
 		p.setTitle((String) titleCb.getSelectionModel().getSelectedItem());
 		p.setSurnames(surnamesTb.getText());
@@ -268,7 +285,8 @@ public class PersonPane extends AbstractForm {
 			p.setBirthday(Date.valueOf(birthdayPicker.getValue()));
 		p.setFoodMemo(foodMemoArea.getText());
 		
-		dataSupervisor.updateConcurrently(p);
+		if (updateInDb)
+			dataSupervisor.updateConcurrently(p);
 	}
 	
 	private void initInvalidationSupport() {
@@ -285,6 +303,22 @@ public class PersonPane extends AbstractForm {
     	}
     	return null;
     }
+	
+	/**
+	 * 
+	 * @param includeAddress if true, will also reset address and peopleTable
+	 */
+	public void clearForm(boolean includeAddress) {
+		if (includeAddress) {
+			this.address = null;
+			peopleTable.getItems().clear();
+		}
+		titleCb.getSelectionModel().clearSelection();
+		firstNamesTb.clear();
+		surnamesTb.clear();
+		birthdayPicker.setValue(null);
+		foodMemoArea.clear();
+	}
 	
 	@FXML
     void btnAddPersonClicked(ActionEvent event) {
@@ -327,17 +361,17 @@ public class PersonPane extends AbstractForm {
     	switch (getCurrentMode()) {
     	case ADD:
     		Person p = personFromForm();
-    		dataSupervisor.insertConcurrently(p);
     		PersonItem pi = new PersonItem(p, getPeopleTable().getItems().isEmpty()); // automagically mark as addressee if this is the first item
     		getPeopleTable().getItems().add(pi);
     		break;
     	case EDIT:
     		updatePerson(getPeopleTable().getSelectionModel()
-    				.getSelectedItem().getPerson());
+    				.getSelectedItem().getPerson(), true);
     		break;
 		default:
 			break;
     	}
+    	clearForm(false);
     	setCurrentMode(Mode.DISPLAY);
     }
 

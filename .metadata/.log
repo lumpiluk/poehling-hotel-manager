@@ -10497,3 +10497,39 @@ Binding(F3,
 		,,true),null),
 	org.eclipse.ui.defaultAcceleratorConfiguration,
 	org.eclipse.xtext.ui.XtextEditorScope,,,system)
+
+!ENTRY org.eclipse.core.resources 4 2 2014-08-30 23:09:58.714
+!MESSAGE Problems occurred when invoking code from plug-in: "org.eclipse.core.resources".
+!STACK 0
+java.lang.ArrayIndexOutOfBoundsException: -1
+	at org.eclipse.jdt.internal.compiler.codegen.StackMapFrame.addStackItem(StackMapFrame.java:92)
+	at org.eclipse.jdt.internal.compiler.ClassFile.traverse(ClassFile.java:5581)
+	at org.eclipse.jdt.internal.compiler.ClassFile.generateStackMapTableAttribute(ClassFile.java:4303)
+	at org.eclipse.jdt.internal.compiler.ClassFile.completeCodeAttribute(ClassFile.java:1378)
+	at org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration.generateCode(AbstractMethodDeclaration.java:338)
+	at org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration.generateCode(AbstractMethodDeclaration.java:270)
+	at org.eclipse.jdt.internal.compiler.ast.TypeDeclaration.generateCode(TypeDeclaration.java:566)
+	at org.eclipse.jdt.internal.compiler.ast.TypeDeclaration.generateCode(TypeDeclaration.java:635)
+	at org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration.generateCode(CompilationUnitDeclaration.java:368)
+	at org.eclipse.jdt.internal.compiler.Compiler.process(Compiler.java:781)
+	at org.eclipse.jdt.internal.compiler.ProcessTaskManager.run(ProcessTaskManager.java:137)
+	at java.lang.Thread.run(Thread.java:745)
+
+!ENTRY org.eclipse.core.resources 4 75 2014-08-30 23:09:58.804
+!MESSAGE Errors occurred during the build.
+!SUBENTRY 1 org.eclipse.jdt.core 4 75 2014-08-30 23:09:58.804
+!MESSAGE Errors running builder 'Java Builder' on project 'de.pension-poehling.fxmanager'.
+!STACK 0
+java.lang.ArrayIndexOutOfBoundsException: -1
+	at org.eclipse.jdt.internal.compiler.codegen.StackMapFrame.addStackItem(StackMapFrame.java:92)
+	at org.eclipse.jdt.internal.compiler.ClassFile.traverse(ClassFile.java:5581)
+	at org.eclipse.jdt.internal.compiler.ClassFile.generateStackMapTableAttribute(ClassFile.java:4303)
+	at org.eclipse.jdt.internal.compiler.ClassFile.completeCodeAttribute(ClassFile.java:1378)
+	at org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration.generateCode(AbstractMethodDeclaration.java:338)
+	at org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration.generateCode(AbstractMethodDeclaration.java:270)
+	at org.eclipse.jdt.internal.compiler.ast.TypeDeclaration.generateCode(TypeDeclaration.java:566)
+	at org.eclipse.jdt.internal.compiler.ast.TypeDeclaration.generateCode(TypeDeclaration.java:635)
+	at org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration.generateCode(CompilationUnitDeclaration.java:368)
+	at org.eclipse.jdt.internal.compiler.Compiler.process(Compiler.java:781)
+	at org.eclipse.jdt.internal.compiler.ProcessTaskManager.run(ProcessTaskManager.java:137)
+	at java.lang.Thread.run(Thread.java:745)

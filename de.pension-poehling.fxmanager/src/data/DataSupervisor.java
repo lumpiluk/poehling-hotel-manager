@@ -29,6 +29,7 @@ import java.sql.SQLTimeoutException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.IllegalFormatException;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ExecutorService;
@@ -38,6 +39,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
+import application.customControls.PersonPane;
+import application.customControls.PersonPane.PersonItem;
 import util.Messages;
 import util.Messages.ErrorType;
 import javafx.application.Platform;
@@ -60,7 +63,7 @@ public class DataSupervisor {
 	
 	private static final String SQL_ADDRESS_SEARCH = "SELECT * FROM addresses "
 			+ "LEFT OUTER JOIN people ON "
-			+ "addresses.addressee = people.address";
+			+ "addresses.addressee = people.person_id";
 	
 	public class ObservableConnectionState extends Observable {
     	private DataSupervisor.ConnectionStatus status;
@@ -547,6 +550,22 @@ public class DataSupervisor {
 				Platform.runLater(() ->	Messages.showError(e, ErrorType.DB));
 			}
 		});
+	}
+	
+	public ObservableList<PersonItem> getPersonItemsFromAddress(final Address a, final PersonPane pp) {
+		ObservableList<PersonItem> ol = FXCollections.observableArrayList();
+		databaseExecutor.submit(() -> {
+			try {
+				for (Person p : a.getPeople()) {
+					ol.add(pp.new PersonItem(p, p.equals(a.getAddressee())));
+				}
+			} catch (SQLException e) {
+				Platform.runLater(() -> Messages.showError(e, ErrorType.DB));
+			} catch (Exception e) {
+				Platform.runLater(() -> Messages.showError(e, ErrorType.UNKNOWN));
+			}
+		});
+		return ol;
 	}
 	
 }
