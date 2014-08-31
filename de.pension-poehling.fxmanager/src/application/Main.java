@@ -16,6 +16,10 @@
 
 package application;
 	
+import java.sql.SQLException;
+
+import util.Messages;
+import util.Messages.ErrorType;
 import application.customControls.AbstractControl;
 import application.customControls.MainWindow;
 import data.DataSupervisor;
@@ -34,8 +38,15 @@ public class Main extends Application {
 		@Override
 		public void handle(WindowEvent event) {
 			if (dataSupervisor != null) {
-				dataSupervisor.closeDbConnection();
-				System.out.println("Connection to database closed."); // TODO: remove debug output
+				try {
+					if (!dataSupervisor.getConnection().getAutoCommit()) {
+						dataSupervisor.rollbackConcurrently();
+					}
+					dataSupervisor.closeDbConnection();
+					System.out.println("Connection to database closed."); // TODO: remove debug output
+				} catch (SQLException e) {
+					Messages.showError(e, ErrorType.DB);
+				}
 			}
 		}
 	};

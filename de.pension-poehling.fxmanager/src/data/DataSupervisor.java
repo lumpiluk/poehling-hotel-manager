@@ -355,7 +355,8 @@ public class DataSupervisor {
 				match.append("SELECT address_fts_id FROM addresses_fts WHERE ");
 				match.append("addresses_fts MATCH '");
 
-				if (addressSearchString != null && !addressSearchString.equals("")) {
+				if (addressSearchString != null
+						&& !addressSearchString.equals("")) {
 					match.append("(fts_title:%1$s OR fts_first_names:%1$s ");
 					match.append("OR fts_surnames:%1$s OR fts_street:%1$s ");
 					match.append("OR fts_town:%1$s OR fts_zip:%1$s ");
@@ -466,12 +467,14 @@ public class DataSupervisor {
 	 * @param h HotelData instance the operation should be performed on.
 	 * @param c The action to be performed, usually in a lambda expression.
 	 */
-	private void consumeHotelDataConcurrently(HotelData h, Consumer<HotelData> c) {
+	private void consumeHotelDataConcurrently(HotelData h,
+			Consumer<HotelData> c) {
 		databaseExecutor.submit(() -> {
 			try {
 				c.accept(h);
 			} catch (Exception e) { // c should handle SQLExceptions by itself
-				Platform.runLater(() ->	Messages.showError(e, ErrorType.UNKNOWN));
+				Platform.runLater(() ->
+						Messages.showError(e, ErrorType.UNKNOWN));
 			}
 		});
 	}
@@ -481,7 +484,8 @@ public class DataSupervisor {
 			try {
 				c.accept(con);
 			} catch (Exception e) { // c should handle SQLExceptions by itself
-				Platform.runLater(() ->	Messages.showError(e, ErrorType.UNKNOWN));
+				Platform.runLater(() ->
+						Messages.showError(e, ErrorType.UNKNOWN));
 			}
 		});
 	}
@@ -532,27 +536,40 @@ public class DataSupervisor {
 		});
 	}
 
+	/**
+	 * Concurrently calls commit() on the current connection and re-enables
+	 * AutoCommit afterwards.
+	 * @see Connection#commit()
+	 */
 	public void commitConcurrently() {
 		consumeConnectionConcurrently(connection -> {
 			try {
 				connection.commit();
+				connection.setAutoCommit(true);
 			} catch (SQLException e) {
 				Platform.runLater(() ->	Messages.showError(e, ErrorType.DB));
 			}
 		});
 	}
 	
+	/**
+	 * Concurrently calls rollback() on the current connection and re-enables
+	 * AutoConnect afterwards.
+	 * @see Connection#rollback()
+	 */
 	public void rollbackConcurrently() {
 		consumeConnectionConcurrently(connection -> {
 			try {
 				connection.rollback();
+				connection.setAutoCommit(true);
 			} catch (SQLException e) {
 				Platform.runLater(() ->	Messages.showError(e, ErrorType.DB));
 			}
 		});
 	}
 	
-	public ObservableList<PersonItem> getPersonItemsFromAddress(final Address a, final PersonPane pp) {
+	public ObservableList<PersonItem> getPersonItemsFromAddress(final Address a,
+			final PersonPane pp) {
 		ObservableList<PersonItem> ol = FXCollections.observableArrayList();
 		databaseExecutor.submit(() -> {
 			try {
@@ -562,7 +579,8 @@ public class DataSupervisor {
 			} catch (SQLException e) {
 				Platform.runLater(() -> Messages.showError(e, ErrorType.DB));
 			} catch (Exception e) {
-				Platform.runLater(() -> Messages.showError(e, ErrorType.UNKNOWN));
+				Platform.runLater(() ->
+						Messages.showError(e, ErrorType.UNKNOWN));
 			}
 		});
 		return ol;

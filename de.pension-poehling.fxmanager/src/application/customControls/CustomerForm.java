@@ -184,12 +184,12 @@ public class CustomerForm extends AbstractForm {
     	Control[] formDisableControls = { tfStreet, tfZip, tfTown,
     			cbState, cbCountry, tfPostbox, tfPostboxZip, tfPostboxTown,
     			tfPhone, tfFax, tfMobile, tfEmail, tfWebsite, memoArea,
-        		clvCustomerFlags, personPane };
+        		clvCustomerFlags };
     	for (Control c : formDisableControls) {
     		c.setDisable(value);
     	}
     	
-    	//personPane.setFormDisable(value);
+    	personPane.setFormDisable(value, true);
     	customersToolBox.setDisable(!value);
     	customersTable.setDisable(!value);
     }
@@ -272,7 +272,6 @@ public class CustomerForm extends AbstractForm {
 	    		dataSupervisor.getConnection().setAutoCommit(true); // default
 	    		setFormDisable(true);
 	    		customerToolBox.getItems().addAll(btnNewAddress, btnRemoveCustomer, btnEditCustomer);
-	    		personPane.setCurrentMode(Mode.DISPLAY);
 	    		break;
 	    	case ADD:
 	    		dataSupervisor.getConnection().setAutoCommit(false); // leave open the option to roll back if user clicks Cancel after editing people
@@ -290,6 +289,7 @@ public class CustomerForm extends AbstractForm {
 	    		break;
 	    	}
 	    	currentMode = m;
+	    	personPane.setCurrentMode(Mode.DISPLAY); // re-disables form elements except toolbar that may have previously been enabled in setFormDisabled()
     	} catch (SQLException e) {
     		Messages.showError(e, ErrorType.DB);
     	}
@@ -361,7 +361,8 @@ public class CustomerForm extends AbstractForm {
 
     @FXML
     void btnEditAddressClicked(ActionEvent event) {
-    	changeMode(Mode.EDIT);
+    	if (!getCustomersTable().getSelectionModel().isEmpty())
+    		changeMode(Mode.EDIT);
     }
     
     @FXML
@@ -381,6 +382,7 @@ public class CustomerForm extends AbstractForm {
 
     @FXML
     void btnCustomerCancelClicked(ActionEvent event) {
+    	dataSupervisor.rollbackConcurrently();
     	changeMode(Mode.DISPLAY); // TODO reload selected customer from table
     }
     
@@ -489,6 +491,8 @@ public class CustomerForm extends AbstractForm {
 	        .selectedItemProperty().addListener((observable, oldVal, newVal) -> {
 	        	if (newVal != null)
 	        		this.loadAddressIntoForm(newVal);
+	        	this.btnEditCustomer.setDisable(newVal == null);
+	        	this.btnRemoveCustomer.setDisable(newVal == null);
 	        });
     }
     

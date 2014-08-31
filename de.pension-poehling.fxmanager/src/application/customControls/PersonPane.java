@@ -35,6 +35,7 @@ import util.Messages;
 import data.Address;
 import data.DataSupervisor;
 import data.Person;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -85,7 +86,6 @@ public class PersonPane extends AbstractForm {
 					}
 				}
 			});
-			updateText();
 		}
 
 		public Person getPerson() { return person; }	
@@ -93,21 +93,9 @@ public class PersonPane extends AbstractForm {
 		// used by PropertyValueFactory for peopleTable		
 		public BooleanProperty markedProperty() { return marked; }
 		
-		public ReadOnlyStringProperty nameProperty() { return name; }
+		public ReadOnlyStringProperty firstNamesProperty() { return person.firstNamesProperty(); }
 		
-		private void updateText() {
-			StringBuilder sb = new StringBuilder();
-			if (person.getTitle() != null) {
-				sb.append(person.getTitle());
-				sb.append(" ");
-			}
-			if (person.getFirstNames() != null) {
-				sb.append(person.getFirstNames());
-				sb.append(" ");
-			}
-			sb.append(person.getSurnames());
-			name.set(sb.toString());
-		}
+		public ReadOnlyStringProperty surnamesProperty() { return person.surnamesProperty(); }
 	}
 	
 	@FXML // ResourceBundle that was given to the FXMLLoader
@@ -191,20 +179,20 @@ public class PersonPane extends AbstractForm {
 		case DISPLAY:
 			peopleTools.getItems().addAll(btnAddPerson, btnRemovePerson,
     				btnEditPerson, tbSetAddressee);
-			setFormDisable(true);
-			peopleTable.setDisable(false);
+			setFormDisable(true, false);
+			getPeopleTable().setDisable(false);
 			break;
 		case ADD:
 			btnPersonOk.setText(Messages.getString("Ui.Customer.People.Ok.New"));
     		peopleTools.getItems().addAll(btnPersonOk, btnPersonCancel);
-			setFormDisable(false);
-			peopleTable.setDisable(true);
+			setFormDisable(false, false);
+			getPeopleTable().setDisable(true);
 			break;
 		case EDIT:
 			btnPersonOk.setText(Messages.getString("Ui.Customer.People.Ok.Edit"));
     		peopleTools.getItems().addAll(btnPersonOk, btnPersonCancel);
-			setFormDisable(false);
-			peopleTable.setDisable(true);
+			setFormDisable(false, false);
+			getPeopleTable().setDisable(true);
 			break;
 		}
 		currentMode = value;
@@ -231,6 +219,12 @@ public class PersonPane extends AbstractForm {
 		//peopleTools.setDisable(value);
 	}
 	
+	public void setFormDisable(boolean value, boolean includeToolBar) {
+		setFormDisable(value);
+		if (includeToolBar)
+			peopleTools.setDisable(value);
+	}
+	
 	/**
 	 * 
 	 * @param value address to set
@@ -239,9 +233,14 @@ public class PersonPane extends AbstractForm {
 	public void setAddress(Address value, boolean loadPeople) {
 		this.address = value;
 		if (loadPeople) {
-			getPeopleTable().setItems(
-					dataSupervisor.getPersonItemsFromAddress(value, this));
-			clearForm(false);
+
+			Platform.runLater(() -> {
+				// clear form and load items on next pulse of JavaFX application thread
+				// apparently allows selection in table to be cleared (see clearForm()) before new items are added...
+				clearForm(false);
+				getPeopleTable().setItems(
+						dataSupervisor.getPersonItemsFromAddress(value, this));
+			});
 		}
 	}
 	
@@ -311,13 +310,26 @@ public class PersonPane extends AbstractForm {
 	public void clearForm(boolean includeAddress) {
 		if (includeAddress) {
 			this.address = null;
-			peopleTable.getItems().clear();
+			getPeopleTable().getItems().clear();
 		}
-		titleCb.getSelectionModel().clearSelection();
+		getPeopleTable().getSelectionModel().clearSelection();
+		tbSetAddressee.selectedProperty().set(false);
+		
+		getTitleCb().getSelectionModel().clearSelection();
 		firstNamesTb.clear();
 		surnamesTb.clear();
 		birthdayPicker.setValue(null);
 		foodMemoArea.clear();
+	}
+	
+	private void loadPersonIntoForm(final Person p) {
+		titleCb.getSelectionModel().clearSelection();
+		getTitleCb().getSelectionModel().select(p.getTitle()); // should work because of String immutability
+		firstNamesTb.setText(p.getFirstNames());
+		surnamesTb.setText(p.getSurnames());
+		if (p.getBirthday() != null)
+			birthdayPicker.setValue(p.getBirthday().toLocalDate());
+		foodMemoArea.setText(p.getFoodMemo());
 	}
 	
 	@FXML
@@ -386,12 +398,35 @@ public class PersonPane extends AbstractForm {
     			Messages.getString("Ui.Customers.People.Table.markerCol"));
     	markerCol.setCellValueFactory(new PropertyValueFactory<PersonItem, Boolean>("marked"));
     	
-    	TableColumn<PersonItem, String> nameCol = new TableColumn<PersonItem, String>(
-    			Messages.getString("Ui.Customers.People.Table.nameCol"));
-    	nameCol.setCellValueFactory(new PropertyValueFactory<PersonItem, String>("name"));
+    	TableColumn<PersonItem, String> firstNamesCol = new TableColumn<PersonItem, String>(
+    			Messages.getString("Ui.Customers.People.Table.firstNamesCol"));
+    	firstNamesCol.setCellValueFactory(new PropertyValueFactory<PersonItem, String>("firstNames"));
+    	
+    	TableColumn<PersonItem, String> surnamesCol = new TableColumn<PersonItem, String>(
+    			Messages.getString("Ui.Customers.People.Table.surnamesCol"));
+    	surnamesCol.setCellValueFactory(new PropertyValueFactory<PersonItem, String>("surnames"));
     	
     	getPeopleTable().getColumns().clear();
-    	getPeopleTable().getColumns().addAll(markerCol, nameCol);
+    	getPeopleTable().getColumns().addAll(markerCol, firstNamesCol, surnamesCol);
+    	getPeopleTable().getSelectionModel()
+	        .selectedItemProperty().addListener((observable, oldVal, newVal) -> {
+	        	boolean isAddressee = false;
+	        	if (newVal != null) {
+	        		this.loadPersonIntoForm(newVal.getPerson());
+	        		isAddressee = this.address != null 
+	        				&& this.address.getAddressee() != null
+	        				&& this.address.getAddressee().equals(newVal.getPerson());
+	        	}
+	        	this.btnEditPerson.setDisable(newVal == null);
+	        	this.btnRemovePerson.setDisable(newVal == null);
+	        	this.tbSetAddressee.setDisable(newVal == null);
+	        	this.tbSetAddressee.selectedProperty().set(isAddressee);
+	        });
+    }
+    
+    @SuppressWarnings("unchecked")
+	private ComboBox<String> getTitleCb() {
+    	return (ComboBox<String>) titleCb;
     }
 	
 	@FXML // This method is called by the FXMLLoader when initialization is complete

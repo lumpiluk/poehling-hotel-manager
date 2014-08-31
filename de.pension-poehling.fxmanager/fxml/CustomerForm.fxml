@@ -38,8 +38,8 @@
             <ToolBar fx:id="customerToolBox">
                <items>
                   <Button fx:id="btnNewAddress" mnemonicParsing="false" onAction="#btnNewAddressClicked" text="%Ui.Customer.NewCustomerBtn.text" />
-                  <Button fx:id="btnRemoveCustomer" mnemonicParsing="false" onAction="#btnRemoveAddressClicked" text="%Ui.Customer.RemoveCustomerBtn.text" />
-                  <Button fx:id="btnEditCustomer" mnemonicParsing="false" onAction="#btnEditAddressClicked" text="%Ui.Customer.EditCustomerBtn.text" />
+                  <Button fx:id="btnRemoveCustomer" disable="true" mnemonicParsing="false" onAction="#btnRemoveAddressClicked" text="%Ui.Customer.RemoveCustomerBtn.text" />
+                  <Button fx:id="btnEditCustomer" disable="true" mnemonicParsing="false" onAction="#btnEditAddressClicked" text="%Ui.Customer.EditCustomerBtn.text" />
                   <Button fx:id="btnCustomerOk" mnemonicParsing="false" onAction="#btnCustomerOkClicked" text="%Ui.Customer.Ok" />
                   <Button fx:id="btnCustomerCancel" mnemonicParsing="false" onAction="#btnCustomerCancelClicked" text="%Ui.Customer.Cancel" />
                </items>

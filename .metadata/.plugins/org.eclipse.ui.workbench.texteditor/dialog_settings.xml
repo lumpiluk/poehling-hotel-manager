@@ -2,22 +2,24 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="false" key="isRegEx"/>
-		<item value="personPane.setCurrentMode" key="selection"/>
+		<item value="setDisable" key="selection"/>
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="true" key="wrap"/>
 		<item value="false" key="wholeword"/>
 		<list key="findhistory">
-			<item value="personPane.setCurrentMode"/>
-			<item value="personPane.setCu"/>
-			<item value="personPane"/>
-			<item value="setAddress"/>
-			<item value="selection"/>
-			<item value="mouse"/>
-			<item value="getstyle"/>
-			<item value="style"/>
+			<item value="setdisable"/>
+			<item value="this.setdi"/>
+			<item value="disable"/>
+			<item value="personp"/>
+			<item value="setautocommit"/>
+			<item value="person"/>
+			<item value="setid"/>
+			<item value="id"/>
 		</list>
 		<list key="replacehistory">
+			<item value="&quot;"/>
+			<item value=""/>
 			<item value="changePersonMode"/>
 			<item value="Date"/>
 		</list>
@@ -26,7 +28,7 @@
 		<item value="281" key="DIALOG_WIDTH"/>
 		<item value="1|DejaVu Sans|9.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
 		<item value="412" key="DIALOG_HEIGHT"/>
-		<item value="180" key="DIALOG_Y_ORIGIN"/>
-		<item value="2211" key="DIALOG_X_ORIGIN"/>
+		<item value="244" key="DIALOG_Y_ORIGIN"/>
+		<item value="1957" key="DIALOG_X_ORIGIN"/>
 	</section>
 </section>

@@ -30,6 +30,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import util.DateComparator;
 
 /**
@@ -66,17 +68,15 @@ public class Person extends HotelData implements Cloneable {
 	
 	private long id;
 	
-	//private long addressId;
+	private StringProperty title = new SimpleStringProperty();
 	
-	private String title;
+	private StringProperty firstNames = new SimpleStringProperty();
 	
-	private String firstNames;
-	
-	private String surnames;
+	private StringProperty surnames = new SimpleStringProperty();
 	
 	private Date birthday;
 	
-	private String foodMemo;
+	private StringProperty foodMemo = new SimpleStringProperty();
 
 	private Address address;
 	
@@ -84,7 +84,6 @@ public class Person extends HotelData implements Cloneable {
 	public Person(final Connection con) {
 		super(con);
 		this.setId(0);
-		//this.setAddressId(0);
 	}
 	
 	/**
@@ -156,22 +155,28 @@ public class Person extends HotelData implements Cloneable {
 	private void setId(int id) { this.id = id; }
 
 	/** @return the title */
-	public String getTitle() { return title; }
+	public String getTitle() { return title.get(); }
 
 	/** @param title the title to set */
-	public void setTitle(String title) { this.title = title; }
+	public void setTitle(String title) { this.title.set(title); }
+	
+	public StringProperty titleProperty() { return title; }
 
 	/** @return the firstNames */
-	public String getFirstNames() { return firstNames; }
+	public String getFirstNames() { return firstNames.get(); }
 
 	/** @param firstNames the firstNames to set */
-	public void setFirstNames(String firstNames) { this.firstNames = firstNames; }
+	public void setFirstNames(String firstNames) { this.firstNames.set(firstNames); }
+	
+	public StringProperty firstNamesProperty() { return firstNames; }
 
 	/** @return the surnames */
-	public String getSurnames() { return surnames; }
+	public String getSurnames() { return surnames.get(); }
 
 	/** @param surnames the surnames to set */
-	public void setSurnames(String surnames) { this.surnames = surnames; }
+	public void setSurnames(String surnames) { this.surnames.set(surnames); }
+	
+	public StringProperty surnamesProperty() { return surnames; }
 
 	/** @return the birthday */
 	public Date getBirthday() { return birthday; }
@@ -189,10 +194,12 @@ public class Person extends HotelData implements Cloneable {
 	}
 
 	/** @return the foodMemo */
-	public String getFoodMemo() { return foodMemo; }
+	public String getFoodMemo() { return foodMemo.get(); }
 
 	/** @param foodMemo the foodMemo to set */
-	public void setFoodMemo(String foodMemo) { this.foodMemo = foodMemo; }
+	public void setFoodMemo(String foodMemo) { this.foodMemo.set(foodMemo); }
+	
+	public StringProperty foodMemoProperty() { return foodMemo; }
 	
 	@Override
 	public String toString() {
@@ -203,11 +210,11 @@ public class Person extends HotelData implements Cloneable {
 		Person p = new Person(con);
 		p.setAddress(this.address);
 		p.setBirthday((Date) this.birthday.clone());
-		p.setFirstNames(this.firstNames);
-		p.setSurnames(this.surnames);
-		p.setFoodMemo(this.foodMemo);
+		p.setFirstNames(this.getFirstNames());
+		p.setSurnames(this.getSurnames());
+		p.setFoodMemo(this.getFoodMemo());
 		p.setId(this.id);
-		p.setTitle(this.title);
+		p.setTitle(this.getTitle());
 		return p;
 	}
 	
