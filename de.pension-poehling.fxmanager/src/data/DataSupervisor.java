@@ -29,7 +29,6 @@ import java.sql.SQLTimeoutException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.IllegalFormatException;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ExecutorService;
@@ -305,7 +304,7 @@ public class DataSupervisor {
 		
 		try (ResultSet rs = con.createStatement().executeQuery(query)) {
 			while(rs.next()) {
-				items.add(rs.getString(1)); // TODO: necessary to run this in Platform.runLater()?
+				items.add(rs.getString(1));
 			}
 		}
 		
@@ -315,12 +314,18 @@ public class DataSupervisor {
 		flags.addListener(flagsListener);
 	}
 	
-	/** Creates a table for flags in the database */
-	private void createFlagsTable() throws SQLException {
-		final String createQuery = "CREATE TABLE flags ("
-				+ "name TEXT NOT NULL)";
+	/**
+	 * Creates a table with only one column in the current connection.
+	 * Used, among others, for flags, states etc.
+	 * @param name Name of the table
+	 * @param col Name of the only column
+	 * @throws SQLException
+	 */
+	private void createSimpleTable(final String name, final String col) throws SQLException {
+		final String CREATE_QUERY = String.format("CREATE TABLE %s ("
+				+ "%s TEXT NOT NULL)", name, col);
 		try (Statement stmt = con.createStatement()) {
-			stmt.executeUpdate(createQuery);
+			stmt.executeUpdate(CREATE_QUERY);
 		}
 	}
 	
@@ -334,6 +339,11 @@ public class DataSupervisor {
 		return flags;
 	}
 	
+	private boolean queryIsValid() {
+		return addressSearchString != null && !addressSearchString.equals("")
+				&& !addressSearchString.equals("*");
+	}
+	
 	/**
 	 * Queries addresses table using the flags to filter in addressSearchFlags
 	 * and the user query in addressSearchString.
@@ -344,19 +354,15 @@ public class DataSupervisor {
 
 		@Override
 		protected Void call() throws Exception {
-			addressesSearchResult.clear();
-			
 			StringBuilder match = new StringBuilder(); // will be inserted at the end of SQL_ADDRESS_SEARCH
 			
 			// only use "WHERE" clause if there actually are any search parameters
-			if ((addressSearchString != null && !addressSearchString.equals(""))
-					|| addressSearchFlags.length > 0) {
+			if (queryIsValid() || addressSearchFlags.length > 0) {
 				match.append(" WHERE addresses.address_id IN (");
 				match.append("SELECT address_fts_id FROM addresses_fts WHERE ");
 				match.append("addresses_fts MATCH '");
 
-				if (addressSearchString != null
-						&& !addressSearchString.equals("")) {
+				if (queryIsValid()) {
 					match.append("(fts_title:%1$s OR fts_first_names:%1$s ");
 					match.append("OR fts_surnames:%1$s OR fts_street:%1$s ");
 					match.append("OR fts_town:%1$s OR fts_zip:%1$s ");
@@ -389,11 +395,12 @@ public class DataSupervisor {
 					while (rs.next() && !this.isCancelled()) {
 						Address a = new Address(con);
 						a.prepareDataFromResultSet(rs);
-						addressesSearchResult.add(a);
+						Platform.runLater(() -> addressesSearchResult.add(a));
 					}
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				Platform.runLater(() ->
+						Messages.showError(e, Messages.ErrorType.DB));
 			}
 			return null;
 		}
@@ -412,12 +419,12 @@ public class DataSupervisor {
 	 * column will be left out of the search results.
 	 */
 	public void searchAddresses(String userQuery, String... flags) {
-		// TODO
 		if (runningAddressSearch != null && runningAddressSearch.isRunning()) {
 			runningAddressSearch.cancel(true); // try to stop search if running
 		}
 		addressSearchString = userQuery.replaceAll("['\":]", "").toLowerCase();
 		addressSearchFlags = flags;
+		addressesSearchResult.clear();
 		runningAddressSearch = new AddressSearchTask();
 		databaseExecutor.submit(runningAddressSearch);
 	}
@@ -438,26 +445,16 @@ public class DataSupervisor {
 			(new Room(con)).createTables();
 			(new Person(con)).createTables();
 			(new Address(con)).createTables();
-			createFlagsTable();
+			createSimpleTable("flags", "name");
+			createSimpleTable("countries", "country");
+			createSimpleTable("states", "state"); // TODO: combine with country?
+			createSimpleTable("titles", "title");
 			success = true;
 		} catch (SQLException e) {
-			Messages.showError(e, Messages.ErrorType.DB);
+			Platform.runLater(() ->
+					Messages.showError(e, Messages.ErrorType.DB));
 		}
 		return success;
-	}
-	
-	/**
-	 * Concurrently creates all required tables in a new database.
-	 * @see createTables
-	 */
-	private void createTablesConcurrently() { // TODO: needed?
-		databaseExecutor.submit(new Task<Void>() {
-			@Override protected Void call() {
-				createTables();
-				return null;
-			}
-		});
-		// TODO: bookings/orders, invoices, flags, states, cities(?)...
 	}
 	
 	/**

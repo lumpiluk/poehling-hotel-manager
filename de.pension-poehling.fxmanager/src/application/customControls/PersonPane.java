@@ -413,9 +413,7 @@ public class PersonPane extends AbstractForm {
 	        	boolean isAddressee = false;
 	        	if (newVal != null) {
 	        		this.loadPersonIntoForm(newVal.getPerson());
-	        		isAddressee = this.address != null 
-	        				&& this.address.getAddressee() != null
-	        				&& this.address.getAddressee().equals(newVal.getPerson());
+	        		isAddressee = newVal.markedProperty().get();
 	        	}
 	        	this.btnEditPerson.setDisable(newVal == null);
 	        	this.btnRemovePerson.setDisable(newVal == null);

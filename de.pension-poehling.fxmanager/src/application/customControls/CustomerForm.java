@@ -11,6 +11,7 @@ import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 import java.net.URL;
 
+
 import org.controlsfx.control.CheckComboBox;
 import org.controlsfx.control.CheckListView;
 import org.controlsfx.dialog.DialogStyle;
@@ -18,10 +19,12 @@ import org.controlsfx.dialog.Dialogs;
 import org.controlsfx.validation.ValidationResult;
 import org.controlsfx.validation.ValidationSupport;
 
+
 import data.Address;
 import data.DataSupervisor;
 import util.Messages;
 import util.Messages.ErrorType;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -489,10 +492,12 @@ public class CustomerForm extends AbstractForm {
         getCustomersTable().setPlaceholder(new Text(Messages.getString("Ui.Customers.Table.Placeholder.text")));
         getCustomersTable().getSelectionModel()
 	        .selectedItemProperty().addListener((observable, oldVal, newVal) -> {
-	        	if (newVal != null)
-	        		this.loadAddressIntoForm(newVal);
-	        	this.btnEditCustomer.setDisable(newVal == null);
-	        	this.btnRemoveCustomer.setDisable(newVal == null);
+	        	Platform.runLater(() -> { // is this really necessary? There used to be an Error without it... (see below)
+		        	if (newVal != null)
+		        		this.loadAddressIntoForm(newVal);
+		        	this.btnEditCustomer.setDisable(newVal == null); // EXCEPTION: "not on fx application thread"
+		        	this.btnRemoveCustomer.setDisable(newVal == null);
+	        	});
 	        });
     }
     
