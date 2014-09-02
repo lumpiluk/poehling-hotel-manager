@@ -1,3 +1,19 @@
+/* 
+ * Copyright 2014 Lukas Stratmann
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /**
  * Sample Skeleton for 'MainWindow.fxml' Controller Class
  */
@@ -98,6 +114,8 @@ public class MainWindow extends AbstractControl {
 				hideInvoiceView();
 			} else if (oldValue == btnDbOpenCreate) {
 				hideDbConnectionView();
+			} else if (oldValue == btnStaticData) {
+				hideSimpleTablesView();
 			}
 			
 			if (newValue == btnCalendar && !appBody.getItems().contains(calendarPane)) {
@@ -110,6 +128,8 @@ public class MainWindow extends AbstractControl {
 				showInvoiceView();
 			} else if (newValue == btnDbOpenCreate) {
 				showDbConnectionView();
+			} else if (newValue == btnStaticData) {
+				showSimpleTablesView();
 			}
 			
 		}
@@ -125,6 +145,8 @@ public class MainWindow extends AbstractControl {
     private CustomerForm customerForm; // TODO: change name?
     
     private DbConPane dbConnectionPane;
+    
+    private SimpleTablesView simpleTablesView;
     
     private DataSupervisor dataSupervisor;
     
@@ -146,6 +168,10 @@ public class MainWindow extends AbstractControl {
     
     private void hideDbConnectionView() {
     	appBody.getItems().remove(dbConnectionPane);
+    }
+    
+    private void hideSimpleTablesView() {
+    	appBody.getItems().remove(simpleTablesView);
     }
     
     private void showCalendarView() {
@@ -178,6 +204,13 @@ public class MainWindow extends AbstractControl {
 		SplitPane.setResizableWithParent(dbConnectionPane, true);
     }
     
+    private void showSimpleTablesView() {
+    	appBody.setDividerPositions(0.0);
+    	appBody.getItems().add(1, simpleTablesView);
+    	SplitPane.setResizableWithParent(leftPane, false);
+    	SplitPane.setResizableWithParent(simpleTablesView, true);
+    }
+    
     /**
      * Enables all controls that have initially been disabled with the intention
      * to remain so until a database connection will have been established.
@@ -194,7 +227,10 @@ public class MainWindow extends AbstractControl {
     	// init custom controls
         try {
 	        dbConnectionPane = (DbConPane) AbstractControl.getInstance(DbConPane.class);
-	        dbConnectionPane.initData(this, this.dataSupervisor);        
+	        dbConnectionPane.initData(this, this.dataSupervisor);
+	        
+	        simpleTablesView = (SimpleTablesView) AbstractControl.getInstance(SimpleTablesView.class);
+	        simpleTablesView.initData(dataSupervisor);
         	
         	calendarPane = (CalendarPane) AbstractControl.getInstance(CalendarPane.class);
 

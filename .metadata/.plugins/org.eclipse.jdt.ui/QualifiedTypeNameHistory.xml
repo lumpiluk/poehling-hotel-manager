@@ -1,21 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
-<fullyQualifiedTypeName name="javafx.scene.layout.VBox"/>
-<fullyQualifiedTypeName name="com.sun.javafx.css.StyleManager"/>
 <fullyQualifiedTypeName name="javafx.geometry.VPos"/>
 <fullyQualifiedTypeName name="javafx.geometry.HPos"/>
 <fullyQualifiedTypeName name="org.controlsfx.dialog.Dialogs"/>
-<fullyQualifiedTypeName name="javafx.fxml.FXML"/>
-<fullyQualifiedTypeName name="javafx.scene.control.TextField"/>
 <fullyQualifiedTypeName name="javafx.scene.control.Label"/>
 <fullyQualifiedTypeName name="javafx.scene.control.DatePicker"/>
 <fullyQualifiedTypeName name="javafx.scene.control.TextArea"/>
 <fullyQualifiedTypeName name="javafx.scene.control.ComboBox"/>
-<fullyQualifiedTypeName name="java.net.URL"/>
-<fullyQualifiedTypeName name="java.util.ResourceBundle"/>
 <fullyQualifiedTypeName name="data.Person"/>
 <fullyQualifiedTypeName name="data.Address"/>
-<fullyQualifiedTypeName name="data.DataSupervisor"/>
 <fullyQualifiedTypeName name="javafx.scene.control.Control"/>
 <fullyQualifiedTypeName name="org.controlsfx.validation.ValidationResult"/>
 <fullyQualifiedTypeName name="org.controlsfx.validation.ValidationSupport"/>
@@ -37,11 +30,7 @@
 <fullyQualifiedTypeName name="javafx.beans.property.SimpleLongProperty"/>
 <fullyQualifiedTypeName name="javafx.scene.layout.GridPane"/>
 <fullyQualifiedTypeName name="javafx.scene.input.KeyEvent"/>
-<fullyQualifiedTypeName name="javafx.scene.control.TableView"/>
 <fullyQualifiedTypeName name="javafx.scene.control.ToolBar"/>
-<fullyQualifiedTypeName name="javafx.scene.control.Button"/>
-<fullyQualifiedTypeName name="javafx.scene.control.ToggleButton"/>
-<fullyQualifiedTypeName name="javafx.event.ActionEvent"/>
 <fullyQualifiedTypeName name="java.util.function.Consumer"/>
 <fullyQualifiedTypeName name="util.DateComparator"/>
 <fullyQualifiedTypeName name="java.sql.Types"/>
@@ -60,4 +49,15 @@
 <fullyQualifiedTypeName name="javafx.beans.property.StringProperty"/>
 <fullyQualifiedTypeName name="javafx.beans.property.SimpleStringProperty"/>
 <fullyQualifiedTypeName name="javafx.application.Platform"/>
+<fullyQualifiedTypeName name="data.DataSupervisor"/>
+<fullyQualifiedTypeName name="javafx.fxml.FXML"/>
+<fullyQualifiedTypeName name="javafx.scene.control.ToggleButton"/>
+<fullyQualifiedTypeName name="javafx.scene.control.ToggleGroup"/>
+<fullyQualifiedTypeName name="javafx.scene.control.TextField"/>
+<fullyQualifiedTypeName name="javafx.scene.control.Button"/>
+<fullyQualifiedTypeName name="java.util.ResourceBundle"/>
+<fullyQualifiedTypeName name="java.net.URL"/>
+<fullyQualifiedTypeName name="javafx.event.ActionEvent"/>
+<fullyQualifiedTypeName name="javafx.scene.control.TableView"/>
+<fullyQualifiedTypeName name="data.HotelData"/>
 </qualifiedTypeNameHistroy>

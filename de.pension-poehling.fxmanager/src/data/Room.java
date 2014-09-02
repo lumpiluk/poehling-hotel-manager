@@ -363,6 +363,7 @@ public class Room extends HotelData {
 	public void deleteFromDb() throws SQLException {
 		try(PreparedStatement stmt = con.prepareStatement(SQL_DELETE)) {
 			stmt.setLong(1, getId());
+			stmt.executeUpdate();
 		}
 	}
 

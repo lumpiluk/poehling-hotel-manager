@@ -568,10 +568,12 @@ public class Address extends HotelData {
 	public void deleteFromDb() throws SQLException {
 		try (PreparedStatement stmt = con.prepareStatement(SQL_DELETE)) {
 			stmt.setLong(1, getId());
+			stmt.executeUpdate();
 		}
 		if (fullTextSearchTableCreated) {
 			try (PreparedStatement stmt = con.prepareStatement(SQL_DELETE_FTS)) {
 				stmt.setLong(1, getId());
+				stmt.executeUpdate();
 			}
 		}
 	}

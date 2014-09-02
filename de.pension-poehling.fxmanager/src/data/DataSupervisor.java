@@ -314,21 +314,6 @@ public class DataSupervisor {
 		flags.addListener(flagsListener);
 	}
 	
-	/**
-	 * Creates a table with only one column in the current connection.
-	 * Used, among others, for flags, states etc.
-	 * @param name Name of the table
-	 * @param col Name of the only column
-	 * @throws SQLException
-	 */
-	private void createSimpleTable(final String name, final String col) throws SQLException {
-		final String CREATE_QUERY = String.format("CREATE TABLE %s ("
-				+ "%s TEXT NOT NULL)", name, col);
-		try (Statement stmt = con.createStatement()) {
-			stmt.executeUpdate(CREATE_QUERY);
-		}
-	}
-	
 	/** @return True iff connection to the DB has been established and all lists are loaded. */
 	public boolean isInitialized() {
 		return flagsInitialized; // TODO finish, needed?

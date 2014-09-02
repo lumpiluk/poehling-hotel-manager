@@ -376,6 +376,7 @@ public class Person extends HotelData implements Cloneable {
 	@Override public void deleteFromDb() throws SQLException {
 		try(PreparedStatement stmt = con.prepareStatement(SQL_DELETE)) {
 			stmt.setLong(1, getId());
+			stmt.executeUpdate();
 		}
 	}
 
