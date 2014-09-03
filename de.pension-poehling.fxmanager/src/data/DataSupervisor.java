@@ -243,27 +243,6 @@ public class DataSupervisor {
 		
 	}
 	
-	/** Task for handling adding of new flags concurrently. */
-	private class InsertFlagTask extends Task<Void> {
-		private ListChangeListener.Change<? extends String> c;
-		
-		public InsertFlagTask(ListChangeListener.Change<? extends String> c) {
-			this.c = c;
-		}
-		
-		@Override protected Void call() throws Exception {
-			String insertQuery = "INSERT INTO flags (name) VALUES (?)";
-			try (PreparedStatement ps = con.prepareStatement(insertQuery)) {
-				for (String newFlag : c.getAddedSubList()) {
-					ps.setString(1, newFlag);
-					ps.addBatch();
-				}
-				ps.executeBatch();
-			}
-			return null;
-		}
-	}
-	
 	/** Task for handling removal of flags concurrently. */
 	private class RemoveFlagTask extends Task<Void> {
 		private ListChangeListener.Change<? extends String> c;
@@ -287,12 +266,21 @@ public class DataSupervisor {
 	 * Listens to changes in the list of flags, 
 	 * adds to or removes from db accordingly. 
 	 */
-	private ListChangeListener<String> flagsListener = new ListChangeListener<String>() {
+	private ListChangeListener<String> flagsListener = new ListChangeListener<String>() { // TODO: generalize for SimpleTableItems
 		@Override public void onChanged(ListChangeListener.Change<? extends String> c) {
 			if (c.wasAdded()) {
-				databaseExecutor.submit(new InsertFlagTask(c));					
-			} else if (c.wasRemoved()) {
-				databaseExecutor.submit(new RemoveFlagTask(c));
+				for (String newFlag : c.getAddedSubList()) {
+					Flag f = new Flag(con);
+					f.setValue(newFlag);
+					insertConcurrently(f);
+				}
+			}
+			if (c.wasRemoved()) {
+				for (String flagToDelete : c.getRemoved()) {
+					Flag f = new Flag(con); // TODO: use list of flags rather than strings?
+					f.setValue(flagToDelete);
+					deleteConcurrently(f);
+				}
 			}
 		}
 	};
@@ -300,7 +288,7 @@ public class DataSupervisor {
 	/** Initializes the list of flags, including listeners etc. */
 	private void initFlags() throws SQLException {
 		ArrayList<String> items = new ArrayList<String>();
-		final String query = "SELECT name FROM flags";
+		final String query = (new Flag(con)).getSqlSelectAll();
 		
 		try (ResultSet rs = con.createStatement().executeQuery(query)) {
 			while(rs.next()) {
@@ -430,10 +418,10 @@ public class DataSupervisor {
 			(new Room(con)).createTables();
 			(new Person(con)).createTables();
 			(new Address(con)).createTables();
-			createSimpleTable("flags", "name");
-			createSimpleTable("countries", "country");
-			createSimpleTable("states", "state"); // TODO: combine with country?
-			createSimpleTable("titles", "title");
+			(new Flag(con)).createTables();
+			(new Country(con)).createTables();
+			(new State(con)).createTables(); // TODO: combine with country?
+			(new Title(con)).createTables();
 			success = true;
 		} catch (SQLException e) {
 			Platform.runLater(() ->

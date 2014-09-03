@@ -69,6 +69,10 @@ public class SimpleTableItem extends HotelData {
 		return String.format(SQL_DELETE, SQL_TABLE_NAME, SQL_COL_NAME);
 	}
 	
+	public final String getSqlTableName() { return SQL_TABLE_NAME; }
+	
+	public final String getSqlColumnName() { return SQL_COL_NAME; }
+	
 	public String getValue() { return value.get(); }
 	
 	public void setValue(final String value) { this.value.set(value); }
