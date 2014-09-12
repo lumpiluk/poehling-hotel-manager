@@ -20,6 +20,7 @@
 package data;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -132,7 +133,7 @@ public class DataSupervisor {
 	}
 	
 	private void init() throws SQLException {
-		initFlags();
+		initSimpleTableItemList(flags, Flag.class);
 		initVirtualTables();
 	}
 	
@@ -243,25 +244,6 @@ public class DataSupervisor {
 		
 	}
 	
-	/** Task for handling removal of flags concurrently. */
-	private class RemoveFlagTask extends Task<Void> {
-		private ListChangeListener.Change<? extends String> c;
-		
-		public RemoveFlagTask(ListChangeListener.Change<? extends String> c) {
-			this.c = c;
-		}
-		
-		@Override protected Void call() throws Exception {
-			String deleteQuery = "DELETE FROM flags WHERE name = ?";
-			try (PreparedStatement ps = con.prepareStatement(deleteQuery)) {
-				for (String flagToDelete : c.getRemoved()) {
-					ps.setString(1, flagToDelete);
-				}
-			}
-			return null;
-		}
-	}
-	
 	/** 
 	 * Listens to changes in the list of flags, 
 	 * adds to or removes from db accordingly. 
@@ -285,21 +267,36 @@ public class DataSupervisor {
 		}
 	};
 	
-	/** Initializes the list of flags, including listeners etc. */
-	private void initFlags() throws SQLException {
-		ArrayList<String> items = new ArrayList<String>();
-		final String query = (new Flag(con)).getSqlSelectAll();
-		
-		try (ResultSet rs = con.createStatement().executeQuery(query)) {
-			while(rs.next()) {
-				items.add(rs.getString(1));
+	/** 
+	 * Initializes a list of simple table items, including listeners etc.
+	 * @param l the list to initialize
+	 * @param c subclass of SimpleTableItem to be used to load records from the
+	 * db
+	 * @throws SQLException
+	 */
+	private void initSimpleTableItemList(ObservableList<String> l,
+			Class<? extends SimpleTableItem> c) throws SQLException {
+		try {
+			ArrayList<String> items = new ArrayList<String>();
+			final String query = (c.getDeclaredConstructor(Connection.class)
+					.newInstance(con)).getSqlSelectAll();
+			
+			try (ResultSet rs = con.createStatement().executeQuery(query)) {
+				while (rs.next()) {
+					items.add(rs.getString(1));
+				}
 			}
+			
+			// remove listener first so that adding items to the list will have no effect on the database
+			l.removeListener(flagsListener);
+			l.setAll(items);
+			l.addListener(flagsListener);			
+		} catch (InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException e) {
+			// exceptions possibly thrown by initialization of query string
+			Messages.showError(e, ErrorType.UNKNOWN);
 		}
-		
-		// remove listener first so that adding items to the list will have no effect on the database
-		flags.removeListener(flagsListener);
-		flags.setAll(items);
-		flags.addListener(flagsListener);
 	}
 	
 	/** @return True iff connection to the DB has been established and all lists are loaded. */
