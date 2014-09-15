@@ -23,7 +23,6 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
@@ -95,9 +94,21 @@ public class DataSupervisor {
 	/** executes database operations concurrent to JavaFX operations. */
 	private ExecutorService databaseExecutor;
 	
+	
+	// Simple table item lists
 	/** List of possible flags an address can have. Used throughout the application */
 	private final ObservableList<String> flags = FXCollections.observableArrayList();
 	
+	/** List of all states (geographically speaking) ever used in the db. */
+	private final ObservableList<String> states = FXCollections.observableArrayList();
+	
+	/** List of all countries ever used in the db. */
+	private final ObservableList<String> countries = FXCollections.observableArrayList();
+	
+	/** List of possible titles a person can have. */
+	private final ObservableList<String> titles = FXCollections.observableArrayList();
+	
+	// Address search related
 	/** Search result from searching in addresses */
 	private final ObservableList<Address> addressesSearchResult = FXCollections.observableArrayList();
 	
@@ -105,13 +116,10 @@ public class DataSupervisor {
 	
 	private String[] addressSearchFlags = new String[0];
 	
-	/** true iff connection to the DB has been established and all lists are loaded */
-	private boolean flagsInitialized = false;
 	
 	/** 
 	 * Thread factory for databaseExectuor.
 	 * With help from https://gist.github.com/jewelsea/4957967
-	 * @author lumpiluk
 	 */
 	static class DatabaseThreadFactory implements ThreadFactory {
 		static final AtomicInteger poolNumber = new AtomicInteger(1);
@@ -128,12 +136,19 @@ public class DataSupervisor {
 		databaseExecutor = Executors.newFixedThreadPool(1, new DatabaseThreadFactory()); // allows only one thread at a time to work on the db
 	}
 	
+	/**
+	 * Initialize virtual tables required for SQLite full text search.
+	 * @throws SQLException
+	 */
 	private void initVirtualTables() throws SQLException {
 		(new Address(con)).createVirtualFTSTable();
 	}
 	
 	private void init() throws SQLException {
-		initSimpleTableItemList(flags, Flag.class);
+		initSimpleTableItemList(countries, Country.class, new SimpleTableItemListListener(Country.class));
+		initSimpleTableItemList(states, State.class, new SimpleTableItemListListener(State.class));
+		initSimpleTableItemList(titles, Title.class, new SimpleTableItemListListener(Title.class));
+		initSimpleTableItemList(flags, Flag.class, new SimpleTableItemListListener(Flag.class));
 		initVirtualTables();
 	}
 	
@@ -245,37 +260,53 @@ public class DataSupervisor {
 	}
 	
 	/** 
-	 * Listens to changes in the list of flags, 
+	 * Listens to changes in a list of simple table items, 
 	 * adds to or removes from db accordingly. 
 	 */
-	private ListChangeListener<String> flagsListener = new ListChangeListener<String>() { // TODO: generalize for SimpleTableItems
-		@Override public void onChanged(ListChangeListener.Change<? extends String> c) {
-			if (c.wasAdded()) {
-				for (String newFlag : c.getAddedSubList()) {
-					Flag f = new Flag(con);
-					f.setValue(newFlag);
-					insertConcurrently(f);
+	private class SimpleTableItemListListener implements ListChangeListener<String> {
+		private Class<? extends SimpleTableItem> stiClass;
+		public SimpleTableItemListListener(Class<? extends SimpleTableItem> c) {
+			this.stiClass = c;
+		}
+		@Override public void onChanged(
+				javafx.collections.ListChangeListener.Change<? extends String> change) {
+			try {
+				while (change.next()) {
+					if (change.wasAdded()) {
+						for (String newItem : change.getAddedSubList()) {
+							SimpleTableItem s = stiClass.getDeclaredConstructor(Connection.class).newInstance(con);
+							s.setValue(newItem);
+							insertConcurrently(s);
+						}
+					}
+					if (change.wasRemoved()) {
+						for (String itemToDelete : change.getRemoved()) {
+							SimpleTableItem s = stiClass.getDeclaredConstructor(Connection.class).newInstance(con);
+							s.setValue(itemToDelete);
+							deleteConcurrently(s);
+						}
+					}
 				}
-			}
-			if (c.wasRemoved()) {
-				for (String flagToDelete : c.getRemoved()) {
-					Flag f = new Flag(con); // TODO: use list of flags rather than strings?
-					f.setValue(flagToDelete);
-					deleteConcurrently(f);
-				}
+			} catch (InstantiationException | IllegalAccessException
+					| IllegalArgumentException
+					| InvocationTargetException | NoSuchMethodException
+					| SecurityException e) { // exceptions possibly thrown in initialization of s
+				Messages.showError(e, ErrorType.UNKNOWN);
 			}
 		}
-	};
+	}
 	
 	/** 
 	 * Initializes a list of simple table items, including listeners etc.
 	 * @param l the list to initialize
 	 * @param c subclass of SimpleTableItem to be used to load records from the
+	 * @param listener ListChangeListener to update the database
 	 * db
 	 * @throws SQLException
 	 */
 	private void initSimpleTableItemList(ObservableList<String> l,
-			Class<? extends SimpleTableItem> c) throws SQLException {
+			Class<? extends SimpleTableItem> c,
+			ListChangeListener<String> listener) throws SQLException {
 		try {
 			ArrayList<String> items = new ArrayList<String>();
 			final String query = (c.getDeclaredConstructor(Connection.class)
@@ -288,9 +319,9 @@ public class DataSupervisor {
 			}
 			
 			// remove listener first so that adding items to the list will have no effect on the database
-			l.removeListener(flagsListener);
+			l.removeListener(listener);
 			l.setAll(items);
-			l.addListener(flagsListener);			
+			l.addListener(listener);			
 		} catch (InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
@@ -299,14 +330,24 @@ public class DataSupervisor {
 		}
 	}
 	
-	/** @return True iff connection to the DB has been established and all lists are loaded. */
-	public boolean isInitialized() {
-		return flagsInitialized; // TODO finish, needed?
-	}
-	
 	/** @return List of possible flags an address can have. Used throughout the application. */
 	public ObservableList<String> getFlagsObservable() {
 		return flags;
+	}
+	
+	/** @return List of possible titles a person can have. */
+	public ObservableList<String> getTitlesObservable() {
+		return titles;
+	}
+	
+	/** @return Observable list of all states ever used in the db. */
+	public ObservableList<String> getStatesObservable() {
+		return states;
+	}
+	
+	/** @return Observable list of all countries ever used in the db. */
+	public ObservableList<String> getCountriesObservable() {
+		return countries;
 	}
 	
 	private boolean queryIsValid() {
@@ -325,6 +366,10 @@ public class DataSupervisor {
 		@Override
 		protected Void call() throws Exception {
 			StringBuilder match = new StringBuilder(); // will be inserted at the end of SQL_ADDRESS_SEARCH
+			boolean searchingForText = false;
+			
+			// TODO: something like the following should work:
+			// Searching: SELECT * FROM addresses LEFT OUTER JOIN people ON addresses.addressee = people.person_id  WHERE addresses.address_id IN (SELECT address_fts_id FROM addresses_fts WHERE addresses_fts MATCH '- fts_flags:"| unrein |"')
 			
 			// only use "WHERE" clause if there actually are any search parameters
 			if (queryIsValid() || addressSearchFlags.length > 0) {
@@ -338,12 +383,19 @@ public class DataSupervisor {
 					match.append("OR fts_town:%1$s OR fts_zip:%1$s ");
 					match.append("OR fts_phone:%1$s OR fts_email:%1$s ");
 					match.append("OR fts_cellphone:%1$s) ");
+					searchingForText = true;
 				}
 				
-				for (String flag : addressSearchFlags) {
-					match.append("AND NOT fts_flags:");
-					match.append(flag.toLowerCase()); // TODO: ensure lower case on insertion?
-					match.append(" ");
+				//for (String flag : addressSearchFlags) {
+				for (int i = 0; i < addressSearchFlags.length; i++) {
+					Flag flag = new Flag(con);
+					flag.setValue(addressSearchFlags[i]);
+					if (i > 0 || searchingForText) { // don't put "AND" in the front of the match expression if nothing comes before the "AND"
+						match.append("AND");
+					}
+					match.append("- fts_flags:\"");
+					match.append(flag.toDbString()); // TODO: ensure lower case on insertion?
+					match.append("\" ");
 				}
 				match.delete(match.length() - 1, match.length());
 				match.append("')");

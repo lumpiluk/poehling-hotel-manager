@@ -26,13 +26,16 @@ import java.sql.SQLException;
 import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
 
+import application.customControls.AbstractForm.Mode;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.ToolBar;
 import data.DataSupervisor;
 import data.HotelData;
 
@@ -78,21 +81,26 @@ public class SimpleTablesView extends AbstractControl {
     @FXML // fx:id="tbStates"
     private ToggleButton tbStates; // Value injected by FXMLLoader
     
-    @FXML // fx:id="tableView"
-    private TableView<?> tableView; // Value injected by FXMLLoader
+    @FXML // fx:id="lvItems"
+    private ListView<?> lvItems; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="listTools"
+    private ToolBar listTools; // Value injected by FXMLLoader
 	
 	private DataSupervisor dataSupervisor;
+	
+	private Mode currentMode;
 	
 	/**
 	 * @throws IOException
 	 */
 	public SimpleTablesView() throws IOException {
-		// TODO Auto-generated constructor stub
+		super();
 	}
 	
 	public void initData(DataSupervisor dataSupervisor) {
 		this.dataSupervisor = dataSupervisor;
-		
+
 		toggleGroup.selectedToggleProperty().addListener(
 				(observable, oldVal, newVal) -> {
 					// make toggleButtons persistent within group: don't allow no button to be selected!
@@ -103,35 +111,80 @@ public class SimpleTablesView extends AbstractControl {
 				return;
 			}
 			
+			if (newVal == tbFlags) {
+				getLvItems().setItems(dataSupervisor.getFlagsObservable());
+			} else if (newVal == tbTitles) {
+				getLvItems().setItems(dataSupervisor.getTitlesObservable());
+			} else if (newVal == tbStates) {
+				getLvItems().setItems(dataSupervisor.getStatesObservable());
+			} else if (newVal == tbCountries) {
+				getLvItems().setItems(dataSupervisor.getCountriesObservable());
+			}
+			
 		});
+
+		changeMode(Mode.DISPLAY);
 	}
 	
-	public void initTableView() {
-		
+	private void setFormDisable(final boolean value) {
+		tfItem.setDisable(value);
 	}
 	
-	public void openTable(final String tableName) {
-		
+	/**
+     * Set the current state of the control.<br />
+     * DISPLAY: form disabled, just show customers selected in table<br />
+	 * ADD: form enabled, after pressing OK new customer will be added<br />
+	 * EDIT: form enabled, after pressing OK selected customer will be updated
+     * @param m the mode to change to
+     */
+    private void changeMode(Mode m) {
+    	currentMode = m;
+    	listTools.getItems().clear();
+    	switch (m) {
+    	case DISPLAY:
+    		setFormDisable(true);
+    		listTools.getItems().addAll(btnAddItem, btnRemoveItem);
+    		break;
+    	case ADD:
+    		setFormDisable(false);
+    		listTools.getItems().addAll(btnItemOk, btnItemCancel);
+    		break;
+    	default:
+    		break;
+    	}
+    }
+	
+	@SuppressWarnings("unchecked")
+	private ListView<String> getLvItems() {
+		return (ListView<String>) lvItems;
 	}
 	
 	@FXML
     void btnAddItemClicked(ActionEvent event) {
-
+		changeMode(Mode.ADD);
     }
 
     @FXML
     void btnRemoveItemClicked(ActionEvent event) {
-
+    	// TODO: ask user for confirmation!
+    	if (!getLvItems().getSelectionModel().isEmpty()) {
+    		getLvItems().getItems().removeAll(
+    				getLvItems().getSelectionModel().getSelectedItems());
+    	}
     }
 
     @FXML
     void btnItemOkClicked(ActionEvent event) {
-
+    	if (currentMode == Mode.ADD) {
+    		getLvItems().getItems().add(tfItem.getText());
+    	}
+    		
+    	changeMode(Mode.DISPLAY);
     }
 
     @FXML
     void btnItemCancelClicked(ActionEvent event) {
-
+    	changeMode(Mode.DISPLAY);
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -146,7 +199,8 @@ public class SimpleTablesView extends AbstractControl {
         assert toggleGroup != null : "fx:id=\"toggleGroup\" was not injected: check your FXML file 'SimpleTablesView.fxml'.";
         assert tbTitles != null : "fx:id=\"tbTitles\" was not injected: check your FXML file 'SimpleTablesView.fxml'.";
         assert tbStates != null : "fx:id=\"tbStates\" was not injected: check your FXML file 'SimpleTablesView.fxml'.";
-        assert tableView != null : "fx:id=\"tableView\" was not injected: check your FXML file 'SimpleTablesView.fxml'.";
+        assert lvItems != null : "fx:id=\"lvItems\" was not injected: check your FXML file 'SimpleTablesView.fxml'.";
+        assert listTools != null : "fx:id=\"listTools\" was not injected: check your FXML file 'SimpleTablesView.fxml'.";
     }
 
 }

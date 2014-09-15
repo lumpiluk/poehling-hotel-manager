@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.NoSuchElementException;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 /**
@@ -51,6 +52,7 @@ public class SimpleTableItem extends HotelData {
 		super(con);
 		this.SQL_TABLE_NAME = tableName;
 		this.SQL_COL_NAME = colName;
+		this.value = new SimpleStringProperty();
 	}
 	
 	private String getSqlCreate() {

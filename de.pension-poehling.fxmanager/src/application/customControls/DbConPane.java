@@ -27,9 +27,6 @@ import java.util.Observer;
 import java.util.ResourceBundle;
 
 import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialog;
-import org.controlsfx.dialog.DialogStyle;
-import org.controlsfx.dialog.Dialogs;
 
 import data.DataSupervisor;
 import util.Messages;
@@ -106,7 +103,7 @@ public class DbConPane extends AbstractControl {
 				+ "/.HotelManager/testDB.sqlite";
 		File dbFile = new File(dbFilePath);
 		if (dbFile.exists()) {
-			Action dlgAction = Dialogs.create()
+			/*Action dlgAction = Dialogs.create()
 				.title(Messages.getString("Ui.DbConnection.FileAlreadyExistsConfirmation.Title"))
 				.message(String.format(Messages.getString("Ui.DbConnection.FileAlreadyExistsConfirmation"),
 						dbFile.getPath()))
@@ -114,7 +111,8 @@ public class DbConPane extends AbstractControl {
 				.showConfirm();
 			if (dlgAction == Dialog.Actions.YES || dlgAction == Dialog.Actions.OK) {
 				dbFile.delete();
-			}
+			}*/ // TODO find alternative. Dialogs is deprecated and has been moved to OpenJFX
+			dbFile.delete();
 		}
 		
 		dbFile.getParentFile().mkdirs(); // e.g. ~/.HotelManager/ out of above String...

@@ -484,20 +484,36 @@ public class Address extends HotelData {
 	}
 	
 	private String flagsToDbString() {
-		StringBuilder result = new StringBuilder("|"); // insert | at start so that the following will work in sqlite: ...MATCHES '|flagName|'...
-		for (String flag : flags) {
-			result.append(flag);
-			result.append("|");
+		StringBuilder result = new StringBuilder();
+		
+		/*
+		 * Assuming this address has the flags "nice person", "clean" and
+		 * "letter", this will create the following string:
+		 * "| nice person | | clean | | letter | "
+		 */
+		for (String flagString : flags) {
+			Flag flag = new Flag(con);
+			flag.setValue(flagString);
+			result.append(flag.toDbString());
+			result.append(" ");
 		}
 		return result.toString();
 	}
 	
 	private void flagsFromDbString(String dbString) {
 		flags.clear();
-		String[] flagElems = dbString.split("|");
+		
+		/*
+		 * Assuming pattern of the form
+		 * "| nice person | | clean | | letter | "
+		 * --> ["nice person", "clean", "letter"]
+		 */
+		if (dbString.length() < 5) return;
+		String[] flagElems = dbString.substring(2, dbString.length() - 3).split("\\| \\|");
 		for (String flagElem : flagElems) {
-			flags.add(flagElem);
+			flags.add(flagElem.trim());
 		}
+		System.out.println(flags);
 	}
 	
 	/**

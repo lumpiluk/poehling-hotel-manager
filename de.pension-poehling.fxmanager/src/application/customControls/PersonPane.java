@@ -26,8 +26,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
-import org.controlsfx.dialog.DialogStyle;
-import org.controlsfx.dialog.Dialogs;
 import org.controlsfx.validation.ValidationSupport;
 import org.controlsfx.validation.Validator;
 
@@ -251,15 +249,15 @@ public class PersonPane extends AbstractForm {
 	
 	private boolean evaluateForm() {
 		// invalid if ValidationSupport still has any errors
-    	if (!validationSupport.getValidationResult().getErrors().isEmpty()) {
-    		Dialogs.create()
-				.title(Messages.getString("Ui.Customer.Validation.DialogTitle"))
-				.message(Messages.getString("Ui.Customer.Validation.ValidationFailed"))
-				.style(DialogStyle.NATIVE)
-				.showWarning();
-    		System.out.println(validationSupport.getValidationResult().getErrors());
-    		return false;
-    	}
+//    	if (!validationSupport.getValidationResult().getErrors().isEmpty()) {
+//    		/*Dialogs.create()
+//				.title(Messages.getString("Ui.Customer.Validation.DialogTitle"))
+//				.message(Messages.getString("Ui.Customer.Validation.ValidationFailed"))
+//				.style(DialogStyle.NATIVE)
+//				.showWarning();*/ // TODO find alternative. Dialogs is deprecated and has been moved to OpenJFX
+//    		System.out.println(validationSupport.getValidationResult().getErrors());
+//    		return false;
+//    	} // TODO: retry when fixed
 		
 		return true;
 	}
@@ -290,8 +288,8 @@ public class PersonPane extends AbstractForm {
 	
 	private void initInvalidationSupport() {
 		// surname must not be empty
-		validationSupport.registerValidator(surnamesTb, true,
-				Validator.createEmptyValidator(Messages.getString("Ui.Customer.Person.Validation.MissingSurname")));
+		/*validationSupport.registerValidator(surnamesTb, true,
+				Validator.createEmptyValidator(Messages.getString("Ui.Customer.Person.Validation.MissingSurname")));*/ // TODO retry when fixed
 	}
 	
 	public Person getAddresseeFromListItems() {

@@ -14,8 +14,8 @@ import java.net.URL;
 
 import org.controlsfx.control.CheckComboBox;
 import org.controlsfx.control.CheckListView;
-import org.controlsfx.dialog.DialogStyle;
-import org.controlsfx.dialog.Dialogs;
+//import org.controlsfx.dialog.DialogStyle;
+//import org.controlsfx.dialog.Dialogs;
 import org.controlsfx.validation.ValidationResult;
 import org.controlsfx.validation.ValidationSupport;
 
@@ -216,7 +216,7 @@ public class CustomerForm extends AbstractForm {
     	tfEmail.clear();
     	tfWebsite.clear();
     	memoArea.clear();
-    	clvCustomerFlags.getCheckModel().clearSelection();
+    	clvCustomerFlags.getCheckModel().clearChecks();
     	personPane.clearForm(true);
     }
     
@@ -254,9 +254,9 @@ public class CustomerForm extends AbstractForm {
     	tfWebsite.setText(a.getWebsite());
     	memoArea.setText(a.getMemo());
     	
-    	clvCustomerFlags.getCheckModel().clearSelection();
+    	clvCustomerFlags.getCheckModel().clearChecks();
     	for (String flag : a.getFlags()) {
-    		clvCustomerFlags.getCheckModel().select(flag); // should work because Strings are immutable
+    		clvCustomerFlags.getCheckModel().check(flag); // should work because Strings are immutable
     	}
     }
     
@@ -301,23 +301,24 @@ public class CustomerForm extends AbstractForm {
     private boolean evaluateForm() {
     	
     	// invalid if ValidationSupport still has any errors
-    	if (!validationSupport.getValidationResult().getErrors().isEmpty()) {
-    		Dialogs.create()
-				.title(Messages.getString("Ui.Customer.Validation.DialogTitle"))
-				.message(Messages.getString("Ui.Customer.Validation.ValidationFailed"))
-				.style(DialogStyle.NATIVE)
-				.showWarning();
-    		System.out.println(validationSupport.getValidationResult().getErrors());
-    		return false;
-    	}
+//    	if (!validationSupport.getValidationResult().getErrors().isEmpty()) {
+//    		/*Dialogs.create()
+//				.title(Messages.getString("Ui.Customer.Validation.DialogTitle"))
+//				.message(Messages.getString("Ui.Customer.Validation.ValidationFailed"))
+//				.style(DialogStyle.NATIVE)
+//				.showWarning();*/ // TODO find alternative! Dialogs is deprecated and has been moved to OpenJFX
+//    		
+//    		System.out.println(validationSupport.getValidationResult().getErrors());
+//    		return false;
+//    	} // TODO: retry when fixed
     	
     	// person list should contain a person marked as addressee
     	if (personPane.getAddresseeFromListItems() == null) {
-    		Dialogs.create()
+    		/*Dialogs.create()
     			.title(Messages.getString("Ui.Customer.Validation.DialogTitle"))
     			.message(Messages.getString("Ui.Customer.Validation.MissingAddressee"))
     			.style(DialogStyle.NATIVE)
-    			.showWarning();
+    			.showWarning();*/
     		return false;
     	}
     	
@@ -345,9 +346,13 @@ public class CustomerForm extends AbstractForm {
     	a.setEmail(this.tfEmail.getText());
     	a.setWebsite(this.tfWebsite.getText());
     	a.setMemo(this.memoArea.getText());
-    	for (String flag : clvCustomerFlags.getCheckModel().getSelectedItems()) {
+    	
+    	a.getFlags().clear();
+    	for (String flag : clvCustomerFlags.getCheckModel().getCheckedItems()) {
+    		System.out.println(flag);
     		a.getFlags().add(flag);
     	}
+    	
     	a.setCreated(new Date(Calendar.getInstance().getTimeInMillis()));
     }
     
@@ -390,8 +395,8 @@ public class CustomerForm extends AbstractForm {
     }
     
     private void performCustomerSearch(String query) {
-    	String[] selectedFlags = new String[ccbFlagsFilter.getCheckModel().getSelectedItems().size()];
-    	ccbFlagsFilter.getCheckModel().getSelectedItems().toArray(selectedFlags);
+    	String[] selectedFlags = new String[ccbFlagsFilter.getCheckModel().getCheckedItems().size()];
+    	ccbFlagsFilter.getCheckModel().getCheckedItems().toArray(selectedFlags);
     	dataSupervisor.searchAddresses(query, selectedFlags);
     }
     
@@ -435,11 +440,11 @@ public class CustomerForm extends AbstractForm {
     	// https://bitbucket.org/controlsfx/controlsfx/issue/285/validator-support-change-resize-behavior
     	
     	// email field
-    	validationSupport.registerValidator(tfEmail, false, (Control c, String s) ->
+    	/*validationSupport.registerValidator(tfEmail, false, (Control c, String s) ->
 			ValidationResult.fromErrorIf(tfEmail,
 					Messages.getString("Ui.Customer.Validation.Email"),
-					s != null && !s.trim().equals("") && !emailRegex.matcher(s).matches())
-		);
+					s != null && !s.trim().equals("") && !emailRegex.matcher(s).matches()) // TODO: retry when fixed
+		);*/
     	
     	// TODO: finish
     	

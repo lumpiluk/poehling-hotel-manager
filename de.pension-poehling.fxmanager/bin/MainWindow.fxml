@@ -29,7 +29,7 @@
          <items>
             <SplitPane fx:id="leftPane" dividerPositions="0.5" orientation="VERTICAL" SplitPane.resizableWithParent="false">
                <items>
-                  <Accordion fx:id="leftMenu">
+                  <Accordion fx:id="leftMenu" minHeight="-Infinity" minWidth="-Infinity">
                     <panes>
                       <TitledPane fx:id="databaseTitledPane" text="%Ui.LeftMenu.Database.text">
                         <content>
