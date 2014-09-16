@@ -366,42 +366,49 @@ public class DataSupervisor {
 		@Override
 		protected Void call() throws Exception {
 			StringBuilder match = new StringBuilder(); // will be inserted at the end of SQL_ADDRESS_SEARCH
-			boolean searchingForText = false;
 			
 			// TODO: something like the following should work:
-			// Searching: SELECT * FROM addresses LEFT OUTER JOIN people ON addresses.addressee = people.person_id  WHERE addresses.address_id IN (SELECT address_fts_id FROM addresses_fts WHERE addresses_fts MATCH '- fts_flags:"| unrein |"')
+			// SELECT * FROM addresses LEFT OUTER JOIN people ON addresses.addressee = people.person_id 
+			// WHERE addresses.address_id IN (SELECT address_fts_id FROM addresses_fts WHERE addresses_fts MATCH 'lukas')
+			// AND NOT addresses.address_id IN (SELECT address_fts_id FROM addresses_fts WHERE addresses_fts MATCH 'unrein')
 			
 			// only use "WHERE" clause if there actually are any search parameters
 			if (queryIsValid() || addressSearchFlags.length > 0) {
-				match.append(" WHERE addresses.address_id IN (");
-				match.append("SELECT address_fts_id FROM addresses_fts WHERE ");
-				match.append("addresses_fts MATCH '");
+				match.append(" WHERE ");
+				final String INNER_SELECT = "(SELECT address_fts_id FROM addresses_fts WHERE "
+						+ "addresses_fts MATCH '";
 
-				if (queryIsValid()) {
+				if (queryIsValid()) { // perform text search
+					match.append("addresses.address_id IN ");
+					match.append(INNER_SELECT);
 					match.append("(fts_title:%1$s OR fts_first_names:%1$s ");
 					match.append("OR fts_surnames:%1$s OR fts_street:%1$s ");
 					match.append("OR fts_town:%1$s OR fts_zip:%1$s ");
 					match.append("OR fts_phone:%1$s OR fts_email:%1$s ");
-					match.append("OR fts_cellphone:%1$s) ");
-					searchingForText = true;
+					match.append("OR fts_cellphone:%1$s)') ");
 				}
 				
-				//for (String flag : addressSearchFlags) {
-				for (int i = 0; i < addressSearchFlags.length; i++) {
-					Flag flag = new Flag(con);
-					flag.setValue(addressSearchFlags[i]);
-					if (i > 0 || searchingForText) { // don't put "AND" in the front of the match expression if nothing comes before the "AND"
-						match.append("AND");
-					}
-					match.append("- fts_flags:\"");
-					match.append(flag.toDbString()); // TODO: ensure lower case on insertion?
-					match.append("\" ");
+				if (queryIsValid() && addressSearchFlags.length > 0) {
+					match.append("AND NOT addresses.address_id IN ");
+				} else if (addressSearchFlags.length > 0) {
+					match.append("NOT addresses.address_id IN ");
 				}
-				match.delete(match.length() - 1, match.length());
-				match.append("')");
+				
+				if (addressSearchFlags.length > 0) { // use filters
+					match.append(INNER_SELECT);
+					for (String s : addressSearchFlags) {
+						Flag flag = new Flag(con);
+						flag.setValue(s);
+						match.append("fts_flags:\"");
+						match.append(flag.toDbString()); // TODO: ensure lower case on insertion?
+						match.append("\" ");
+					}
+					match.delete(match.length() - 1, match.length());
+					match.append("')");
+				}
 			}
 			
-			String query = SQL_ADDRESS_SEARCH + " %s";
+			String query = SQL_ADDRESS_SEARCH + "%s";
 			try {
 				query = String.format(query,
 						String.format(match.toString(), addressSearchString));
