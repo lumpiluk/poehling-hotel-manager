@@ -33,7 +33,7 @@
                     <panes>
                       <TitledPane fx:id="databaseTitledPane" text="%Ui.LeftMenu.Database.text">
                         <content>
-                              <VBox layoutX="129.0" layoutY="-11.0" prefHeight="200.0" prefWidth="100.0">
+                              <VBox layoutX="129.0" layoutY="-11.0">
                                  <children>
                                     <ToggleButton fx:id="btnDbOpenCreate" maxWidth="1.7976931348623157E308" mnemonicParsing="false" selected="true" text="%Ui.LeftMenu.Database.btnDbOpenCreate">
                                        <toggleGroup>
@@ -71,7 +71,7 @@
                       </TitledPane>
                       <TitledPane fx:id="statisticsTitledPane" disable="true" prefHeight="184.0" prefWidth="246.0" text="%Ui.LeftMenu.Statistics.text">
                         <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" />
+                          <AnchorPane />
                         </content>
                       </TitledPane>
                     </panes>

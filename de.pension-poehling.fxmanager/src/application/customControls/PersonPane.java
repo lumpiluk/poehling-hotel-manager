@@ -203,6 +203,7 @@ public class PersonPane extends AbstractForm {
 	public void initData(DataSupervisor dataSupervisor) {
 		this.dataSupervisor = dataSupervisor;
 
+		getTitleCb().setItems(dataSupervisor.getTitlesObservable());
 		initPeopleTable();
 		initInvalidationSupport();
 		setCurrentMode(Mode.DISPLAY);

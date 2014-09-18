@@ -106,9 +106,7 @@ public class SimpleTablesView extends AbstractControl {
 					// make toggleButtons persistent within group: don't allow no button to be selected!
 			if (newVal == null) {
 				oldVal.setSelected(true);
-				return;
-			} else if (oldVal == null || oldVal == newVal) {
-				return;
+				//return;
 			}
 			
 			if (newVal == tbFlags) {
@@ -122,7 +120,8 @@ public class SimpleTablesView extends AbstractControl {
 			}
 			
 		});
-
+		toggleGroup.selectToggle(tbTitles);
+		
 		changeMode(Mode.DISPLAY);
 	}
 	

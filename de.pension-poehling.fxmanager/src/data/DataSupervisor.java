@@ -367,7 +367,7 @@ public class DataSupervisor {
 		protected Void call() throws Exception {
 			StringBuilder match = new StringBuilder(); // will be inserted at the end of SQL_ADDRESS_SEARCH
 			
-			// TODO: something like the following should work:
+			// will produce query of the following form:
 			// SELECT * FROM addresses LEFT OUTER JOIN people ON addresses.addressee = people.person_id 
 			// WHERE addresses.address_id IN (SELECT address_fts_id FROM addresses_fts WHERE addresses_fts MATCH 'lukas')
 			// AND NOT addresses.address_id IN (SELECT address_fts_id FROM addresses_fts WHERE addresses_fts MATCH 'unrein')
