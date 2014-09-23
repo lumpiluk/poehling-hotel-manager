@@ -95,6 +95,12 @@ public class Invoice extends HotelData {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public String[] getPropertyIdentifiers() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 	
 	

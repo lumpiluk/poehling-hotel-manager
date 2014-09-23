@@ -69,14 +69,13 @@ public class PersonPane extends AbstractForm {
 	public class PersonItem {
 		private Person person;
 		private BooleanProperty marked = new SimpleBooleanProperty(false);
-		private ReadOnlyStringWrapper name = new ReadOnlyStringWrapper();
 		
 		public PersonItem(Person p, boolean addressee) {
 			this.person = p;
 			marked.set(addressee);
 			marked.addListener((event) -> {
 				if (marked.get()) {
-					// ensure only one person in the table is marked as listener
+					// ensure only one person in the table is marked as addressee
 					for (PersonItem pi : getPeopleTable().getItems()) {
 						if (pi != this && pi.markedProperty().get()) {
 							pi.markedProperty().set(false);
@@ -408,7 +407,7 @@ public class PersonPane extends AbstractForm {
     	getPeopleTable().getColumns().clear();
     	getPeopleTable().getColumns().addAll(markerCol, firstNamesCol, surnamesCol);
     	getPeopleTable().getSelectionModel()
-	        .selectedItemProperty().addListener((observable, oldVal, newVal) -> {
+	    	.selectedItemProperty().addListener((observable, oldVal, newVal) -> {
 	        	boolean isAddressee = false;
 	        	if (newVal != null) {
 	        		this.loadPersonIntoForm(newVal.getPerson());

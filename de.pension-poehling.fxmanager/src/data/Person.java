@@ -239,7 +239,8 @@ public class Person extends HotelData implements Cloneable {
 		p.setTitle(rs.getString("title"));
 	}
 	
-	public void prepareDataFromResultSet(final ResultSet rs) throws SQLException {
+	public void prepareDataFromResultSet(final ResultSet rs)
+			throws SQLException {
 		Person.prepareDataFromResultSet(this, rs);
 	}
 	
@@ -384,6 +385,11 @@ public class Person extends HotelData implements Cloneable {
 		try(Statement stmt = con.createStatement()) {
 			stmt.executeUpdate(SQL_CREATE);
 		}
+	}
+
+	@Override public String[] getPropertyIdentifiers() {
+		String[] idents = { "title", "firstNames", "surnames", "foodMemo" };
+		return idents;
 	}
 
 }

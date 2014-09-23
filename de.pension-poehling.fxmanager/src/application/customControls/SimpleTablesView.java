@@ -103,10 +103,10 @@ public class SimpleTablesView extends AbstractControl {
 
 		toggleGroup.selectedToggleProperty().addListener(
 				(observable, oldVal, newVal) -> {
-					// make toggleButtons persistent within group: don't allow no button to be selected!
+			// make toggleButtons persistent within group: don't allow no button to be selected!
 			if (newVal == null) {
 				oldVal.setSelected(true);
-				//return;
+				return;
 			}
 			
 			if (newVal == tbFlags) {
@@ -120,7 +120,8 @@ public class SimpleTablesView extends AbstractControl {
 			}
 			
 		});
-		toggleGroup.selectToggle(tbTitles);
+		
+		getLvItems().setItems(dataSupervisor.getTitlesObservable());
 		
 		changeMode(Mode.DISPLAY);
 	}

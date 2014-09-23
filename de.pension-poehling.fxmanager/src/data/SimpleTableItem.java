@@ -117,4 +117,10 @@ public class SimpleTableItem extends HotelData {
 		}
 	}
 
+	/** {@inheritDoc} */
+	@Override public String[] getPropertyIdentifiers() {
+		String[] idents = { "value" };
+		return idents;
+	}
+
 }

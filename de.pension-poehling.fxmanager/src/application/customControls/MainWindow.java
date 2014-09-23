@@ -73,6 +73,9 @@ public class MainWindow extends AbstractControl {
     
     @FXML // fx:id="btnStaticData"
     private ToggleButton btnStaticData; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="btnRooms"
+    private ToggleButton btnRooms; // Value injected by FXMLLoader
 
     @FXML // fx:id="leftMenu"
     private Accordion leftMenu; // Value injected by FXMLLoader
@@ -116,6 +119,8 @@ public class MainWindow extends AbstractControl {
 				hideDbConnectionView();
 			} else if (oldValue == btnStaticData) {
 				hideSimpleTablesView();
+			} else if (oldValue == btnRooms) {
+				hideRoomsView();
 			}
 			
 			if (newValue == btnCalendar && !appBody.getItems().contains(calendarPane)) {
@@ -130,6 +135,8 @@ public class MainWindow extends AbstractControl {
 				showDbConnectionView();
 			} else if (newValue == btnStaticData) {
 				showSimpleTablesView();
+			} else if (newValue == btnRooms) {
+				showRoomsView();
 			}
 			
 		}
@@ -147,6 +154,8 @@ public class MainWindow extends AbstractControl {
     private DbConPane dbConnectionPane;
     
     private SimpleTablesView simpleTablesView;
+    
+    private RoomsView roomsView;
     
     private DataSupervisor dataSupervisor;
     
@@ -172,6 +181,10 @@ public class MainWindow extends AbstractControl {
     
     private void hideSimpleTablesView() {
     	appBody.getItems().remove(simpleTablesView);
+    }
+    
+    private void hideRoomsView() {
+    	appBody.getItems().remove(roomsView);
     }
     
     private void showCalendarView() {
@@ -211,6 +224,13 @@ public class MainWindow extends AbstractControl {
     	SplitPane.setResizableWithParent(simpleTablesView, true);
     }
     
+    private void showRoomsView() {
+    	appBody.setDividerPositions(0.0);
+    	appBody.getItems().add(1, roomsView);
+    	SplitPane.setResizableWithParent(leftPane, false);
+    	SplitPane.setResizableWithParent(roomsView, true);
+    }
+    
     /**
      * Enables all controls that have initially been disabled with the intention
      * to remain so until a database connection will have been established.
@@ -219,6 +239,7 @@ public class MainWindow extends AbstractControl {
     	bookingsTitledPane.setDisable(false);
     	statisticsTitledPane.setDisable(false);
     	btnStaticData.setDisable(false);
+    	btnRooms.setDisable(false);
     }
     
     public void initData(DataSupervisor dataSupervisor) {
@@ -231,6 +252,9 @@ public class MainWindow extends AbstractControl {
 	        
 	        simpleTablesView = (SimpleTablesView) AbstractControl.getInstance(SimpleTablesView.class);
 	        simpleTablesView.initData(dataSupervisor);
+	        
+	        roomsView = (RoomsView) AbstractControl.getInstance(RoomsView.class);
+	        roomsView.initData(dataSupervisor);
         	
         	calendarPane = (CalendarPane) AbstractControl.getInstance(CalendarPane.class);
 
@@ -266,6 +290,7 @@ public class MainWindow extends AbstractControl {
         assert bookingsTitledPane != null : "fx:id=\"bookingsTitledPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert databaseTitledPane != null : "fx:id=\"databaseTitledPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert statisticsTitledPane != null : "fx:id=\"statisticsTitledPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
+        assert btnRooms != null : "fx:id=\"btnRooms\" was not injected: check your FXML file 'MainWindow.fxml'.";
     }
     
 }

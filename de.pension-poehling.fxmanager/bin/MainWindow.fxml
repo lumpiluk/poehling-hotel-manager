@@ -41,6 +41,7 @@
                                        </toggleGroup>
                                     </ToggleButton>
                                     <ToggleButton fx:id="btnStaticData" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="%Ui.LeftMenu.Database.btnStaticData" toggleGroup="$leftMenuGroup" />
+                                    <ToggleButton fx:id="btnRooms" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="%Ui.LeftMenu.Database.btnRooms" toggleGroup="$leftMenuGroup" />
                                  </children>
                               </VBox>
                         </content>
@@ -69,7 +70,7 @@
                               </VBox>
                            </content>
                       </TitledPane>
-                      <TitledPane fx:id="statisticsTitledPane" disable="true" prefHeight="184.0" prefWidth="246.0" text="%Ui.LeftMenu.Statistics.text">
+                      <TitledPane fx:id="statisticsTitledPane" disable="true" text="%Ui.LeftMenu.Statistics.text">
                         <content>
                           <AnchorPane />
                         </content>

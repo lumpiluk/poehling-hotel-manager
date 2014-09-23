@@ -629,5 +629,13 @@ public class Address extends HotelData {
 			fullTextSearchTableCreated = true;
 		}
 	}
+
+	@Override
+	public String[] getPropertyIdentifiers() {
+		String[] idents = { "street", "shortCountry", "zipCode", "town", "memo",
+				"state", "postbox", "postboxZip", "postboxTown", "phone", "fax",
+				"email", "website", "mobile" };
+		return idents;
+	}
 	
 }

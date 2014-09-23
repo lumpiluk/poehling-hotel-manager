@@ -108,6 +108,9 @@ public class DataSupervisor {
 	/** List of possible titles a person can have. */
 	private final ObservableList<String> titles = FXCollections.observableArrayList();
 	
+	/** List containing all rooms. */
+	private final ObservableList<Room> rooms = FXCollections.observableArrayList();
+	
 	// Address search related
 	/** Search result from searching in addresses */
 	private final ObservableList<Address> addressesSearchResult = FXCollections.observableArrayList();
@@ -149,6 +152,7 @@ public class DataSupervisor {
 		initSimpleTableItemList(states, State.class, new SimpleTableItemListListener(State.class));
 		initSimpleTableItemList(titles, Title.class, new SimpleTableItemListListener(Title.class));
 		initSimpleTableItemList(flags, Flag.class, new SimpleTableItemListListener(Flag.class));
+		initRoomList();
 		initVirtualTables();
 	}
 	
@@ -259,6 +263,32 @@ public class DataSupervisor {
 		
 	}
 	
+	private void initRoomList() throws SQLException {
+		final String SQL_QUERY = Room.SQL_SELECT_ALL;
+		try (ResultSet rs = con.createStatement().executeQuery(SQL_QUERY)) {
+			while (rs.next()) {
+				Room r = new Room(con);
+				r.prepareDataFromResultSet(rs);
+				rooms.add(r);
+			}
+		}
+		
+		rooms.addListener((ListChangeListener.Change<? extends Room> c) -> {
+			while (c.next()) {
+				if (c.wasAdded()) {
+					for (Room r : c.getAddedSubList()) {
+						insertConcurrently(r);
+					}
+				}
+				if (c.wasRemoved()) {
+					for (Room r : c.getRemoved()) {
+						deleteConcurrently(r);
+					}
+				}
+			}
+		});
+	}
+	
 	/** 
 	 * Listens to changes in a list of simple table items, 
 	 * adds to or removes from db accordingly. 
@@ -269,7 +299,7 @@ public class DataSupervisor {
 			this.stiClass = c;
 		}
 		@Override public void onChanged(
-				javafx.collections.ListChangeListener.Change<? extends String> change) {
+				ListChangeListener.Change<? extends String> change) {
 			try {
 				while (change.next()) {
 					if (change.wasAdded()) {
@@ -350,6 +380,11 @@ public class DataSupervisor {
 		return countries;
 	}
 	
+	/** @return Observable list of all rooms. */
+	public ObservableList<Room> getRoomsObservable() {
+		return rooms;
+	}
+	
 	private boolean queryIsValid() {
 		return addressSearchString != null && !addressSearchString.equals("")
 				&& !addressSearchString.equals("*");
@@ -389,9 +424,9 @@ public class DataSupervisor {
 				}
 				
 				if (queryIsValid() && addressSearchFlags.length > 0) {
-					match.append("AND NOT addresses.address_id IN ");
+					match.append("AND addresses.address_id IN "); // if you really want a filter, insert "NOT" before "addresses.address_id"
 				} else if (addressSearchFlags.length > 0) {
-					match.append("NOT addresses.address_id IN ");
+					match.append("addresses.address_id IN ");
 				}
 				
 				if (addressSearchFlags.length > 0) { // use filters

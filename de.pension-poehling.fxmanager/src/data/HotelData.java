@@ -21,10 +21,14 @@ package data;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import javafx.beans.property.Property;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.cell.PropertyValueFactory;
 import util.Messages;
 
 /**
@@ -49,6 +53,26 @@ public abstract class HotelData {
 	 */
 	public void setConnection(Connection con) {
 		this.con = con;
+	}
+	
+	/**
+	 * Used in createTableColumns for creating PropertyValueFactory objects.
+	 * @return a collection containing all the properties of this class that
+	 * should be displayable in a table.
+	 */
+	public abstract String[] getPropertyIdentifiers();
+	
+	public final Iterable<TableColumn<?, String>> createTableColumns() {
+		List<TableColumn<?, String>> result =
+				new ArrayList<TableColumn<?, String>>();
+		
+		for (String propertyIdent : getPropertyIdentifiers()) {
+			TableColumn<Object, String> col = new TableColumn<Object, String>();
+			col.setCellValueFactory(new PropertyValueFactory<Object, String>(propertyIdent));
+			result.add(col);
+		}
+		
+		return result;
 	}
 	
 	/**
